@@ -8,7 +8,6 @@ import net.myplayplanet.services.logger.sinks.MySQLSink;
 public class LoggerService extends AbstractService {
     @Override
     public void init() {
-        System.out.println("init lol");
         Log.initialize(new MySQLSink());
     }
 

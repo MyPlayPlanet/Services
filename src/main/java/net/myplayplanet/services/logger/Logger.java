@@ -39,12 +39,15 @@ public class Logger {
             logger.debug(logEntry.getMessageAfterFieldExtraction(), args);
             break;
           case INFO:
+            logger.info(logEntry.getMessageAfterFieldExtraction(), ex);
             logger.info(logEntry.getMessageAfterFieldExtraction(), args);
             break;
           case WARNING:
+            logger.warn(logEntry.getMessageAfterFieldExtraction(), ex);
             logger.warn(logEntry.getMessageAfterFieldExtraction(), args);
             break;
           case ERROR:
+            logger.error(logEntry.getMessageAfterFieldExtraction(), ex);
             logger.error(logEntry.getMessageAfterFieldExtraction(), args);
             break;
         }

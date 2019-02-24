@@ -1,8 +1,12 @@
 package example;
 
 import net.myplayplanet.services.ServiceCluster;
+import net.myplayplanet.services.logger.Log;
+import net.myplayplanet.services.logger.sinks.MySQLEntry;
 
 import java.io.File;
+import java.util.Date;
+import java.util.List;
 
 public class Main {
 

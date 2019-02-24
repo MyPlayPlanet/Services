@@ -1,10 +1,10 @@
-package sieg;
+package example;
 
 import net.myplayplanet.services.ServiceCluster;
 
 import java.io.File;
 
-public class Heil {
+public class Main {
 
     public static void main(String[] args) {
         ServiceCluster.startupCluster(new File("D:\\temp\\mpp"));

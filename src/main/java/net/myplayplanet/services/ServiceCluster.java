@@ -26,9 +26,6 @@ public class ServiceCluster {
 
         IServiceList.addAll(services);
         if (initiate) {
-            services.forEach(abstractService -> {
-                abstractService.init();
-            });
             services.forEach(AbstractService::init);
         }
     }
@@ -37,10 +34,14 @@ public class ServiceCluster {
         addServices(false, IServices);
     }
 
-    public static void initiateCluster(File configPath) {
+    public static void startupCluster(File configPath) {
         addServices(true, new LoggerService());
         addServices(true, new ConfigService(configPath));
         addServices(true, new ConnectionService());
+    }
+
+    public static void shutdownCluster() {
+        IServiceList.forEach(AbstractService::disable);
     }
 
     /**

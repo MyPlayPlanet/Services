@@ -45,7 +45,7 @@ public class MySQLSink implements ISink {
 
     private void save(LogEntry entry, Connection con) {
         UUID uuid = createAndInsertLogEntry(con, entry.getDate(), entry.getLevel(),
-                entry.getLogger().getName(), entry.getMessage());
+                entry.getLogger().getName(), entry.getLogMessage());
 
         entry.getContent().forEach((fieldName, value) -> insertContent(con, fieldName, uuid, value));
         try {
@@ -64,8 +64,8 @@ public class MySQLSink implements ISink {
             statement.setString(2, entryId.toString());
             statement.setString(3, fieldName);
             statement.setString(4, content);
-            statement.closeOnCompletion();
             statement.executeUpdate();
+            statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -83,8 +83,8 @@ public class MySQLSink implements ISink {
             statement.setString(3, level.name());
             statement.setString(4, originClass);
             statement.setString(5, message);
-            statement.closeOnCompletion();
             statement.executeUpdate();
+            statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

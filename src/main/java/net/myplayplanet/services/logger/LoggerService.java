@@ -13,6 +13,6 @@ public class LoggerService extends AbstractService {
 
     @Override
     public void disable() {
-        Log.getLog(log).info("shutting down {service}...", "LoggerService");
+        Log.getLog(log).info("Shutting down {service}...", "LoggerService");
     }
 }

@@ -33,8 +33,6 @@ public class ConnectionManager {
     private ConnectionSettings mysqlSetting;
     private HikariDataSource mysqlDataSource;
 
-    //TODO: Logger
-
     protected ConnectionManager(ConnectionSettings redisSetting, ConnectionSettings mysqlSetting) {
         Log.getLog(log).info("creating ConnectionManager.");
         instance = this;

@@ -30,6 +30,7 @@ public class ConfigService extends AbstractService {
 
     @Override
     public void init() {
+        Log.getLog(log).info("Starting {service}...", "ConfigService");
         this.configManager = new ConfigManager(path);
 
         Properties redisProperties = new Properties();
@@ -61,7 +62,7 @@ public class ConfigService extends AbstractService {
 
     @Override
     public void disable() {
-        Log.getLog(log).info("shutting down {service}...", "ConfigService");
+        Log.getLog(log).info("Shutting down {service}...", "ConfigService");
     }
 
     public ConnectionSettings getMySQLSettings(){

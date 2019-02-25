@@ -1,6 +1,8 @@
 package net.myplayplanet.services;
 
 import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.services.cache.CachingProvider;
+import net.myplayplanet.services.cache.CachingService;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.connection.ConnectionService;
 import net.myplayplanet.services.exeption.AlreadyInitializedException;
@@ -38,6 +40,7 @@ public class ServiceCluster {
         addServices(true, new LoggerService());
         addServices(true, new ConfigService(configPath));
         addServices(true, new ConnectionService());
+        addServices(true, new CachingService());
     }
 
     public static void shutdownCluster() {

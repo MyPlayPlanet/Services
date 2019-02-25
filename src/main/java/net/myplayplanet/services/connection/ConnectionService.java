@@ -10,11 +10,12 @@ import net.myplayplanet.services.logger.Log;
 public class ConnectionService extends AbstractService {
     @Override
     public void init() {
+        Log.getLog(log).info("Starting {service}...", "ConnectionService");
         new ConnectionManager(ServiceCluster.get(ConfigService.class).getRedisSettings(), ServiceCluster.get(ConfigService.class).getMySQLSettings());
     }
 
     @Override
     public void disable() {
-        Log.getLog(log).info("shutting down {service}...", "ConnectionService");
+        Log.getLog(log).info("Shutting down {service}...", "ConnectionService");
     }
 }

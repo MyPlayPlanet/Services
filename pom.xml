@@ -4,6 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <artifactId>MyPlayPlanet</artifactId>
+        <groupId>net.myplayplanet</groupId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
     <groupId>net.myplayplanet</groupId>
     <artifactId>MyPlayPlanet-Services</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -20,24 +26,15 @@
             </plugin>
         </plugins>
     </build>
-    
+
+    <repositories>
+        <repository>
+            <id>pp-public</id>
+            <url>http://nexus.myplayplanet.net/repository/public/</url>
+        </repository>
+    </repositories>
+
     <dependencies>
-        <!-- guava 25.0-->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>25.0-jre</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- lombok 1.16.20 -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.20</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Lettuce 5.0.4 RELEASE -->
         <dependency>
             <groupId>io.lettuce</groupId>

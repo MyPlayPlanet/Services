@@ -15,24 +15,23 @@ import net.myplayplanet.services.logger.Log;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 @Slf4j
 public class ConnectionManager {
     @Getter
     private static ConnectionManager instance;
     @Getter
-    private StatefulRedisConnection<byte[], byte[]> redisConnection;
+    private StatefulRedisConnection<byte[], byte[]> byteConnection;
     @Getter
-    private StatefulRedisPubSubConnection<byte[], byte[]> redisPubSubConnection;
+    private StatefulRedisPubSubConnection<byte[], byte[]> bytePubSubConnection;
     @Getter
-    private StatefulRedisConnection<String, String> redisSConnection;
+    private StatefulRedisConnection<String, String> stringConnection;
     @Getter
-    private StatefulRedisPubSubConnection<String, String> redisSPubSubConnection;
+    private StatefulRedisPubSubConnection<String, String> stringPubSubConnection;
     private ConnectionSettings redisSetting;
     private ConnectionSettings mysqlSetting;
     private HikariDataSource mysqlDataSource;
-
-    //TODO: Logger
 
     protected ConnectionManager(ConnectionSettings redisSetting, ConnectionSettings mysqlSetting) {
         Log.getLog(log).info("creating ConnectionManager.");
@@ -40,7 +39,12 @@ public class ConnectionManager {
         this.redisSetting = redisSetting;
         this.mysqlSetting = mysqlSetting;
 
-        this.createRedisConnection();
+        try {
+            this.createRedisConnection();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        
         this.createMySQLClient();
         Log.getLog(log).info("created ConnectionManager.");
     }
@@ -67,7 +71,7 @@ public class ConnectionManager {
         Log.getLog(log).info("created MySQL Client!");
     }
 
-    private void createRedisConnection() {
+    private void createRedisConnection() throws ExecutionException, InterruptedException {
         Log.getLog(log).debug("creating Redis Connection with hostname  {hostname} port {port} and database {datebase}.",
                 this.redisSetting.getHostname(), this.redisSetting.getPort(), this.redisSetting.getDatabase());
 
@@ -79,12 +83,17 @@ public class ConnectionManager {
         }
 
         RedisClient redisClient = RedisClient.create(redisUri);
-        RedisClient redisClient2 = RedisClient.create(redisUri);
 
-        this.redisConnection = redisClient.connect(new ByteArrayCodec());
-        this.redisPubSubConnection = redisClient.connectPubSub(new ByteArrayCodec());
-        this.redisSConnection = redisClient2.connect(new StringCodec());
-        this.redisSPubSubConnection = redisClient2.connectPubSub(new StringCodec());
+        this.byteConnection = redisClient.connect(new ByteArrayCodec());
+        this.bytePubSubConnection = redisClient.connectPubSub(new ByteArrayCodec());
+        this.stringConnection = redisClient.connect(new StringCodec());
+        this.stringPubSubConnection = redisClient.connectPubSub(new StringCodec());
+
+        Log.getLog(log).info("Testing Byte Connection: {ping}", this.byteConnection.async().ping().get());
+        Log.getLog(log).info("Testing BytePubSub Connection: {ping}", this.bytePubSubConnection.async().ping().get());
+        Log.getLog(log).info("Testing String Connection: {ping}", this.stringConnection.async().ping().get());
+        Log.getLog(log).info("Testing StringPubSub Connection: {ping}", this.stringPubSubConnection.async().ping().get());
+
         Log.getLog(log).info("created Redis Connection!");
     }
 

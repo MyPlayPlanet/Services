@@ -1,5 +1,8 @@
 package net.myplayplanet.services.logger.sinks;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NonNull;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.logger.LogEntry;
@@ -7,10 +10,9 @@ import net.myplayplanet.services.logger.LogLevel;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.UUID;
+import java.util.*;
 
 public class MySQLSink implements ISink {
     private HashSet<LogEntry> entrys = new HashSet<>();
@@ -43,9 +45,64 @@ public class MySQLSink implements ISink {
         }
     }
 
+    @Override
+    public List<Object> getLogEntrys(Date from, Date to) {
+        Connection con = ConnectionManager.getInstance().getMySQLConnection();
+        List<Object> entrys = new ArrayList<>();
+
+        System.out.println("date1: " + from.toString());
+        System.out.println("date2: " + to.toString());
+
+
+        Calendar fromCalender = Calendar.getInstance();
+        fromCalender.setTime(from);
+        fromCalender.add(Calendar.DATE, -1);
+        Date before = fromCalender.getTime();
+
+        Calendar toCalender = Calendar.getInstance();
+        toCalender.setTime(to);
+        toCalender.add(Calendar.DATE, +1);
+        Date next = toCalender.getTime();
+
+        try {
+            PreparedStatement statement = con.prepareStatement("SELECT * FROM `log_entry` WHERE entry_time >= ? AND entry_time <= ?");
+            statement.setDate(1, new java.sql.Date(before.getTime()));
+            statement.setDate(2, new java.sql.Date(next.getTime()));
+            ResultSet result = statement.executeQuery();
+
+            while (result.next())  {
+                String id = result.getString("id");
+                Date date = result.getDate("entry_time");
+                LogLevel level = LogLevel.valueOf(result.getString("log_level"));
+                String className = result.getString("origin_class");
+                String message = result.getString("message");
+
+                entrys.add(new MySQLEntry.MySQLEntryBuilder()
+                        .id(id)
+                        .date(date)
+                        .level(level)
+                        .className(className)
+                        .message(message)
+                        .build());
+            }
+            System.out.println("statement: " + statement.toString());
+            statement.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return entrys;
+    }
+
     private void save(LogEntry entry, Connection con) {
         UUID uuid = createAndInsertLogEntry(con, entry.getDate(), entry.getLevel(),
-                entry.getLogger().getName(), entry.getMessage());
+                entry.getLogger().getName(), entry.getLogMessage());
 
         entry.getContent().forEach((fieldName, value) -> insertContent(con, fieldName, uuid, value));
         try {
@@ -64,8 +121,8 @@ public class MySQLSink implements ISink {
             statement.setString(2, entryId.toString());
             statement.setString(3, fieldName);
             statement.setString(4, content);
-            statement.closeOnCompletion();
             statement.executeUpdate();
+            statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -83,12 +140,15 @@ public class MySQLSink implements ISink {
             statement.setString(3, level.name());
             statement.setString(4, originClass);
             statement.setString(5, message);
-            statement.closeOnCompletion();
             statement.executeUpdate();
+            statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
         }
         return uuid;
     }
+
+
 }
+

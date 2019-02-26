@@ -1,6 +1,5 @@
 package net.myplayplanet.services.logger;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +11,7 @@ import org.slf4j.Logger;
 public class Log {
   @Getter
   private static boolean configSet = false;
-  @Getter(value = AccessLevel.PACKAGE)
+  @Getter
   @NonNull
   private static ISink sink;
 

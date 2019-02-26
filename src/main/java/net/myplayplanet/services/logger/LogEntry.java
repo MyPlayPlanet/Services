@@ -26,6 +26,7 @@ public class LogEntry {
     private HashMap<String, String> content;
     private ArrayList<String> fields;
     private String messageAfterFieldExtraction;
+    private String logMessage;
 
     public LogEntry(Throwable ex, LogLevel level, String message, Logger logger, Date date, Object... args) {
         this.ex = ex;
@@ -55,8 +56,9 @@ public class LogEntry {
 
         this.content = new HashMap<>();
 
+        this.logMessage = message;
         for (int i = 0; i < fields.size(); i++) {
-            message = message.replaceFirst(
+            this.logMessage = this.logMessage.replaceFirst(
                     Pattern.quote("{"+fields.get(i)+ "}"), "\"" + args[i].toString() + "\"");
         }
 

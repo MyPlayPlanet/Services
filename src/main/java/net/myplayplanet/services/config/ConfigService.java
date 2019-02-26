@@ -2,6 +2,7 @@ package net.myplayplanet.services.config;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.AbstractService;
@@ -17,17 +18,19 @@ import java.util.Properties;
 @Slf4j
 public class ConfigService extends AbstractService {
 
-    /**
-     * Needs to be set before running Init
-     */
+    @NonNull
     private File path;
     @Getter(AccessLevel.PROTECTED)
     @Setter(AccessLevel.PROTECTED)
     protected ConfigManager configManager;
 
+    public ConfigService(File configPath) {
+        this.path = configPath;
+    }
+
     @Override
     public void init() {
-        validate(path == null, "Path needs to be set before Initializing ConfigService!");
+        Log.getLog(log).info("Starting {service}...", "ConfigService");
         this.configManager = new ConfigManager(path);
 
         Properties redisProperties = new Properties();
@@ -53,8 +56,13 @@ public class ConfigService extends AbstractService {
                 Log.getLog(log).info("created setting {setting}" , "mysql-settings");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.getLog(log).error(e, "error setting properties. {exceptionMessage} " + e.getMessage());
         }
+    }
+
+    @Override
+    public void disable() {
+        Log.getLog(log).info("Shutting down {service}...", "ConfigService");
     }
 
     public ConnectionSettings getMySQLSettings(){
@@ -62,11 +70,5 @@ public class ConfigService extends AbstractService {
     }
     public ConnectionSettings getRedisSettings(){
         return this.getConfigManager().getConnectionSettings("redis-settings");
-    }
-
-    private static void validate(boolean expression, String message){
-        if(expression){
-            Log.getLog(log).error(new IllegalArgumentException(message), "error at config Service! {exceptionMessage}", message);
-        }
     }
 }

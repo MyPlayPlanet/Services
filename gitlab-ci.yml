@@ -1,0 +1,52 @@
+image: maven:latest
+
+variables:
+  MAVEN_CLI_OPTS: "-s settings.xml --batch-mode"
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+
+cache:
+  paths:
+    - .m2/repository/
+    - target/
+  key: "$CI_PIPELINE_ID"
+  untracked: true
+
+stages:
+  - build
+  - test
+  - deploy
+
+build:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS compile -P ci-snapshot,attach-javadocs,attach-sources
+
+test:
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS test -P ci-snapshot,attach-javadocs,attach-sources
+
+deploy-snapshot:
+  stage: deploy
+  script:
+    - mvn $MAVEN_CLI_OPTS deploy -P ci-snapshot,deploy-snapshot,attach-javadocs,attach-sources
+  only:
+    - develop
+    - development
+  artifacts:
+    when: on_success
+    expire_in: 1 week
+    paths:
+      - target/*.jar
+
+deploy-release:
+  stage: deploy
+  script:
+    - mvn $MAVEN_CLI_OPTS deploy -P ci-release,deploy-release,attach-javadocs,attach-sources
+  only:
+    - master
+  artifacts:
+    when: on_success
+    expire_in: 1 month
+    paths:
+      - target/*.jar

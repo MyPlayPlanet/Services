@@ -14,9 +14,12 @@ import java.util.Properties;
 @Slf4j
 public class ConfigManager {
 
+    @Getter(AccessLevel.PUBLIC)
+    private static ConfigManager instance;
     private File path;
 
     public ConfigManager(File path) {
+        instance = this;
         Log.getLog(log).debug("creating Config Manager on File {path}", path.getPath());
         this.path = path;
     }

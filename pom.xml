@@ -10,10 +10,10 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-
     <groupId>net.myplayplanet</groupId>
     <artifactId>MyPlayPlanet-Services</artifactId>
     <version>1.0-SNAPSHOT</version>
+
     <build>
         <plugins>
             <plugin>
@@ -24,24 +24,29 @@
                     <target>8</target>
                 </configuration>
             </plugin>
+            <plugin> 
+               <groupId>org.apache.maven.plugins</groupId> 
+               <artifactId>maven-javadoc-plugin</artifactId> 
+               <configuration> 
+               <source>8</source> 
+               </configuration> 
+            </plugin> 
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>pp-public</id>
+            <url>http://nexus.myplayplanet.net/repository/public/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <!-- guava 25.0-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>25.0-jre</version>
             <scope>compile</scope>
-        </dependency>
-
-        <!-- lombok 1.16.20 -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.20</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Lettuce 5.0.4 RELEASE -->

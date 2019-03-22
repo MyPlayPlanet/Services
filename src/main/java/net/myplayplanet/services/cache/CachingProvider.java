@@ -8,6 +8,7 @@ import net.myplayplanet.services.logger.Log;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -24,8 +25,8 @@ public class CachingProvider {
         instance = this;
     }
 
-    public Cache getCache(String name) {
-        HashMap<UUID, CacheObject> cacheMap = new HashMap<>();
+    public <T extends Serializable> Cache<T> getCache(String name) {
+        HashMap<UUID, CacheObject<T>> cacheMap = new HashMap<>();
 
         try {
             Map<byte[], byte[]> byteCache = ConnectionManager.getInstance().getByteConnection().async().hgetall(name.getBytes()).get();
@@ -36,7 +37,7 @@ public class CachingProvider {
             Log.getLog(log).error(e, "Error while getting Cache {cache}", name);
         }
 
-        Cache cache = new Cache(name);
+        Cache<T> cache = new Cache(name);
         cache.getCachedObjects().putAll(cacheMap);
 
         return cache;

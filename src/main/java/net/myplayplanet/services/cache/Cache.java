@@ -10,25 +10,26 @@ import org.apache.commons.lang3.SerializationUtils;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
 
 @Slf4j
-public class Cache {
+public class Cache<T extends Serializable> {
 
     private String cacheName;
     @Getter(AccessLevel.PROTECTED)
-    private HashMap<UUID, CacheObject> cachedObjects;
+    private HashMap<UUID, CacheObject<T>> cachedObjects;
 
     public Cache(String name) {
         this.cacheName = name;
         this.cachedObjects = new HashMap<>();
     }
 
-    public Collection<CacheObject> getCacheObjects(){
+    public Collection<CacheObject<T>> getCacheObjects(){
         this.updateLocal();
         return cachedObjects.values();
     }
 
-    public CacheObject add(Serializable object) {
+    public CacheObject add(T object) {
         UUID cacheObjectID = UUID.randomUUID();
         CacheObject cacheObject = new CacheObject(cacheObjectID, SerializationUtils.serialize(object));
         this.updateRemote(cacheObject);
@@ -46,24 +47,52 @@ public class Cache {
     /**
      * Don't use this in an loop
      */
-    public <T> T getObject(UUID cacheObjectID) throws ConcurrentModificationException {
+    public T getObject(UUID cacheObjectID) throws ConcurrentModificationException {
         return SerializationUtils.deserialize(this.getCacheObject(cacheObjectID).getData());
     }
 
-    public CacheObject getCacheObject(UUID objectID) {
+    public List<T> getObjects() {
+        List<T> output = new ArrayList<>();
+        for (CacheObject<T> cacheObject : getCacheObjects()) {
+            output.add(cacheObject.toType());
+        }
+        return output;
+    }
+
+    public HashMap<UUID, T> getObjectMap() {
+        HashMap<UUID, T> output = new HashMap<>();
+        for (CacheObject<T> cacheObject : getCacheObjects()) {
+            output.put(cacheObject.getCachedObjectID(), cacheObject.toType());
+        }
+        return output;
+    }
+
+    private static <K, V> Stream<K> keys(Map<K, V> map, V value) {
+        return map
+                .entrySet()
+                .stream()
+                .filter(entry -> value.equals(entry.getValue()))
+                .map(Map.Entry::getKey);
+    }
+
+    public UUID getCacheUuidFromObject(T t) {
+        return keys(getObjectMap(), t).findFirst().orElse(null);
+    }
+
+    public CacheObject<T> getCacheObject(UUID objectID) {
         this.updateLocal();
         return this.cachedObjects.get(objectID);
     }
 
     private void updateLocal() {
         this.cachedObjects.clear();
-        HashMap<UUID, CacheObject> cacheMap = new HashMap<>();
+        HashMap<UUID, CacheObject<T>> cacheMap = new HashMap<>();
 
         try {
             Map<byte[], byte[]> byteCache = ConnectionManager.getInstance().getByteConnection().async().hgetall(this.cacheName.getBytes()).get();
             byteCache.forEach((id, object) -> {
                 UUID uuid = SerializationUtils.deserialize(id);
-                CacheObject cacheObject = SerializationUtils.deserialize(object);
+                CacheObject<T> cacheObject = SerializationUtils.deserialize(object);
                 System.out.println(uuid + " " + SerializationUtils.deserialize(cacheObject.getData()));
                 cacheMap.put(SerializationUtils.deserialize(id), cacheObject);
             });

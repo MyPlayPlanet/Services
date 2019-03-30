@@ -2,6 +2,7 @@ package net.myplayplanet.services.cache;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.logger.Log;
@@ -18,10 +19,14 @@ public class Cache<T extends Serializable> {
     private String cacheName;
     @Getter(AccessLevel.PROTECTED)
     private HashMap<UUID, CacheObject<T>> cachedObjects;
+    @Setter
+    @Getter
+    private ISQLCacheProvider provider;
 
     public Cache(String name) {
         this.cacheName = name;
         this.cachedObjects = new HashMap<>();
+        this.provider = null;
     }
 
     public Collection<CacheObject<T>> getCacheObjects(){
@@ -109,6 +114,13 @@ public class Cache<T extends Serializable> {
 
     private void removeRemote(CacheObject cacheObject) {
         ConnectionManager.getInstance().getByteConnection().async().hdel(this.cacheName.getBytes(), SerializationUtils.serialize(cacheObject.getCachedObjectID()));
+    }
+
+    private void updateMySql() {
+        if (getProvider() == null) {
+            return;
+        }
+        getProvider().update(this);
     }
 
     public void cleanup(){

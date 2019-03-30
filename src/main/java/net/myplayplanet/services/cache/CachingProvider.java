@@ -9,9 +9,7 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -23,6 +21,7 @@ public class CachingProvider {
 
     public CachingProvider() {
         instance = this;
+
     }
 
     public <T extends Serializable> Cache<T> getCache(String name) {
@@ -39,7 +38,6 @@ public class CachingProvider {
 
         Cache<T> cache = new Cache(name);
         cache.getCachedObjects().putAll(cacheMap);
-
         return cache;
     }
 

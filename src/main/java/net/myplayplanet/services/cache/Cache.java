@@ -19,14 +19,10 @@ public class Cache<T extends Serializable> {
     private String cacheName;
     @Getter(AccessLevel.PROTECTED)
     private HashMap<UUID, CacheObject<T>> cachedObjects;
-    @Setter
-    @Getter
-    private ISQLCacheProvider provider;
 
     public Cache(String name) {
         this.cacheName = name;
         this.cachedObjects = new HashMap<>();
-        this.provider = null;
     }
 
     public Collection<CacheObject<T>> getCacheObjects(){
@@ -98,8 +94,7 @@ public class Cache<T extends Serializable> {
             byteCache.forEach((id, object) -> {
                 UUID uuid = SerializationUtils.deserialize(id);
                 CacheObject<T> cacheObject = SerializationUtils.deserialize(object);
-                System.out.println(uuid + " " + SerializationUtils.deserialize(cacheObject.getData()));
-                cacheMap.put(SerializationUtils.deserialize(id), cacheObject);
+                cacheMap.put(uuid, cacheObject);
             });
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e, "Error while getting Cache {cache}", this.cacheName);
@@ -114,13 +109,6 @@ public class Cache<T extends Serializable> {
 
     private void removeRemote(CacheObject cacheObject) {
         ConnectionManager.getInstance().getByteConnection().async().hdel(this.cacheName.getBytes(), SerializationUtils.serialize(cacheObject.getCachedObjectID()));
-    }
-
-    private void updateMySql() {
-        if (getProvider() == null) {
-            return;
-        }
-        getProvider().update(this);
     }
 
     public void cleanup(){

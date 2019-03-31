@@ -8,6 +8,7 @@ import net.myplayplanet.services.connection.ConnectionService;
 import net.myplayplanet.services.exeption.AlreadyInitializedException;
 import net.myplayplanet.services.logger.Log;
 import net.myplayplanet.services.logger.LoggerService;
+import net.myplayplanet.services.schedule.ScheduleService;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ public class ServiceCluster {
         addServices(true, new ConfigService(configPath));
         addServices(true, new ConnectionService());
         addServices(true, new CachingService());
+        addServices(true, new ScheduleService());
     }
 
     public static void shutdownCluster() {

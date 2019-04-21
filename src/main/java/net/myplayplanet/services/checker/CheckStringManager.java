@@ -197,7 +197,7 @@ public class CheckStringManager {
     public String removeDuplicatLetters(String string) {
         List<Character> chars = new ArrayList<>();
 
-        String trimedString = string.trim().replace(" ", "");
+        String trimedString = string.toUpperCase().trim().replace(" ", "");
 
         char lastChar = 0;
         for (char c : trimedString.toCharArray()) {
@@ -223,7 +223,7 @@ public class CheckStringManager {
      * @return The String without Special Characters
      */
     public String removeSpecialCharacters(String string){
-        String trimedString = string.trim().replace(" ", "");
+        String trimedString = string.toUpperCase().trim().replace(" ", "");
 
         StringBuilder stringBuilder = new StringBuilder();
 

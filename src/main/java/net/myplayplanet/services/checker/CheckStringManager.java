@@ -168,7 +168,7 @@ public class CheckStringManager {
      * @return {@link Boolean#TRUE} when the String is on the Bad String List
      */
     public boolean check(String string) {
-        return this.getStrings().contains(string.toUpperCase()) || this.getStrings().contains(this.removeDuplicatLetters(string));
+        return this.getStrings().contains(this.removeDuplicatLetters(this.removeSpecialCharacters(string)));
     }
 
     /**
@@ -196,7 +196,45 @@ public class CheckStringManager {
             shortedString += c;
         }
 
-        return shortedString;
+        return shortedString.toUpperCase();
     }
 
+    /**
+     * Removes all Special Characters
+     *
+     * @param string Which should be Checked
+     * @return The String without Special Characters
+     */
+    public String removeSpecialCharacters(String string){
+        String trimedString = string.trim().replace(" ", "");
+
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (char c : trimedString.toCharArray()) {
+            for (Letters value : Letters.values()) {
+                if (value.name().charAt(0) == c || value.contains(value, c)) {
+                    stringBuilder.append(c);
+                }
+            }
+        }
+
+        return stringBuilder.toString().toUpperCase();
+    }
+
+    /**
+     * Normal String without LeetSpeak
+     *
+     * @param leetSpeakString The String in Leetspeak
+     * @return Normal String
+     */
+    public String getNormalString(String leetSpeakString) {
+        String message = "";
+
+        String replaceString = leetSpeakString.replace(" ", "").toUpperCase();
+
+        for (char c : replaceString.toCharArray()) {
+            message += Letters.getOriginalChar(c);
+        }
+        return message.toUpperCase();
+    }
 }

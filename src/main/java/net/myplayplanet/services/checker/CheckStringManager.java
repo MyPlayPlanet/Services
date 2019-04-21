@@ -168,7 +168,24 @@ public class CheckStringManager {
      * @return {@link Boolean#TRUE} when the String is on the Bad String List
      */
     public boolean check(String string) {
-        return this.getStrings().contains(this.removeDuplicatLetters(this.removeSpecialCharacters(string)));
+        String message = this.removeDuplicatLetters(this.removeSpecialCharacters(string));
+        for (String s : this.getStrings()) {
+            if(message.contains(s.toUpperCase())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public HashSet<String> getBadWords(String string) {
+        HashSet<String> set = new HashSet<>();
+        String message = this.removeDuplicatLetters(this.removeSpecialCharacters(string));
+        for (String s : this.getStrings()) {
+            if(message.contains(s.toUpperCase())){
+                set.add(s.toUpperCase());
+            }
+        }
+        return set;
     }
 
     /**
@@ -212,7 +229,8 @@ public class CheckStringManager {
 
         for (char c : trimedString.toCharArray()) {
             for (Letters value : Letters.values()) {
-                if (value.name().charAt(0) == c || value.contains(value, c)) {
+                char c1 = value.name().charAt(0);
+                if (c1 == c || value.contains(value, c)) {
                     stringBuilder.append(c);
                 }
             }

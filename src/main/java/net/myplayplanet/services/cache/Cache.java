@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class Cache<T extends Serializable> {
 
+    @Getter
     private String cacheName;
     @Getter(AccessLevel.PROTECTED)
     private HashMap<UUID, CacheObject<T>> cachedObjects;

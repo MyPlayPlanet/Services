@@ -50,10 +50,6 @@ public class MySQLSink implements ISink {
         Connection con = ConnectionManager.getInstance().getMySQLConnection();
         List<Object> entrys = new ArrayList<>();
 
-        System.out.println("date1: " + from.toString());
-        System.out.println("date2: " + to.toString());
-
-
         Calendar fromCalender = Calendar.getInstance();
         fromCalender.setTime(from);
         fromCalender.add(Calendar.DATE, -1);
@@ -85,7 +81,6 @@ public class MySQLSink implements ISink {
                         .message(message)
                         .build());
             }
-            System.out.println("statement: " + statement.toString());
             statement.close();
 
         } catch (SQLException e) {

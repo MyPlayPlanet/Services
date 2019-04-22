@@ -77,7 +77,7 @@ public class CheckStringManager {
                         preparedStatement.setString(2, string);
                         preparedStatement.executeUpdate();
                         if (!stringCache.getObjects().contains(string)) {
-                            stringCache.getObjects().add(string);
+                            stringCache.add(string);
                         }
                     } catch (SQLException exception) {
                         exception.printStackTrace();

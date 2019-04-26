@@ -31,6 +31,7 @@ deploy-snapshot:
   script:
     - mvn $MAVEN_CLI_OPTS deploy -P ci-snapshot,deploy-snapshot,attach-javadocs,attach-sources
   only:
+    - test
     - develop
     - development
   artifacts:

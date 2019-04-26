@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 @Slf4j
@@ -26,8 +27,8 @@ public class CheckStringManager {
         instance = this;
     }
 
-    public void add(String word) {
-        this.add(word, true);
+    public int add(String word) {
+        return this.add(word, true);
     }
 
     /**
@@ -36,7 +37,8 @@ public class CheckStringManager {
      *
      * @param word Which should be added
      */
-    public void add(String word, boolean permutations) {
+    public int add(String word, boolean permutations) {
+        AtomicInteger integer = new AtomicInteger(0);
         ForkJoinPool.commonPool().execute(() -> {
             Connection connection = ConnectionManager.getInstance().getMySQLConnection();
 
@@ -65,7 +67,7 @@ public class CheckStringManager {
                 HashSet<String> badWords = new HashSet<>();
 
                 new StringGenerator().generate(badWords, word);
-
+                integer.set(badWords.size());
                 badWords.add(word.toUpperCase());
 
                 Cache<String> stringCache = CachingProvider.getInstance().getCache("bad_words");
@@ -83,8 +85,10 @@ public class CheckStringManager {
                         exception.printStackTrace();
                     }
                 }
+
             }
         });
+        return integer.get();
     }
 
     /**

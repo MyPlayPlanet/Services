@@ -5,8 +5,12 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.Getter;
 import lombok.NonNull;
-import net.myplayplanet.services.schedule.IScheduledTask;
+import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.services.connection.ConnectionManager;
+import net.myplayplanet.services.logger.Log;
 import net.myplayplanet.services.schedule.ScheduledTaskProvider;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.Validate;
 
 import java.io.Serializable;
 import java.util.*;
@@ -15,13 +19,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class Cache<K extends Serializable, V extends Serializable> {
     private LoadingCache<K, Optional<V>> loadingCache;
     private Function<K, V> function;
 
     @Getter
     private String name;
-    private Timer timer;
     private AbstractSaveProvider<K, V> saveProvider;
 
     /**
@@ -61,26 +65,19 @@ public class Cache<K extends Serializable, V extends Serializable> {
     public Cache(@NonNull String name, @NonNull Function<K, V> function, @NonNull AbstractSaveProvider<K, V> saveProvider) {
         this(name, function);
         this.saveProvider = saveProvider;
-        timer = new Timer();
-
 
         this.saveProvider.load().forEach(this::update);
 
         ScheduledTaskProvider.getInstance().register(saveProvider);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            saveAll();
-            timer.cancel();
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> saveAll()));
     }
 
     /**
      * calls the "saveAll" implementation from the AbstractSaveProvider and removes the values that where updated successfully.
      */
     private void saveAll() {
-        System.out.println("execute scheduler:");
         for (K k : saveProvider.saveAll(saveProvider.getSavableEntries())) {
-            System.out.println("updated " + k.toString() + "!");
             saveProvider.getSavableEntries().remove(k);
         }
     }
@@ -192,7 +189,15 @@ public class Cache<K extends Serializable, V extends Serializable> {
     public void reloadWholeCacheFromRedis() {
         HashMap<K, V> map = new HashMap<>();
 
-        //todo fill HashMap with data from redis
+        try {
+            Map<byte[], byte[]> byteCache = ConnectionManager.getInstance().getByteConnection().async().hgetall(this.getName().getBytes()).get();
+
+            byteCache.forEach((key, value) -> {
+                map.put(SerializationUtils.deserialize(key), SerializationUtils.deserialize(value));
+            });
+        } catch (InterruptedException | ExecutionException e) {
+            Log.getLog(log).error(e,"Error while reloading Cache {cache}", this.getName());
+        }
 
 
         for (K k : map.keySet()) {
@@ -204,14 +209,17 @@ public class Cache<K extends Serializable, V extends Serializable> {
     }
 
     private void updateRedis(@NonNull K key, @NonNull V value) {
-        //todo put value in redis
-        System.out.println("update " + key.toString() + " in redis");
+        ConnectionManager.getInstance().getByteConnection().async().hset(this.getName().getBytes(), SerializationUtils.serialize(key), SerializationUtils.serialize(value));
     }
 
     private V getFromRedis(@NonNull K key) {
-        //todo get value from redis
         V result = null;
-        System.out.println("get " + key.toString() + " from redis. result: " + ((result == null) ? "not successful" : "successful"));
+        try {
+            byte[] valueBytes = ConnectionManager.getInstance().getByteConnection().async().hget(this.getName().getBytes(), SerializationUtils.serialize(key)).get();
+            result = SerializationUtils.deserialize(valueBytes);
+        } catch (InterruptedException | ExecutionException e) {
+            Log.getLog(log).error(e, "Error while getting {key} from cache {name}.", key.toString(), this.getName());
+        }
         return result;
     }
 }

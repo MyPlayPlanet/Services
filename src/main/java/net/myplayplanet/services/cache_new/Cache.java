@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class Cache<K extends Serializable, V extends Serializable> {
     private LoadingCache<K, Optional<V>> loadingCache;
     private Function<K, V> function;
+    private List<Consumer<CacheUpdateEvent>> updateEvents;
 
     @Getter
     private String name;
@@ -35,6 +37,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
     public Cache(@NonNull String name, @NonNull Function<K, V> function) {
         this.name = name;
         this.function = function;
+        this.updateEvents = new ArrayList<>();
 
         loadingCache = CacheBuilder.newBuilder()
                 .expireAfterAccess(10, TimeUnit.MINUTES)
@@ -117,8 +120,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
         return get(key, false);
     }
 
-
-    public V getget(@NonNull K key, Function<K, V> function) {
+    public V get(@NonNull K key, Function<K, V> function) {
         return get(key, false, function);
     }
 
@@ -162,15 +164,28 @@ public class Cache<K extends Serializable, V extends Serializable> {
     }
 
     /**
-     * Here the value and the key will be inserted into redis via the method {@link #updateRemote(Serializable, Serializable)}
+     * Here the value and the key will be inserted into redis via the method {@link #updateRedis(Serializable, Serializable)}
      * and if a save provider exists it will put the date up to be saved in the save provider scheduler.
      */
     private void handleUpdate(@NonNull K key, @NonNull V value) {
-        updateRemote(key, value);
+        CacheUpdateEvent<K, V> event = new CacheUpdateEvent(key, value);
+        for (Consumer<CacheUpdateEvent> updateEvent : updateEvents) {
+            updateEvent.accept(event);
+        }
+
+        if (event.isCancelled()) {
+            return;
+        }
+
+        updateRedis(event.getKey(), event.getValue());
 
         if (saveProvider != null) {
-            saveProvider.getSavableEntries().put(key, value);
+            saveProvider.getSavableEntries().put(event.getKey(), event.getValue());
         }
+    }
+
+    public void registerUpdateEvent(Consumer<CacheUpdateEvent> updateEvent) {
+        this.updateEvents.add(updateEvent);
     }
 
     /**
@@ -247,7 +262,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
         }
     }
 
-    private void updateRemote(@NonNull K key, @NonNull V value) {
+    private void updateRedis(@NonNull K key, @NonNull V value) {
         ConnectionManager.getInstance().getByteConnection().async().hset(this.getName().getBytes(), SerializationUtils.serialize(key), SerializationUtils.serialize(value));
     }
 

@@ -10,7 +10,6 @@ import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.logger.Log;
 import net.myplayplanet.services.schedule.ScheduledTaskProvider;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.Validate;
 
 import java.io.Serializable;
 import java.util.*;
@@ -33,7 +32,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
      * @param function the Function that will be called when no entry was found in the local or the redis cache.
      *                 this also makes it possible to load from Sql etc.
      */
-    protected Cache(@NonNull String name, @NonNull Function<K, V> function) {
+    public Cache(@NonNull String name, @NonNull Function<K, V> function) {
         this.name = name;
         this.function = function;
 
@@ -163,11 +162,11 @@ public class Cache<K extends Serializable, V extends Serializable> {
     }
 
     /**
-     * Here the value and the key will be inserted into redis via the method {@link #updateRedis(Serializable, Serializable)}
+     * Here the value and the key will be inserted into redis via the method {@link #updateRemote(Serializable, Serializable)}
      * and if a save provider exists it will put the date up to be saved in the save provider scheduler.
      */
     private void handleUpdate(@NonNull K key, @NonNull V value) {
-        updateRedis(key, value);
+        updateRemote(key, value);
 
         if (saveProvider != null) {
             saveProvider.getSavableEntries().put(key, value);
@@ -183,18 +182,58 @@ public class Cache<K extends Serializable, V extends Serializable> {
         return loadingCache.asMap().values().stream().map(v -> v.orElse(null)).collect(Collectors.toList());
     }
 
+
     /**
-     * reloads all things from redis.
+     * clears the local cache and the redis cache and then executes the {@link AbstractSaveProvider#load()} Method.
+     */
+    public void reloadCache() {
+        clearCache();
+        if (saveProvider != null) {
+            saveProvider.load();
+        }
+    }
+
+    /**
+     * clears local and redis cache.
+     */
+    public void clearCache() {
+        clearRedisCache();
+        clearLocalCache();
+    }
+
+    /**
+     * clears the remote redis cache
+     */
+    public void clearRedisCache() {
+        try {
+            ConnectionManager.getInstance().getByteConnection().async().hdel(
+                    this.getName().getBytes(),
+                    ConnectionManager.getInstance().getByteConnection().async().hkeys(this.getName().getBytes()).get().toArray(new byte[0][])
+            );
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * clears the local guava cache.
+     */
+    public void clearLocalCache() {
+        loadingCache.invalidateAll();
+    }
+
+    /**
+     * get every entry that is present in redis and loads it into the local cache.
      */
     public void reloadWholeCacheFromRedis() {
         HashMap<K, V> map = new HashMap<>();
 
         try {
-            Map<byte[], byte[]> byteCache = ConnectionManager.getInstance().getByteConnection().async().hgetall(this.getName().getBytes()).get();
-
-            byteCache.forEach((key, value) -> {
-                map.put(SerializationUtils.deserialize(key), SerializationUtils.deserialize(value));
-            });
+            ConnectionManager.getInstance().getByteConnection().async()
+                    .hgetall(this.getName().getBytes()).get()
+                    .forEach((key, value) ->
+                            map.put(SerializationUtils.deserialize(key), SerializationUtils.deserialize(value))
+                    );
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e,"Error while reloading Cache {cache}", this.getName());
         }
@@ -208,18 +247,16 @@ public class Cache<K extends Serializable, V extends Serializable> {
         }
     }
 
-    private void updateRedis(@NonNull K key, @NonNull V value) {
+    private void updateRemote(@NonNull K key, @NonNull V value) {
         ConnectionManager.getInstance().getByteConnection().async().hset(this.getName().getBytes(), SerializationUtils.serialize(key), SerializationUtils.serialize(value));
     }
 
     private V getFromRedis(@NonNull K key) {
-        V result = null;
         try {
-            byte[] valueBytes = ConnectionManager.getInstance().getByteConnection().async().hget(this.getName().getBytes(), SerializationUtils.serialize(key)).get();
-            result = SerializationUtils.deserialize(valueBytes);
+            return SerializationUtils.deserialize(ConnectionManager.getInstance().getByteConnection().async().hget(this.getName().getBytes(), SerializationUtils.serialize(key)).get());
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e, "Error while getting {key} from cache {name}.", key.toString(), this.getName());
+            return null;
         }
-        return result;
     }
 }

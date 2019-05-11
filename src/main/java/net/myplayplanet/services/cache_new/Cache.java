@@ -159,15 +159,6 @@ public class Cache<K extends Serializable, V extends Serializable> {
      * this will call update the local cache and call {@link #handleUpdate(Serializable, Serializable)}
      */
     public void update(@NonNull K key, @NonNull V value) {
-        loadingCache.put(key, Optional.of(value));
-        handleUpdate(key, value);
-    }
-
-    /**
-     * Here the value and the key will be inserted into redis via the method {@link #updateRedis(Serializable, Serializable)}
-     * and if a save provider exists it will put the date up to be saved in the save provider scheduler.
-     */
-    private void handleUpdate(@NonNull K key, @NonNull V value) {
         CacheUpdateEvent<K, V> event = new CacheUpdateEvent(key, value);
         for (Consumer<CacheUpdateEvent> updateEvent : updateEvents) {
             updateEvent.accept(event);
@@ -177,10 +168,19 @@ public class Cache<K extends Serializable, V extends Serializable> {
             return;
         }
 
-        updateRedis(event.getKey(), event.getValue());
+        loadingCache.put(event.getKey(), Optional.of(event.getValue()));
+        handleUpdate(key, value);
+    }
+
+    /**
+     * Here the value and the key will be inserted into redis via the method {@link #updateRedis(Serializable, Serializable)}
+     * and if a save provider exists it will put the date up to be saved in the save provider scheduler.
+     */
+    private void handleUpdate(@NonNull K key, @NonNull V value) {
+        updateRedis(key, value);
 
         if (saveProvider != null) {
-            saveProvider.getSavableEntries().put(event.getKey(), event.getValue());
+            saveProvider.getSavableEntries().put(key, value);
         }
     }
 

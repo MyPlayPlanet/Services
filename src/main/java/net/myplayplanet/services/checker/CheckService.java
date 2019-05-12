@@ -9,12 +9,12 @@ public class CheckService extends AbstractService {
 
     @Override
     public void init() {
-        Log.getLog(log).info("Starting {service}...", "ScheduleService");
+        Log.getLog(log).info("Starting {service}...", "CheckService");
         new CheckStringManager();
     }
 
     @Override
     public void disable() {
-        Log.getLog(log).info("Shutting down {service}...", "ScheduleService");
+        Log.getLog(log).info("Shutting down {service}...", "CheckService");
     }
 }

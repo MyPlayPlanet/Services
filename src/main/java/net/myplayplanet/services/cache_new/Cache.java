@@ -51,7 +51,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
                         }
 
                         if (result != null) {
-                            handleUpdate(key, result);
+                            update(key, result);
                         }
                         return Optional.ofNullable(result);
                     }

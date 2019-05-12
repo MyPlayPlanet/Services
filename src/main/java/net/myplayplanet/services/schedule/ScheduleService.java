@@ -16,6 +16,9 @@ public class ScheduleService extends AbstractService {
     @Override
     public void disable() {
         Log.getLog(log).info("Shutting down {service}...", "ScheduleService");
+        ScheduledTaskProvider.getInstance().getStartedTask().values().forEach(future -> {
+            future.cancel(false);
+        });
     }
 
 

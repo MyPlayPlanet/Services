@@ -48,6 +48,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
                         V result = getFromRedis(key);
 
                         if (result == null) {
+                            System.out.println(result.getClass().getName());
                             result = function.apply(key);
                         }
 
@@ -258,6 +259,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
     private void updateRedis(@NonNull K key, @NonNull V v) {
         CacheObject<V> value = new CacheObject<>(LocalDate.now(), v);
+        System.out.println("update redis: " + value.getLastModified().toString());
         ConnectionManager.getInstance().getByteConnection().async().hset(this.getName().getBytes(), SerializationUtils.serialize(key), SerializationUtils.serialize(value));
     }
 
@@ -271,13 +273,16 @@ public class Cache<K extends Serializable, V extends Serializable> {
             }
 
             CacheObject<V> value = SerializationUtils.deserialize(objectData);
-
+            System.out.println("getFromRedis get 1: "+value.getLastModified().toString());
+            System.out.println("getFromRedis get 2: "+value.getValue().toString());
             //this makes is so that if the cache entry is older that one Hour it will be removed from redis and the cache is forced to reload it.
             if (value.getLastModified().plus(1, ChronoUnit.HOURS).isBefore(LocalDate.now())) {
+                System.out.println("getFrom Redis Null");
                 ConnectionManager.getInstance().getByteConnection().async().hdel(this.getName().getBytes(), keyAsByteArray);
                 return null;
             }
 
+            System.out.println("getFromRedis get 3: "+value.getValue().getClass().getName());
             return value.getValue();
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e, "Error while getting {key} from cache {name}.", key.toString(), this.getName());

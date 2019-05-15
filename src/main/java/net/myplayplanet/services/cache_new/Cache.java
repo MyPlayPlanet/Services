@@ -12,8 +12,7 @@ import net.myplayplanet.services.schedule.ScheduledTaskProvider;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +40,8 @@ public class Cache<K extends Serializable, V extends Serializable> {
         this.function = function;
         this.updateEvents = new ArrayList<>();
 
+
+        clearRedisCache();
         loadingCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(21, TimeUnit.MINUTES)
                 .build(new CacheLoader<K, Optional<V>>() {
@@ -48,13 +49,12 @@ public class Cache<K extends Serializable, V extends Serializable> {
                         V result = getFromRedis(key);
 
                         if (result == null) {
-                            System.out.println(result.getClass().getName());
                             result = function.apply(key);
+                            if (result != null) {
+                                update(key, result);
+                            }
                         }
 
-                        if (result != null) {
-                            update(key, result);
-                        }
                         return Optional.ofNullable(result);
                     }
                 });
@@ -127,7 +127,13 @@ public class Cache<K extends Serializable, V extends Serializable> {
     }
 
     public V get(@NonNull K key, boolean forceReload, Function<K, V> function) {
-        if (forceReload) {
+
+
+    }
+
+
+    private V getWithFuction(@NonNull K key, @NonNull boolean force, Function<K, V> function) {
+        if (force) {
             V result = this.function.apply(key);
 
             if (result == null) {
@@ -138,24 +144,33 @@ public class Cache<K extends Serializable, V extends Serializable> {
             return result;
         }
 
-        try {
-            return loadingCache.get(key, () -> {
-                V result = getFromRedis(key);
+        if (function != null) {
+            try {
+                return loadingCache.get(key, () -> {
+                    V result = getFromRedis(key);
 
-                if (result == null) {
-                    result = function.apply(key);
-                }
+                    if (result == null) {
+                        result = function.apply(key);
+                        if (result != null) {
+                            update(key, result);
+                        }
+                    }
 
-                if (result != null) {
-                    handleUpdate(key, result);
-                }
-                return Optional.ofNullable(result);
-            }).orElse(null);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-            return null;
+                    return Optional.ofNullable(result);
+                }).orElse(null);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
+
+
+
+
+        //todo implement
+        return null;
     }
+
 
     /**
      * this will call update the local cache and call {@link #handleUpdate(Serializable, Serializable)}
@@ -258,31 +273,33 @@ public class Cache<K extends Serializable, V extends Serializable> {
     }
 
     private void updateRedis(@NonNull K key, @NonNull V v) {
-        CacheObject<V> value = new CacheObject<>(LocalDate.now(), v);
-        System.out.println("update redis: " + value.getLastModified().toString());
+        CacheObject<V> value = new CacheObject<>(new Date().getTime() + 3600, v);
         ConnectionManager.getInstance().getByteConnection().async().hset(this.getName().getBytes(), SerializationUtils.serialize(key), SerializationUtils.serialize(value));
     }
 
     private V getFromRedis(@NonNull K key) {
+        System.out.println("get from redis for key "+ key.toString() + ":");
         try {
             byte[] keyAsByteArray = SerializationUtils.serialize(key);
             byte[] objectData = ConnectionManager.getInstance().getByteConnection().async().hget(this.getName().getBytes(), keyAsByteArray).get();
 
             if (objectData == null) {
+                System.out.println("object data is null");
                 return null;
             }
 
             CacheObject<V> value = SerializationUtils.deserialize(objectData);
-            System.out.println("getFromRedis get 1: "+value.getLastModified().toString());
-            System.out.println("getFromRedis get 2: "+value.getValue().toString());
+            System.out.println("value.key: " + value.getLastModified() + "\t " + value.getValue().toString());
             //this makes is so that if the cache entry is older that one Hour it will be removed from redis and the cache is forced to reload it.
-            if (value.getLastModified().plus(1, ChronoUnit.HOURS).isBefore(LocalDate.now())) {
-                System.out.println("getFrom Redis Null");
+
+            if (new Timestamp(value.getLastModified()).before(new Timestamp(new Date().getTime()))) {
+                System.out.println("expired");
                 ConnectionManager.getInstance().getByteConnection().async().hdel(this.getName().getBytes(), keyAsByteArray);
                 return null;
             }
 
-            System.out.println("getFromRedis get 3: "+value.getValue().getClass().getName());
+
+            System.out.println("returned " + value.getValue().toString() +"!");
             return value.getValue();
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e, "Error while getting {key} from cache {name}.", key.toString(), this.getName());

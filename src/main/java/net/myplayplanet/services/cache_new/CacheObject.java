@@ -4,11 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 
 @AllArgsConstructor
 @Data
 public class CacheObject<V extends Serializable> implements Serializable {
-    LocalDate lastModified;
+    long lastModified;
     V value;
 }

@@ -3,6 +3,7 @@ package net.myplayplanet.services.cache_new;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -151,6 +152,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
                     }else {
                         System.out.println("(getWithFunction) getFrom Redis Successful");
                     }
+                    System.out.println("(getWithFunction) result: " +((result != null) ? new Gson().toJson(result) : "null"));
                     return Optional.ofNullable(result);
                 }).orElse(null);
             } catch (ExecutionException e) {
@@ -160,7 +162,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
         }
         try {
             Optional<V> v = loadingCache.get(key);
-            System.out.println("(getWithFunction) not own Function: " + ((v.isPresent()) ? v.get() : "null"));
+            System.out.println("(getWithFunction) not own Function: " + ((v.isPresent()) ? new Gson().toJson(v.get()) : "null"));
             return v.orElse(null);
         } catch (ExecutionException e) {
             e.printStackTrace();
@@ -259,7 +261,10 @@ public class Cache<K extends Serializable, V extends Serializable> {
             ConnectionManager.getInstance().getByteConnection().async()
                     .hgetall(this.getName().getBytes()).get()
                     .forEach((key, value) ->
-                            map.put(SerializationUtils.deserialize(key), SerializationUtils.deserialize(value))
+                            {
+                                CacheObject<V> deserialize = SerializationUtils.deserialize(value);
+                                map.put(SerializationUtils.deserialize(key), deserialize.getValue());
+                            }
                     );
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e,"Error while reloading Cache {cache}", this.getName());

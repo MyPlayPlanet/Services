@@ -1,10 +1,12 @@
 package net.myplayplanet.services.checker;
 
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.services.cache.AbstractSaveProvider;
 import net.myplayplanet.services.cache.Cache;
-import net.myplayplanet.services.cache.CachingProvider;
 import net.myplayplanet.services.connection.ConnectionManager;
+import net.myplayplanet.services.connection.SQLUtils;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,8 +24,134 @@ public class CheckStringManager {
     @Getter
     private static CheckStringManager instance;
 
+    private Cache<String, Integer> wordCache;
+    private Cache<String, ArrayList<String>> permutationCache;
+
     public CheckStringManager() {
         instance = this;
+        //todo when adding implement auto increment implementation so there is no word_id needed for inserting.
+
+        wordCache = new Cache<>("badword-cache", s -> {
+            Connection conn = ConnectionManager.getInstance().getMySQLConnection();
+
+            try {
+                PreparedStatement statement = conn.prepareStatement("select word_id from bad_words where bezeichnung = ?; ");
+                statement.setString(1, s);
+                ResultSet set = statement.executeQuery();
+
+                int wordId = -1;
+
+                while (set.next()) {
+                    wordId = set.getInt("word_id");
+                    break;
+                }
+
+                if (wordId == -1) {
+                    return null;
+                }
+
+                return wordId;
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                return null;
+            } finally {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new AbstractSaveProvider<String, Integer>() {
+            @Override
+            public boolean save(@NonNull String key, Integer value) {
+                Connection conn = ConnectionManager.getInstance().getMySQLConnection();
+
+                wordCache.loadCache();
+
+                try {
+                    PreparedStatement statement = conn.prepareStatement("insert into bad_words(`bezeichnung`, `word_id`) VALUES (?, ?)");
+
+                    statement.setString(1, key);
+                    statement.setInt(2, value);
+
+                    statement.executeUpdate();
+
+                    return true;
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    return false;
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        permutationCache = new Cache<>("badword-permutation-cache", s -> {
+            Connection conn = ConnectionManager.getInstance().getMySQLConnection();
+
+            try {
+                PreparedStatement statement = conn.prepareStatement("select bezeichung from bad_words_permutaitons where word_id = ?; ");
+                statement.setInt(1, );
+                ResultSet set = statement.executeQuery();
+
+                ArrayList<String> result = new ArrayList<>();
+
+                while (set.next()) {
+                    result.add(set.getString("bezeichung"));
+                }
+
+                return (result.size() > 0) ? result : null;
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                return null;
+            } finally {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new AbstractSaveProvider<Integer, ArrayList<String>>() {
+            @Override
+            public boolean save(Integer key, ArrayList<String> value) {
+                Connection conn = ConnectionManager.getInstance().getMySQLConnection();
+
+                try {
+                    PreparedStatement statement = conn.prepareStatement(
+                            "INSERT INTO `bad_words_permutaitons` " +
+                                    "(`word_id`, " +
+                                    "`bezeichung`) " +
+                                    "VALUES " + SQLUtils.buildValuesString(2, value.size()) +
+                                    "ON DUPLICATE KEY UPDATE " +
+                                    "`amount` = `amount`;");
+
+
+                    int index = 1;
+                    for (String string : value) {
+                        statement.setString(index, string);
+                        statement.setInt(index + 1, key);
+                        index += 2;
+                    }
+
+                    statement.executeUpdate();
+                    statement.closeOnCompletion();
+                    return true;
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    return false;
+                } finally {
+                    try {
+                        conn.close();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     public void add(String word) {
@@ -38,28 +166,8 @@ public class CheckStringManager {
      */
     public void add(String word, boolean permutations) {
         ForkJoinPool.commonPool().execute(() -> {
-            Connection connection = ConnectionManager.getInstance().getMySQLConnection();
+            badwordCache.get("smth").put
 
-            try {
-                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO bad_words (id, bezeichnung) VALUES (NULL, ?);");
-                preparedStatement.setString(1, word);
-                preparedStatement.executeUpdate();
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
-            int id = -1;
-            try {
-                PreparedStatement preparedStatement = connection.prepareStatement("SELECT id from bad_words where bezeichnung =?");
-                preparedStatement.setString(1, word);
-                ResultSet set = preparedStatement.executeQuery();
-
-                while (set.next()) {
-                    id = set.getInt("id");
-                    break;
-                }
-            } catch (SQLException exception) {
-                exception.printStackTrace();
-            }
 
             if (permutations) {
                 HashSet<String> badWords = new HashSet<>();
@@ -170,7 +278,7 @@ public class CheckStringManager {
     public boolean check(String string) {
         String message = this.removeDuplicatLetters(this.removeSpecialCharacters(string));
         for (String s : this.getStrings()) {
-            if(message.contains(s.toUpperCase())){
+            if (message.contains(s.toUpperCase())) {
                 return true;
             }
         }
@@ -181,7 +289,7 @@ public class CheckStringManager {
         HashSet<String> set = new HashSet<>();
         String message = this.removeDuplicatLetters(this.removeSpecialCharacters(string));
         for (String s : this.getStrings()) {
-            if(message.contains(s.toUpperCase())){
+            if (message.contains(s.toUpperCase())) {
                 set.add(s.toUpperCase());
             }
         }
@@ -222,7 +330,7 @@ public class CheckStringManager {
      * @param string Which should be Checked
      * @return The String without Special Characters
      */
-    public String removeSpecialCharacters(String string){
+    public String removeSpecialCharacters(String string) {
         String trimedString = string.toUpperCase().trim().replace(" ", "");
 
         StringBuilder stringBuilder = new StringBuilder();

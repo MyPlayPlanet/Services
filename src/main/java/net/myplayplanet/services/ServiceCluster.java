@@ -1,7 +1,6 @@
 package net.myplayplanet.services;
 
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.cache.CachingService;
 import net.myplayplanet.services.checker.CheckService;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.connection.ConnectionService;
@@ -41,7 +40,6 @@ public class ServiceCluster {
         addServices(true, new LoggerService());
         addServices(true, new ConfigService(configPath));
         addServices(true, new ConnectionService());
-        addServices(true, new CachingService());
         addServices(true, new ScheduleService());
         addServices(true, new CheckService());
     }

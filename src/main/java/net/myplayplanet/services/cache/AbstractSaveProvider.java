@@ -1,4 +1,4 @@
-package net.myplayplanet.services.cache_new;
+package net.myplayplanet.services.cache;
 
 import lombok.AccessLevel;
 import lombok.Getter;

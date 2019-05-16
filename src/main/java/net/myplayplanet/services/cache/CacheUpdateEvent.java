@@ -1,4 +1,4 @@
-package net.myplayplanet.services.cache_new;
+package net.myplayplanet.services.cache;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

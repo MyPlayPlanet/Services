@@ -1,121 +1,291 @@
 package net.myplayplanet.services.cache;
 
-import lombok.AccessLevel;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.logger.Log;
+import net.myplayplanet.services.schedule.ScheduledTaskProvider;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Stream;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
-public class Cache<T extends Serializable> {
+public class Cache<K extends Serializable, V extends Serializable> {
+    private LoadingCache<K, Optional<V>> loadingCache;
+    private Function<K, V> function;
+    private List<Consumer<CacheUpdateEvent>> updateEvents;
 
     @Getter
-    private String cacheName;
-    @Getter(AccessLevel.PROTECTED)
-    private HashMap<UUID, CacheObject<T>> cachedObjects;
+    private String name;
+    private AbstractSaveProvider<K, V> saveProvider;
 
-    public Cache(String name) {
-        this.cacheName = name;
-        this.cachedObjects = new HashMap<>();
-    }
+    /**
+     * @param name     the name of the Cache that will be created.
+     * @param function the Function that will be called when no entry was found in the local or the redis cache.
+     *                 this also makes it possible to load from Sql etc.
+     */
+    public Cache(@NonNull String name, @NonNull Function<K, V> function) {
+        this.name = name;
+        this.function = function;
+        this.updateEvents = new ArrayList<>();
 
-    public Collection<CacheObject<T>> getCacheObjects(){
-        this.updateLocal();
-        return cachedObjects.values();
-    }
+        loadingCache = CacheBuilder.newBuilder()
+                .expireAfterWrite(21, TimeUnit.MINUTES)
+                .build(new CacheLoader<K, Optional<V>>() {
+                    public Optional<V> load(K key) {
+                        V result = getFromRedis(key);
 
-    public CacheObject add(T object) {
-        UUID cacheObjectID = UUID.randomUUID();
-        CacheObject cacheObject = new CacheObject(cacheObjectID, SerializationUtils.serialize(object));
-        this.updateRemote(cacheObject);
-        this.updateLocal();
-        return cacheObject;
-    }
+                        if (result == null) {
+                            result = function.apply(key);
+                            if (result != null) {
+                                update(key, result);
+                            }
+                        }
 
-    public CacheObject remove(UUID cacheObjectID) {
-        CacheObject cacheObject = this.getCacheObject(cacheObjectID);
-        this.removeRemote(cacheObject);
-        this.updateLocal();
-        return cacheObject;
+                        return Optional.ofNullable(result);
+                    }
+                });
     }
 
     /**
-     * Don't use this in an loop
+     * @param name         the name of the Cache that will be created.
+     * @param function     the Function that will be called when no entry was found in the local or the redis cache.
+     *                     this also makes it possible to load from Sql etc.
+     * @param saveProvider the class that is used to save the cache entries.
      */
-    public T getObject(UUID cacheObjectID) throws ConcurrentModificationException {
-        return SerializationUtils.deserialize(this.getCacheObject(cacheObjectID).getData());
+    public Cache(@NonNull String name, @NonNull Function<K, V> function, @NonNull AbstractSaveProvider<K, V> saveProvider) {
+        this(name, function);
+        this.saveProvider = saveProvider;
+
+        this.saveProvider.load().forEach(this::update);
+
+        ScheduledTaskProvider.getInstance().register(saveProvider);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> saveAll()));
     }
 
-    public List<T> getObjects() {
-        List<T> output = new ArrayList<>();
-        for (CacheObject<T> cacheObject : getCacheObjects()) {
-            output.add(cacheObject.toType());
+    /**
+     * calls the "saveAll" implementation from the AbstractSaveProvider and removes the values that where updated successfully.
+     */
+    private void saveAll() {
+        for (K k : saveProvider.saveAll(saveProvider.getSavableEntries())) {
+            saveProvider.getSavableEntries().remove(k);
         }
-        return output;
     }
 
-    public HashMap<UUID, T> getObjectMap() {
-        HashMap<UUID, T> output = new HashMap<>();
-        for (CacheObject<T> cacheObject : getCacheObjects()) {
-            output.put(cacheObject.getCachedObjectID(), cacheObject.toType());
+    public V get(@NonNull K key, boolean forceReload) {
+        return getWithFunction(key, forceReload, null);
+    }
+
+    public V get(@NonNull K key) {
+        return getWithFunction(key, false, null);
+    }
+
+    public V get(@NonNull K key, Function<K, V> function) {
+        return get(key, false, function);
+    }
+
+    public V get(@NonNull K key, boolean forceReload, Function<K, V> function) {
+        return getWithFunction(key, forceReload, function);
+    }
+
+    /**
+     * This method will try to get the value from local cache, if it is not there it will try and get it from
+     * the redis cache, if it still is nowhere to be found it will execute the function defined on the constructor of this class
+     *
+     * @return the value that was found in the cache or generated from the function, null if that function returns null.
+     */
+    private V getWithFunction(@NonNull K key, @NonNull boolean force, Function<K, V> function) {
+        if (force) {
+            V result = this.function.apply(key);
+
+            if (result == null) {
+                return null;
+            }
+
+            this.update(key, result);
+            return result;
         }
-        return output;
+
+        if (function != null) {
+            try {
+                return loadingCache.get(key, () -> {
+                    V result = getFromRedis(key);
+
+                    if (result == null) {
+                        result = function.apply(key);
+                        if (result != null) {
+                            update(key, result);
+                        }
+                    }
+
+                    return Optional.ofNullable(result);
+                }).orElse(null);
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        try {
+            Optional<V> v = loadingCache.get(key);
+            return v.orElse(null);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
-    private static <K, V> Stream<K> keys(Map<K, V> map, V value) {
-        return map
-                .entrySet()
-                .stream()
-                .filter(entry -> value.equals(entry.getValue()))
-                .map(Map.Entry::getKey);
+
+    /**
+     * this will call update the local cache and call {@link #handleUpdate(Serializable, Serializable)}
+     */
+    public void update(@NonNull K key,V value) {
+        if (value == null) {
+            return;
+        }
+
+        CacheUpdateEvent<K, V> event = new CacheUpdateEvent(key, value);
+        for (Consumer<CacheUpdateEvent> updateEvent : updateEvents) {
+            updateEvent.accept(event);
+        }
+
+        if (event.isCancelled()) {
+            return;
+        }
+
+        loadingCache.put(event.getKey(), Optional.of(event.getValue()));
+        handleUpdate(key, value);
     }
 
-    public UUID getCacheUuidFromObject(T t) {
-        return keys(getObjectMap(), t).findFirst().orElse(null);
+    /**
+     * Here the value and the key will be inserted into redis via the method {@link #updateRedis(Serializable, Serializable)}
+     * and if a save provider exists it will put the date up to be saved in the save provider scheduler.
+     */
+    private void handleUpdate(@NonNull K key, @NonNull V value) {
+        updateRedis(key, value);
+
+        if (saveProvider != null) {
+            saveProvider.getSavableEntries().put(key, value);
+        }
     }
 
-    public CacheObject<T> getCacheObject(UUID objectID) {
-        this.updateLocal();
-        return this.cachedObjects.get(objectID);
+    public void registerUpdateEvent(Consumer<CacheUpdateEvent> updateEvent) {
+        this.updateEvents.add(updateEvent);
     }
 
-    private void updateLocal() {
-        this.cachedObjects.clear();
-        HashMap<UUID, CacheObject<T>> cacheMap = new HashMap<>();
+    /**
+     * this Method will always load from redis because the local Cache expires, and therefore is not reliable.
+     * @return
+     */
+    public List<V> getExistingValues() {
+        reloadLocalCacheFromRedis();
+        return loadingCache.asMap().values().stream().map(v -> v.orElse(null)).collect(Collectors.toList());
+    }
+
+
+    /**
+     * clears the local cache and the redis cache and then executes the {@link AbstractSaveProvider#load()} Method.
+     */
+    public void reloadCache() {
+        clearCache();
+        if (saveProvider != null) {
+            saveProvider.load();
+        }
+    }
+
+    public void loadCache() {
+        if (saveProvider != null) {
+            saveProvider.load();
+        }
+    }
+
+    /**
+     * clears local and redis cache.
+     */
+    public void clearCache() {
+        clearRedisCache();
+        clearLocalCache();
+    }
+
+    /**
+     * clears the remote redis cache
+     */
+    public void clearRedisCache() {
+        ConnectionManager.getInstance().getByteConnection().async().del(this.getName().getBytes());
+    }
+
+    /**
+     * clears the local guava cache.
+     */
+    public void clearLocalCache() {
+        loadingCache.invalidateAll();
+    }
+
+    /**
+     * get every entry that is present in redis and loads it into the local cache.
+     */
+    public void reloadLocalCacheFromRedis() {
+        HashMap<K, V> map = new HashMap<>();
 
         try {
-            Map<byte[], byte[]> byteCache = ConnectionManager.getInstance().getByteConnection().async().hgetall(this.cacheName.getBytes()).get();
-            byteCache.forEach((id, object) -> {
-                UUID uuid = SerializationUtils.deserialize(id);
-                CacheObject<T> cacheObject = SerializationUtils.deserialize(object);
-                cacheMap.put(uuid, cacheObject);
-            });
+            ConnectionManager.getInstance().getByteConnection().async()
+                    .hgetall(this.getName().getBytes()).get()
+                    .forEach((key, value) ->
+                            {
+                                CacheObject<V> deserialize = SerializationUtils.deserialize(value);
+                                map.put(SerializationUtils.deserialize(key), deserialize.getValue());
+                            }
+                    );
         } catch (InterruptedException | ExecutionException e) {
-            Log.getLog(log).error(e, "Error while getting Cache {cache}", this.cacheName);
+            Log.getLog(log).error(e,"Error while reloading Cache {cache}", this.getName());
         }
 
-        this.cachedObjects.putAll(cacheMap);
-    }
 
-    private void updateRemote(CacheObject cacheObject) {
-        ConnectionManager.getInstance().getByteConnection().async().hset(this.cacheName.getBytes(), SerializationUtils.serialize(cacheObject.getCachedObjectID()), SerializationUtils.serialize(cacheObject));
-    }
-
-    private void removeRemote(CacheObject cacheObject) {
-        ConnectionManager.getInstance().getByteConnection().async().hdel(this.cacheName.getBytes(), SerializationUtils.serialize(cacheObject.getCachedObjectID()));
-    }
-
-    public void cleanup(){
-        for (CacheObject cacheObject : this.getCacheObjects()) {
-            this.removeRemote(cacheObject);
+        for (K k : map.keySet()) {
+            // i only need to load this in the local Cache. there is no need to call the
+            // "update" Method because it needs to be in redis to get to this part of the Code and what is in
+            // redis does not need to be saved or written to redis.
+            loadingCache.put(k, Optional.of(map.get(k)));
         }
-        this.updateLocal();
+    }
+
+    private void updateRedis(@NonNull K key, @NonNull V v) {
+        CacheObject<V> value = new CacheObject<>(new Date().getTime() + 3600, v);
+        ConnectionManager.getInstance().getByteConnection().async().hset(this.getName().getBytes(), SerializationUtils.serialize(key), SerializationUtils.serialize(value));
+    }
+
+    private V getFromRedis(@NonNull K key) {
+        try {
+            byte[] keyAsByteArray = SerializationUtils.serialize(key);
+            byte[] objectData = ConnectionManager.getInstance().getByteConnection().async().hget(this.getName().getBytes(), keyAsByteArray).get();
+
+            if (objectData == null) {
+                return null;
+            }
+
+            CacheObject<V> value = SerializationUtils.deserialize(objectData);
+
+            //this makes is so that if the cache entry is older that one Hour it will be removed from redis and the cache is forced to reload it.
+            if (new Timestamp(value.getLastModified()).before(new Timestamp(new Date().getTime()))) {
+                ConnectionManager.getInstance().getByteConnection().async().hdel(this.getName().getBytes(), keyAsByteArray);
+                return null;
+            }
+
+            return value.getValue();
+        } catch (InterruptedException | ExecutionException e) {
+            Log.getLog(log).error(e, "Error while getting {key} from cache {name}.", key.toString(), this.getName());
+            return null;
+        }
     }
 }

@@ -1,5 +1,5 @@
 
-import net.myplayplanet.services.cache_new.Cache;
+import net.myplayplanet.services.cache.Cache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

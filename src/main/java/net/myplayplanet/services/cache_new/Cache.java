@@ -45,20 +45,13 @@ public class Cache<K extends Serializable, V extends Serializable> {
                 .expireAfterWrite(21, TimeUnit.MINUTES)
                 .build(new CacheLoader<K, Optional<V>>() {
                     public Optional<V> load(K key) {
-                        System.out.println("(default) get");
                         V result = getFromRedis(key);
 
                         if (result == null) {
-                            System.out.println("(default) apply Function");
                             result = function.apply(key);
                             if (result != null) {
-                                System.out.println("(default) function result = " + result.toString());
                                 update(key, result);
-                            }else {
-                                System.out.println("(default) function result = null");
                             }
-                        }else{
-                            System.out.println("(default) get from redis = " + result.toString());
                         }
 
                         return Optional.ofNullable(result);
@@ -115,44 +108,29 @@ public class Cache<K extends Serializable, V extends Serializable> {
      * @return the value that was found in the cache or generated from the function, null if that function returns null.
      */
     private V getWithFunction(@NonNull K key, @NonNull boolean force, Function<K, V> function) {
-        System.out.println("=========================");
-        System.out.println("(getWithFunction) cache Name: " + this.getName());
-        System.out.println("(getWithFunction) key: " + key.toString());
-        System.out.println("(getWithFunction) force: " + force);
-        System.out.println("(getWithFunction) function: " + ((function != null) ?  function.toString() : "null"));
         if (force) {
             V result = this.function.apply(key);
 
             if (result == null) {
-                System.out.println("(getWithFunction) force result null");
                 return null;
             }
-            System.out.println("(getWithFunction) key " + key.toString());
 
             this.update(key, result);
             return result;
         }
 
         if (function != null) {
-            System.out.println("(getWithFunction) function != null");
             try {
                 return loadingCache.get(key, () -> {
                     V result = getFromRedis(key);
-                    System.out.println("(getWithFunction) own function get");
 
                     if (result == null) {
-                        System.out.println("(getWithFunction) own Function apply");
                         result = function.apply(key);
                         if (result != null) {
-                            System.out.println("(getWithFunction) function == " +result.toString());
                             update(key, result);
-                        }else {
-                            System.out.println("(getWithFunction) function == " + null);
                         }
-                    }else {
-                        System.out.println("(getWithFunction) getFrom Redis Successful");
                     }
-                    System.out.println("(getWithFunction) result: " +((result != null) ? new Gson().toJson(result) : "null"));
+
                     return Optional.ofNullable(result);
                 }).orElse(null);
             } catch (ExecutionException e) {
@@ -162,7 +140,6 @@ public class Cache<K extends Serializable, V extends Serializable> {
         }
         try {
             Optional<V> v = loadingCache.get(key);
-            System.out.println("(getWithFunction) not own Function: " + ((v.isPresent()) ? new Gson().toJson(v.get()) : "null"));
             return v.orElse(null);
         } catch (ExecutionException e) {
             e.printStackTrace();
@@ -176,7 +153,6 @@ public class Cache<K extends Serializable, V extends Serializable> {
      */
     public void update(@NonNull K key,V value) {
         if (value == null) {
-            System.out.println("update value is null");
             return;
         }
 
@@ -285,28 +261,22 @@ public class Cache<K extends Serializable, V extends Serializable> {
     }
 
     private V getFromRedis(@NonNull K key) {
-        System.out.println("get from redis for key "+ key.toString() + ":");
         try {
             byte[] keyAsByteArray = SerializationUtils.serialize(key);
             byte[] objectData = ConnectionManager.getInstance().getByteConnection().async().hget(this.getName().getBytes(), keyAsByteArray).get();
 
             if (objectData == null) {
-                System.out.println("object data is null");
                 return null;
             }
 
             CacheObject<V> value = SerializationUtils.deserialize(objectData);
-            System.out.println("value.key: " + value.getLastModified() + "\t " + value.getValue().toString());
 
             //this makes is so that if the cache entry is older that one Hour it will be removed from redis and the cache is forced to reload it.
             if (new Timestamp(value.getLastModified()).before(new Timestamp(new Date().getTime()))) {
-                System.out.println("expired");
                 ConnectionManager.getInstance().getByteConnection().async().hdel(this.getName().getBytes(), keyAsByteArray);
                 return null;
             }
 
-
-            System.out.println("returned " + value.getValue().toString() +"!");
             return value.getValue();
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e, "Error while getting {key} from cache {name}.", key.toString(), this.getName());

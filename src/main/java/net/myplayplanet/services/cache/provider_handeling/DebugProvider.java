@@ -1,4 +1,4 @@
 package net.myplayplanet.services.cache.provider_handeling;
 
-public interface ICacheProvider {
+public interface DebugProvider {
 }

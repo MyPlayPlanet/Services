@@ -1,44 +1,64 @@
 package net.myplayplanet.services.cache.provider_handeling;
 
-import lombok.Getter;
-import net.myplayplanet.services.cache.provider_handeling.providers.LocalCacheProvider;
+import net.myplayplanet.services.cache.Cache;
+import net.myplayplanet.services.cache.provider_handeling.providers.MockProvider;
+import net.myplayplanet.services.cache.provider_handeling.providers.RedisProvider;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CacheProviderHandler {
-    @Getter
     private static CacheProviderHandler instance;
+    private static boolean debug = false;
 
-    private List<Class<? extends ICacheProvider>> providerList;
+    public static CacheProviderHandler getInstance(){
+        if (instance == null) {
+            instance = new CacheProviderHandler();
+            //todo put the register things somewhere good
+            instance.register(MockProvider.class);
+            instance.register(RedisProvider.class);
+        }
+        return instance;
+    }
+
+    private List<Class<? extends AbstractCacheProvider>> providerList;
 
     public CacheProviderHandler() {
         providerList = new ArrayList<>();
         instance = this;
     }
 
-    public void register(Class<? extends ICacheProvider> provider) {
+    public void register(Class<? extends AbstractCacheProvider> provider) {
         providerList.add(provider);
     }
 
-    public List<ICacheProvider> getCacheProviders() {
-        List<>
-        for (Class<? extends ICacheProvider> tClass : providerList) {
-            try {
-                ICacheProvider provider = tClass.getConstructor().newInstance();
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
+
+    public <K extends Serializable, V extends Serializable> AbstractCacheProvider<K, V> getProvider(Cache<K, V> current) {
+
+        Class<? extends AbstractCacheProvider> abstractCacheProvider = (debug)
+                ? providerList.stream().filter(aClass -> aClass.isAssignableFrom(DebugProvider.class)).findFirst().orElse(null)
+                : providerList.stream().filter(aClass -> !aClass.isAssignableFrom(DebugProvider.class)).findFirst().orElse(null);
+
+        if (abstractCacheProvider == null) {
+            return null;
+        }
+
+        try {
+            return abstractCacheProvider.getConstructor().newInstance(current);
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+            return null;
         }
     }
-
 
     private static void example() {
         new CacheProviderHandler();
 
 
-        CacheProviderHandler.getInstance().register(LocalCacheProvider.class);
 
     }
 

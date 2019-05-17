@@ -46,5 +46,8 @@ public class MapCache<K extends Serializable, V extends Serializable> {
         saveCache.removeFromCache(key);
     }
 
-
+    public void clear() {
+        saveCache.clearCache();
+        listCache.clearCache();
+    }
 }

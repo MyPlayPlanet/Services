@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.cache.AbstractSaveProvider;
 import net.myplayplanet.services.cache.Cache;
+import net.myplayplanet.services.cache.advanced.MapCache;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.connection.SQLUtils;
 
@@ -12,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,6 +27,7 @@ public class CheckStringManager {
     private static CheckStringManager instance;
 
     private Cache<String, Integer> wordCache;
+    private MapCache<Integer, String> permuCache; //integer = badWordId, String = bad word permutation
     private Cache<String, ArrayList<String>> permutationCache;
 
     public CheckStringManager() {
@@ -89,6 +92,27 @@ public class CheckStringManager {
                 }
             }
         });
+
+        permuCache = new MapCache<>("badword-permutation-cache", i -> {
+            //todo insert singleEntry to SQL
+            return null;
+        }, new AbstractSaveProvider<Integer, String>() {
+            @Override
+            public boolean save(Integer key, String value) {
+                //todo save singleEntry
+                return false;
+            }
+
+            @Override
+            public List<Integer> saveAll(List<AbstractMap.SimpleEntry<Integer, String>> values) {
+                //todo implement save all
+                return super.saveAll(values);
+            }
+        }, () -> {
+            //todo implement apply all values from sql
+            return null;
+        });
+
 
         permutationCache = new Cache<>("badword-permutation-cache", s -> {
             Connection conn = ConnectionManager.getInstance().getMySQLConnection();

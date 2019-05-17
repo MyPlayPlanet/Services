@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class Cache<K extends Serializable, V extends Serializable> {
-    private LoadingCache<K, Optional<V>> loadingCache;
+    private LoadingCache<K, Optional<V>> localCache;
     private Function<K, V> function;
     private List<Consumer<CacheUpdateEvent>> updateEvents;
 
@@ -40,7 +40,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
         this.function = function;
         this.updateEvents = new ArrayList<>();
 
-        loadingCache = CacheBuilder.newBuilder()
+        localCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(21, TimeUnit.MINUTES)
                 .build(new CacheLoader<K, Optional<V>>() {
                     public Optional<V> load(K key) {
@@ -66,13 +66,18 @@ public class Cache<K extends Serializable, V extends Serializable> {
      */
     public Cache(@NonNull String name, @NonNull Function<K, V> function, @NonNull AbstractSaveProvider<K, V> saveProvider) {
         this(name, function);
+
+        if (saveProvider == null) {
+            return;
+        }
+
         this.saveProvider = saveProvider;
 
         this.saveProvider.load().forEach(this::update);
 
         ScheduledTaskProvider.getInstance().register(saveProvider);
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> saveAll()));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::saveAll));
     }
 
     /**
@@ -101,7 +106,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
     }
 
     /**
-     * This method will try to get the value from local cache, if it is not there it will try and get it from
+     * This method will try to apply the value from local cache, if it is not there it will try and apply it from
      * the redis cache, if it still is nowhere to be found it will execute the function defined on the constructor of this class
      *
      * @return the value that was found in the cache or generated from the function, null if that function returns null.
@@ -120,7 +125,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
         if (function != null) {
             try {
-                return loadingCache.get(key, () -> {
+                return localCache.get(key, () -> {
                     V result = getFromRedis(key);
 
                     if (result == null) {
@@ -138,7 +143,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
             }
         }
         try {
-            Optional<V> v = loadingCache.get(key);
+            Optional<V> v = localCache.get(key);
             return v.orElse(null);
         } catch (ExecutionException e) {
             e.printStackTrace();
@@ -146,6 +151,10 @@ public class Cache<K extends Serializable, V extends Serializable> {
         }
     }
 
+    public void removeFromCache(K key) {
+        localCache.invalidate(key);
+        ConnectionManager.getInstance().getByteConnection().async().hdel(this.getName().getBytes(), SerializationUtils.serialize(key));
+    }
 
     /**
      * this will call update the local cache and call {@link #handleUpdate(Serializable, Serializable)}
@@ -164,7 +173,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
             return;
         }
 
-        loadingCache.put(event.getKey(), Optional.of(event.getValue()));
+        localCache.put(event.getKey(), Optional.of(event.getValue()));
         handleUpdate(key, value);
     }
 
@@ -185,14 +194,36 @@ public class Cache<K extends Serializable, V extends Serializable> {
     }
 
     /**
-     * this Method will always load from redis because the local Cache expires, and therefore is not reliable.
+     * //todo javadoc
      * @return
      */
     public List<V> getExistingValues() {
         reloadLocalCacheFromRedis();
-        return loadingCache.asMap().values().stream().map(v -> v.orElse(null)).collect(Collectors.toList());
+        return localCache.asMap().values().stream().map(v -> v.orElse(null)).collect(Collectors.toList());
     }
 
+    /**
+     * //todo javadoc
+     * @return
+     */
+    public HashMap<K, V> getExistingValuesAsMap() {
+        HashMap<K, V> map = new HashMap<>();
+
+        try {
+            ConnectionManager.getInstance().getByteConnection().async()
+                    .hgetall(this.getName().getBytes()).get()
+                    .forEach((key, value) ->
+                            {
+                                CacheObject<V> deserialize = SerializationUtils.deserialize(value);
+                                map.put(SerializationUtils.deserialize(key), deserialize.getValue());
+                            }
+                    );
+        } catch (InterruptedException | ExecutionException e) {
+            Log.getLog(log).error(e,"Error while reloading Cache {cache}", this.getName());
+            return null;
+        }
+        return map;
+    }
 
     /**
      * clears the local cache and the redis cache and then executes the {@link AbstractSaveProvider#load()} Method.
@@ -221,19 +252,19 @@ public class Cache<K extends Serializable, V extends Serializable> {
     /**
      * clears the remote redis cache
      */
-    public void clearRedisCache() {
+    private void clearRedisCache() {
         ConnectionManager.getInstance().getByteConnection().async().del(this.getName().getBytes());
     }
 
     /**
      * clears the local guava cache.
      */
-    public void clearLocalCache() {
-        loadingCache.invalidateAll();
+    private void clearLocalCache() {
+        localCache.invalidateAll();
     }
 
     /**
-     * get every entry that is present in redis and loads it into the local cache.
+     * apply every entry that is present in redis and loads it into the local cache.
      */
     public void reloadLocalCacheFromRedis() {
         HashMap<K, V> map = new HashMap<>();
@@ -254,11 +285,12 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
         for (K k : map.keySet()) {
             // i only need to load this in the local Cache. there is no need to call the
-            // "update" Method because it needs to be in redis to get to this part of the Code and what is in
+            // "update" Method because it needs to be in redis to apply to this part of the Code and what is in
             // redis does not need to be saved or written to redis.
-            loadingCache.put(k, Optional.of(map.get(k)));
+            localCache.put(k, Optional.of(map.get(k)));
         }
     }
+
 
     private void updateRedis(@NonNull K key, @NonNull V v) {
         CacheObject<V> value = new CacheObject<>(new Date().getTime() + 3600, v);

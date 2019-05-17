@@ -24,7 +24,7 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
     }
 
     public TimeUnit getIntervalUnit() {
-        return TimeUnit.MINUTES;
+        return TimeUnit.SECONDS;
     }
     public int getInterval() {
         return 60;

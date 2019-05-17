@@ -55,9 +55,9 @@ public class ConfigManager {
     }
 
     /**
-     * @param settingsName The File Name from which you get the Property
-     * @param key          The key from which you get the Property
-     * @param <T>          The Type you want to get back
+     * @param settingsName The File Name from which you apply the Property
+     * @param key          The key from which you apply the Property
+     * @param <T>          The Type you want to apply back
      * @return The Property in the Type you want
      */
     public <T> T getProperty(String settingsName, String key) {
@@ -85,9 +85,9 @@ public class ConfigManager {
     }
 
     /**
-     * @param file The File from which you get the Property
-     * @param key  The key from which you get the Property
-     * @param <T>  The Type you want to get back
+     * @param file The File from which you apply the Property
+     * @param key  The key from which you apply the Property
+     * @param <T>  The Type you want to apply back
      * @return The Property in the Type you want
      */
     public <T> T getProperty(File file, String key) {
@@ -137,7 +137,7 @@ public class ConfigManager {
 
     /**
      * @param name of the {@link ConnectionSettings} {@link File}
-     * @return {@link ConnectionSettings} which are get from the File
+     * @return {@link ConnectionSettings} which are apply from the File
      */
     public ConnectionSettings getConnectionSettings(String name) {
         File setting = new File(this.path.getAbsolutePath() + "/" + name.toLowerCase() + ".properties");
@@ -157,7 +157,7 @@ public class ConfigManager {
 
     /**
      * @param file of which the {@link ConnectionSettings}
-     * @return {@link ConnectionSettings} which are get from the File
+     * @return {@link ConnectionSettings} which are apply from the File
      */
     public ConnectionSettings getConnectionSettings(File file) {
         if (!(file.exists())) {

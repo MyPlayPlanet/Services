@@ -76,7 +76,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
         this.saveProvider = saveProvider;
 
-        this.saveProvider.load().forEach(this::update);
+        this.saveProvider.load().forEach(this::update); //todo implement not loading every time services get started
 
         ScheduledTaskProvider.getInstance().register(saveProvider);
 

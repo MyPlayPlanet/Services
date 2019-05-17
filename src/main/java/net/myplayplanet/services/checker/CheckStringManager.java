@@ -94,6 +94,10 @@ public class CheckStringManager {
 
                     @Override
                     public List<String> saveAll(HashMap<String, String> values) {
+                        if (values.size() == 0) {
+                            return new ArrayList<>();
+                        }
+
                         //<editor-fold desc="save everything to sql">
                         Connection conn = ConnectionManager.getInstance().getMySQLConnection();
                         try {
@@ -197,6 +201,11 @@ public class CheckStringManager {
 
                     @Override
                     public List<String> saveAll(String masterKey, HashMap<String, String> values) {
+                        if (values.size() == 0) {
+                            return new ArrayList<>();
+                        }
+
+
                         //<editor-fold desc="save everything to sql">
                         Connection conn = ConnectionManager.getInstance().getMySQLConnection();
                         try {

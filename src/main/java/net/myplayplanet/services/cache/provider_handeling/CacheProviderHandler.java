@@ -5,6 +5,7 @@ import net.myplayplanet.services.cache.provider_handeling.providers.MockProvider
 import net.myplayplanet.services.cache.provider_handeling.providers.RedisProvider;
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import java.util.ArrayList;
@@ -47,7 +48,8 @@ public class CacheProviderHandler {
         }
 
         try {
-            return abstractCacheProvider.getConstructor().newInstance(current);
+            Constructor<? extends AbstractCacheProvider> constructor = abstractCacheProvider.getConstructor(Cache.class);
+            return constructor.newInstance(current);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
             return null;

@@ -179,7 +179,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
     /**
      * Here the value and the key will be inserted into redis via the method {@link #updateRedis(Serializable, Serializable)}
-     * and if a save provider exists it will put the date up to be saved in the save provider scheduler.
+     * and if a save provider_handeling exists it will put the date up to be saved in the save provider_handeling scheduler.
      */
     private void handleUpdate(@NonNull K key, @NonNull V value) {
         updateRedis(key, value);

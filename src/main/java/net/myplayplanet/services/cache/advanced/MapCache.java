@@ -53,6 +53,7 @@ public class MapCache<K extends Serializable, V extends Serializable> {
 
     public V get(K key) {
         V v = saveCache.get(key);
+
         HashMap<K, V> kvHashMap = listCache.get(0);
         if (!kvHashMap.containsKey(key)) {
             listCache.update(0, kvHashMap);

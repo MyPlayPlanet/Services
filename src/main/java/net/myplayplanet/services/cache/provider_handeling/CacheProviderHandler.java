@@ -40,8 +40,8 @@ public class CacheProviderHandler {
     public <K extends Serializable, V extends Serializable> AbstractCacheProvider<K, V> getProvider(Cache<K, V> current) {
 
         Class<? extends AbstractCacheProvider> abstractCacheProvider = (debug)
-                ? providerList.stream().filter(aClass -> aClass.isAssignableFrom(DebugProvider.class)).findFirst().orElse(null)
-                : providerList.stream().filter(aClass -> !aClass.isAssignableFrom(DebugProvider.class)).findFirst().orElse(null);
+                ? providerList.stream().filter(DebugProvider.class::isAssignableFrom).findFirst().orElse(null)
+                : providerList.stream().filter(aClass -> !DebugProvider.class.isAssignableFrom(aClass)).findFirst().orElse(null);
 
         if (abstractCacheProvider == null) {
             return null;

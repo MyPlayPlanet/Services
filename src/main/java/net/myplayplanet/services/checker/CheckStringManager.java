@@ -106,7 +106,7 @@ public class CheckStringManager {
                                             "(`bezeichnung`) " +
                                             "VALUES " + SQLUtils.buildValuesString(1, values.size()) +
                                             "ON DUPLICATE KEY UPDATE " +
-                                            "`amount` = `amount`;");
+                                            "`bezeichnung` = `bezeichnung`;");
 
 
                             int index = 1;

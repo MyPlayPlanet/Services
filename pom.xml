@@ -46,6 +46,20 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.13</version>
+        </dependency>
+
+        <!-- PacketAPI 1.0.0 SNAPSHOT -->
+        <dependency>
+            <groupId>net.myplayplanet</groupId>
+            <artifactId>PacketAPI</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- guava 25.0-->
         <dependency>
             <groupId>com.google.guava</groupId>

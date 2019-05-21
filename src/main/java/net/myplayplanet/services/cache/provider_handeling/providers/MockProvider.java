@@ -9,33 +9,53 @@ import java.util.HashMap;
 
 public class MockProvider<K extends Serializable, V extends Serializable> extends AbstractCacheProvider<K, V> implements DebugProvider {
 
+    private AbstractCacheProvider<K, V> provider;
+    private HashMap<K, V> map;
+
     public MockProvider(Cache<K, V> cache) {
         super(cache);
     }
 
+
+    public MockProvider(Cache<K, V> cache, AbstractCacheProvider<K, V> provider) {
+        super(cache);
+        if (provider != null) {
+            this.provider = provider;
+        }else {
+            map = new HashMap<>();
+        }
+    }
+
     @Override
     public V get(K key) {
-        return null;
+        if (provider != null) {
+            return provider.get(key);
+        }
     }
 
     @Override
     public void update(K key, V value) {
+        if (provider != null) {
+            provider.update(key, value);
+            return;
+        }
+
 
     }
 
     @Override
     public HashMap<K, V> getPresentValues() {
-        return null;
+        return provider.getPresentValues();
     }
 
     @Override
     public long expireAfterSeconds() {
-        return 0;
+        return provider.expireAfterSeconds();
     }
 
     @Override
     public void clear() {
-
+        provider.clear();
     }
 
     @Override

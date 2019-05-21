@@ -14,8 +14,11 @@ public abstract class AbstractService {
     public void init() {
     }
 
+    public void initMock() {
+        System.out.println("Service " + this.getClass().getName() + " started in test mode!");
+    }
+
     public void disable() {
 
     }
-
 }

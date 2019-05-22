@@ -1,24 +1,16 @@
 package net.myplayplanet.services.checker;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.cache.AbstractSaveProvider;
-import net.myplayplanet.services.cache.Cache;
 import net.myplayplanet.services.cache.advanced.CacheCollectionSaveProvider;
 import net.myplayplanet.services.cache.advanced.ListCache;
 import net.myplayplanet.services.cache.advanced.ListCacheCollection;
 import net.myplayplanet.services.checker.provider.ICheckProvider;
 import net.myplayplanet.services.checker.provider.MockCheckProvider;
 import net.myplayplanet.services.checker.provider.SqlCheckProvider;
-import net.myplayplanet.services.connection.ConnectionManager;
-import net.myplayplanet.services.connection.SQLUtils;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,12 +32,9 @@ public class CheckStringManager {
     public CheckStringManager() {
         instance = this;
 
-        if (ServiceCluster.isDebug()) {
-            provider = new MockCheckProvider();
-        }else {
-            provider = new SqlCheckProvider();
-        }
-
+        provider = (ServiceCluster.isDebug()
+                ? new MockCheckProvider()
+                : new SqlCheckProvider());
 
         wordCache = new ListCache<>("badword-cache",
                 s -> s,
@@ -102,8 +91,7 @@ public class CheckStringManager {
     public void add(String word, boolean permutations) {
         ForkJoinPool.commonPool().execute(() -> {
             wordCache.addItem(word);
-
-
+            
             if (permutations) {
                 HashSet<String> badWords = new HashSet<>();
 

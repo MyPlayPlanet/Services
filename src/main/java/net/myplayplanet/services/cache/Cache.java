@@ -33,24 +33,27 @@ public class Cache<K extends Serializable, V extends Serializable> {
     private String name;
     private AbstractSaveProvider<K, V> saveProvider;
 
+
     /**
-     * @param name     the name of the Cache that will be created.
-     * @param function the Function that will be called when no entry was found in the local or the redis cache.
-     *                 this also makes it possible to load from Sql etc.
+     * @param name             the name of the Cache that will be created.
+     * @param function         the Function that will be called when no entry was found in the local or the redis cache.
+     *                         this also makes it possible to load from Sql etc.
+     * @param saveProvider     the class that is used to save the cache entries.
+     * @param localCacheExpire the time in Minutes when the local Cache Expires.
      */
-    public Cache(@NonNull String name, @NonNull Function<K, V> function) {
+    public Cache(String name, int localCacheExpire, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
         this.name = name;
         this.function = function;
         this.updateEvents = new ArrayList<>();
 
         if (ServiceCluster.isDebug()) {
             provider = new MockProvider<>();
-        }else {
+        } else {
             provider = new RedisProvider<>(this);
         }
 
         localCache = CacheBuilder.newBuilder()
-                .expireAfterWrite(21, TimeUnit.MINUTES)
+                .expireAfterWrite(localCacheExpire, TimeUnit.MINUTES)
                 .build(new CacheLoader<K, Optional<V>>() {
                     public Optional<V> load(K key) {
                         V result = provider.get(key);
@@ -65,6 +68,16 @@ public class Cache<K extends Serializable, V extends Serializable> {
                         return Optional.ofNullable(result);
                     }
                 });
+
+        if (saveProvider != null) {
+            this.saveProvider = saveProvider;
+
+            this.saveProvider.load().forEach(this::update); //todo implement not loading every time services get started
+
+            ScheduledTaskProvider.getInstance().register(saveProvider);
+
+            Runtime.getRuntime().addShutdownHook(new Thread(this::saveAll));
+        }
     }
 
     /**
@@ -73,20 +86,27 @@ public class Cache<K extends Serializable, V extends Serializable> {
      *                     this also makes it possible to load from Sql etc.
      * @param saveProvider the class that is used to save the cache entries.
      */
-    public Cache(@NonNull String name, @NonNull Function<K, V> function, @NonNull AbstractSaveProvider<K, V> saveProvider) {
-        this(name, function);
+    public Cache(String name, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
+        this(name, 21, function, saveProvider);
+    }
 
-        if (saveProvider == null) {
-            return;
-        }
+    /**
+     * @param name             the name of the Cache that will be created.
+     * @param localCacheExpire the time in Minutes when the local Cache Expires.
+     * @param function         the Function that will be called when no entry was found in the local or the redis cache.
+     *                         this also makes it possible to load from Sql etc.
+     */
+    public Cache(String name, int localCacheExpire, Function<K, V> function) {
+        this(name, localCacheExpire, function, null);
+    }
 
-        this.saveProvider = saveProvider;
-
-        this.saveProvider.load().forEach(this::update); //todo implement not loading every time services get started
-
-        ScheduledTaskProvider.getInstance().register(saveProvider);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(this::saveAll));
+    /**
+     * @param name     the name of the Cache that will be created.
+     * @param function the Function that will be called when no entry was found in the local or the redis cache.
+     *                 this also makes it possible to load from Sql etc.
+     */
+    public Cache(String name, Function<K, V> function) {
+        this(name, 21, function, null);
     }
 
     /**
@@ -246,7 +266,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
     /**
      * clears the local guava cache.
      */
-    private void clearLocalCache() {
+    public void clearLocalCache() {
         localCache.invalidateAll();
     }
 }

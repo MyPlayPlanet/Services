@@ -1,19 +1,38 @@
 package net.myplayplanet.service.junit.log;
 
 import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.service.junit.ServiceInitializer;
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.logger.Log;
 import net.myplayplanet.services.logger.LogLevel;
 import net.myplayplanet.services.logger.LoggerService;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 @Slf4j
 public class LogTests {
+
     @BeforeAll
     public static void beforeAll() {
-        ServiceCluster.setDebug(true);
-        ServiceCluster.addServices(true, new LoggerService());
+        ServiceInitializer.beforeAll();
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ServiceCluster.shutdownCluster();
+    }
+    @BeforeEach
+    public void beforeEach() {
+        Log.getLog(log).info("============== Before ==============");
+    }
+
+    @AfterEach
+    public void afterEach() {
+        Log.getLog(log).info("============== After ==============");
     }
 
     @Test
@@ -21,20 +40,5 @@ public class LogTests {
         //the result should be something like:
         //[main] INFO net.myplayplanet.service.junit.log.LogTests  - test message!
         Log.getLog(log).info("test message!"); //todo automate checking this
-    }
-
-    @Test
-    public void sdafsd1() {
-        long time = System.currentTimeMillis();
-        int c = 1;
-        for (int i = 0; i < 1000; i++) {
-            Log.getLog(log).log(null, LogLevel.INFO, ""+i);
-        }
-        System.out.println(System.currentTimeMillis()-time);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

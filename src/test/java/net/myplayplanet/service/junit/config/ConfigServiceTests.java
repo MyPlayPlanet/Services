@@ -1,23 +1,41 @@
 package net.myplayplanet.service.junit.config;
 
+import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.service.junit.ServiceInitializer;
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.config.ConfigManager;
 import net.myplayplanet.services.config.ConfigService;
+import net.myplayplanet.services.logger.Log;
 import net.myplayplanet.services.logger.LoggerService;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-
+@Slf4j
 public class ConfigServiceTests {
     @BeforeAll
     public static void beforeAll() {
-        ServiceCluster.setDebug(true);
-        ServiceCluster.addServices(true, new LoggerService());
-        ServiceCluster.addServices(true, new ConfigService(new File("home")));
+        ServiceInitializer.beforeAll();
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ServiceCluster.shutdownCluster();
+    }
+    @BeforeEach
+    public void beforeEach() {
+        Log.getLog(log).info("============== Before ==============");
+    }
+
+    @AfterEach
+    public void afterEach() {
+        Log.getLog(log).info("============== After ==============");
     }
 
     @Test

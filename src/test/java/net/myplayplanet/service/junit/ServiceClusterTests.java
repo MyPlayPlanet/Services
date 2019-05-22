@@ -5,6 +5,7 @@ import net.myplayplanet.services.config.ConfigManager;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.connection.ConnectionSettings;
 import net.myplayplanet.services.logger.LoggerService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,15 @@ public class ServiceClusterTests {
         ServiceCluster.setDebug(true);
         ServiceCluster.addServices(true, new LoggerService());
         ServiceCluster.addServices(true, new ConfigService(new File("home")));
+    }
+
+    @AfterAll
+    public static void afterAll() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

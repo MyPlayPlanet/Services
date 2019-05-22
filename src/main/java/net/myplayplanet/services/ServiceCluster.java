@@ -50,6 +50,7 @@ public class ServiceCluster {
 
     public static void shutdownCluster() {
         IServiceList.forEach(AbstractService::disable);
+        IServiceList.clear();
     }
 
     /**

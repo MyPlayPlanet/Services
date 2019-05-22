@@ -9,6 +9,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Data
 public class TestObject implements Serializable {
-    String k;
-    UUID v;
+    String string;
+    UUID uuid;
 }

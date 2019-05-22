@@ -31,6 +31,7 @@ public class MockProvider<K extends Serializable, V extends Serializable> extend
         if (provider != null) {
             return provider.get(key);
         }
+        return null;
     }
 
     @Override

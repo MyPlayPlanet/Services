@@ -62,39 +62,6 @@ public class ConfigService extends AbstractService {
     }
 
     @Override
-    public void initMock() {
-        super.initMock();
-
-        this.configManager = ConfigManager.createInstance(path);
-
-        Properties redisProperties = new Properties();
-        Properties mysqlProperties = new Properties();
-
-        try {
-            redisProperties.setProperty("hostname", Inet4Address.getLocalHost().getHostAddress());
-            redisProperties.setProperty("database", "database");
-            redisProperties.setProperty("port", "6379");
-            redisProperties.setProperty("password", "foobared");
-            redisProperties.setProperty("username", "username");
-
-            mysqlProperties.setProperty("hostname", Inet4Address.getLocalHost().getHostAddress());
-            mysqlProperties.setProperty("database", "database");
-            mysqlProperties.setProperty("port", "3306");
-            mysqlProperties.setProperty("password", "password");
-            mysqlProperties.setProperty("username", "username");
-
-            if (this.configManager.createSettingWithProperties("redis-settings", redisProperties)) {
-                System.out.println("created setting redis-settings");
-            }
-            if (this.configManager.createSettingWithProperties("mysql-settings", mysqlProperties)) {
-                System.out.println("created setting mysql-settings");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public void disable() {
         Log.getLog(log).info("Shutting down {service}...", "ConfigService");
     }

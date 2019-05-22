@@ -1,3 +1,4 @@
+package net.myplayplanet.service.junit.cache;
 
 import net.myplayplanet.services.cache.Cache;
 import org.junit.jupiter.api.BeforeEach;

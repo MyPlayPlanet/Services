@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.checker.CheckService;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.connection.ConnectionService;
-import net.myplayplanet.services.exeption.AlreadyInitializedException;
 import net.myplayplanet.services.logger.Log;
 import net.myplayplanet.services.logger.LoggerService;
 import net.myplayplanet.services.schedule.ScheduleService;
@@ -32,10 +31,6 @@ public class ServiceCluster {
         });
 
         IServiceList.addAll(services);
-        if (debug && initiate){
-            services.forEach(AbstractService::initMock);
-            return;
-        }
         if (initiate) {
             services.forEach(AbstractService::init);
         }

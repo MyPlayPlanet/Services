@@ -1,9 +1,9 @@
 package net.myplayplanet.services.cache.provider_handeling.providers;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.cache.Cache;
 import net.myplayplanet.services.cache.CacheObject;
-import net.myplayplanet.services.cache.provider_handeling.AbstractCacheProvider;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.logger.Log;
 import org.apache.commons.lang3.SerializationUtils;
@@ -15,9 +15,12 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
-public class RedisProvider<K extends Serializable, V extends Serializable> extends AbstractCacheProvider<K, V> {
+public class RedisProvider<K extends Serializable, V extends Serializable> implements ICacheProvider<K, V> {
+    @Getter
+    private Cache<K, V> cache;
+
     public RedisProvider(Cache<K, V> cache) {
-        super(cache);
+        this.cache = cache;
     }
 
     @Override

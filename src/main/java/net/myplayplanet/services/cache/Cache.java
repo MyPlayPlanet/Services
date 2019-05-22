@@ -6,8 +6,10 @@ import com.google.common.cache.LoadingCache;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.cache.provider_handeling.AbstractCacheProvider;
-import net.myplayplanet.services.cache.provider_handeling.CacheProviderHandler;
+import net.myplayplanet.services.ServiceCluster;
+import net.myplayplanet.services.cache.provider_handeling.providers.ICacheProvider;
+import net.myplayplanet.services.cache.provider_handeling.providers.MockProvider;
+import net.myplayplanet.services.cache.provider_handeling.providers.RedisProvider;
 import net.myplayplanet.services.schedule.ScheduledTaskProvider;
 
 import java.io.Serializable;
@@ -25,7 +27,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
     private LoadingCache<K, Optional<V>> localCache;
     private Function<K, V> function;
     private List<Consumer<CacheUpdateEvent>> updateEvents;
-    private AbstractCacheProvider<K, V> provider;
+    private ICacheProvider<K, V> provider;
 
     @Getter
     private String name;
@@ -41,7 +43,11 @@ public class Cache<K extends Serializable, V extends Serializable> {
         this.function = function;
         this.updateEvents = new ArrayList<>();
 
-        provider = CacheProviderHandler.getInstance().getProvider(this);
+        if (ServiceCluster.isDebug()) {
+            provider = new MockProvider<>();
+        }else {
+            provider = new RedisProvider<>(this);
+        }
 
         localCache = CacheBuilder.newBuilder()
                 .expireAfterWrite(21, TimeUnit.MINUTES)

@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.ServiceCluster;
-import net.myplayplanet.services.cache.provider_handeling.providers.ICacheProvider;
-import net.myplayplanet.services.cache.provider_handeling.providers.MockProvider;
-import net.myplayplanet.services.cache.provider_handeling.providers.RedisProvider;
+import net.myplayplanet.services.cache.providers.ICacheProvider;
+import net.myplayplanet.services.cache.providers.MockProvider;
+import net.myplayplanet.services.cache.providers.RedisProvider;
 import net.myplayplanet.services.schedule.ScheduledTaskProvider;
 
 import java.io.Serializable;

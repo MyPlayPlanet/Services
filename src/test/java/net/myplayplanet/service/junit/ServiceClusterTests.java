@@ -25,26 +25,6 @@ public class ServiceClusterTests {
     }
 
     @Test
-    public void create_add_and_get_setting_test() {
-        //Arrange
-        String fileName = "example";
-
-        Properties properties = new Properties();
-        properties.setProperty("key", "value");
-
-        //Act
-        try {
-            ConfigManager.getInstance().createSettingWithProperties(fileName, properties);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String result = ConfigManager.getInstance().getProperty(fileName, "key");
-
-        //Assert
-        Assertions.assertEquals("value", result);
-    }
-
-    @Test
     public void create_and_get_mysql_settings_test() {
         //Arrange
         String hostAddress = null;

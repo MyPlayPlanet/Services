@@ -1,4 +1,4 @@
-package net.myplayplanet.services.cache.provider_handeling.providers;
+package net.myplayplanet.services.cache.providers;
 
 import net.myplayplanet.services.cache.Cache;
 

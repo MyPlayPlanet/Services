@@ -91,7 +91,7 @@ public class CheckStringManager {
     public void add(String word, boolean permutations) {
         ForkJoinPool.commonPool().execute(() -> {
             wordCache.addItem(word);
-            
+
             if (permutations) {
                 HashSet<String> badWords = new HashSet<>();
 

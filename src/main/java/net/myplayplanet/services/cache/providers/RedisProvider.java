@@ -1,4 +1,4 @@
-package net.myplayplanet.services.cache.provider_handeling.providers;
+package net.myplayplanet.services.cache.providers;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

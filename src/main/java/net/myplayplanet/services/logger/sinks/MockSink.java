@@ -1,6 +1,5 @@
 package net.myplayplanet.services.logger.sinks;
 
-import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import net.myplayplanet.services.logger.LogEntry;
@@ -20,7 +19,7 @@ public class MockSink implements ISink {
 
     @Override
     public void save(LogEntry entry) {
-        System.out.println(new Gson().toJson(entry));
+
     }
 
     @Override

@@ -32,7 +32,7 @@ public class ConfigManager {
 
         if (ServiceCluster.isDebug()) {
             provider = new MockProvider(path);
-            System.out.println("creating Config Manager on File " + path.getPath());
+            Log.getLog(log).debug("creating Config Manager on File {path}", path.getPath());
         } else {
             provider = new FileProvider(path);
             Log.getLog(log).debug("creating Config Manager on File {path}", path.getPath());

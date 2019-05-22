@@ -11,7 +11,8 @@ import net.myplayplanet.services.logger.sinks.MySQLSink;
 public class LoggerService extends AbstractService {
     @Override
     public void init() {
-        Log.initialize(((ServiceCluster.isDebug()) ? new MockSink() : new MySQLSink()));
+        ISink iSink = (ServiceCluster.isDebug()) ? new MockSink() : new MySQLSink();
+        Log.initialize(iSink);
     }
 
     @Override

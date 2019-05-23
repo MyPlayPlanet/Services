@@ -31,7 +31,8 @@ public class ConfigService extends AbstractService {
     @Override
     public void init() {
         Log.getLog(log).info("Starting {service}...", "ConfigService");
-        this.configManager = new ConfigManager(path);
+
+        this.configManager = ConfigManager.createInstance(path);
 
         Properties redisProperties = new Properties();
         Properties mysqlProperties = new Properties();

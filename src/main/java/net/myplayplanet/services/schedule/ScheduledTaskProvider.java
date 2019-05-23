@@ -38,7 +38,7 @@ public class ScheduledTaskProvider {
     }
 
     private <T extends IScheduledTask> void scheduleTask(T task){
-        this.startedTask.put(task.getClass().getName().toLowerCase(), this.getExecutorService().scheduleAtFixedRate(() -> task.runLater(), 0, task.getInterval(), task.getIntervalUnit()));
+        this.startedTask.put(task.getClass().getName().toLowerCase(), this.getExecutorService().scheduleAtFixedRate(task::runLater, 0, task.getInterval(), task.getIntervalUnit()));
     }
 
     public <T extends IScheduledTask> ScheduledFuture get(T task){

@@ -12,8 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class SaveProviderTestsCacheTests {
-    private Cache<String, TestObject> sut;
+public class SaveProviderCacheTest {
     private HashMap<String, TestObject> sqlSave = new HashMap<>();
 
     @BeforeAll
@@ -27,7 +26,12 @@ public class SaveProviderTestsCacheTests {
 
     @BeforeEach
     public void beforeEach() {
-        sut = new Cache<>("sut", s -> new TestObject(s, UUID.randomUUID()), new AbstractSaveProvider<String, TestObject>() {
+        sqlSave.clear();
+    }
+
+    @Test
+    public void simple_test_1() {
+        Cache<String, TestObject> sut = new Cache<>("sut", s -> new TestObject(s, UUID.randomUUID()), new AbstractSaveProvider<String, TestObject>() {
             @Override
             public boolean save(String key, TestObject value) {
                 sqlSave.put(key, value);
@@ -44,10 +48,9 @@ public class SaveProviderTestsCacheTests {
                 return 1;
             }
         });
-    }
 
-    @Test
-    public void simple_test_1() {
+
+
         TestObject obj = sut.get("test");
 
         Assertions.assertEquals(0, sqlSave.size());
@@ -63,17 +66,38 @@ public class SaveProviderTestsCacheTests {
     }
     @Test
     public void simple_test_2() {
+        UUID uuid = UUID.randomUUID();
+
+        Cache<String, TestObject> sut = new Cache<>("sut", s -> new TestObject(s, UUID.randomUUID()), new AbstractSaveProvider<String, TestObject>() {
+            @Override
+            public boolean save(String key, TestObject value) {
+                sqlSave.put(key, value);
+                return true;
+            }
+
+            @Override
+            public HashMap<String, TestObject> load() {
+                HashMap<String, TestObject> map = new HashMap<>();
+
+                map.put("test", new TestObject("test", uuid));
+
+                return map;
+            }
+
+            @Override
+            public TimeUnit getIntervalUnit() {
+                return TimeUnit.SECONDS;
+            }
+
+            @Override
+            public int getInterval() {
+                return 1;
+            }
+        });
+
         TestObject obj = sut.get("test");
 
-        <
-
-        try {
-            Thread.sleep(1100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        Assertions.assertEquals(1, sqlSave.size());
-        Assertions.assertNotEquals(obj.getUuid(), sqlSave.get("test").getUuid());
+        Assertions.assertEquals("test" ,obj.getString());
+        Assertions.assertEquals(uuid ,obj.getUuid());
     }
 }

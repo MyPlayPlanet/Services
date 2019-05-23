@@ -58,21 +58,6 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
     }
 
     /**
-     * this will be executed according to {@link #getInterval()} and {@link #getIntervalUnit()}.
-     */
-    @Override
-    public void runLater() {
-        saveAll(savableEntries);
-    }
-
-    /**
-     * @return the object that was removed.
-     */
-    public V removeValue(K key) {
-        return savableEntries.remove(key);
-    }
-
-    /**
      * @param values list of all values that should be saved.
      * @return all the values that where successfully saved.
      */
@@ -85,5 +70,20 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
             }
         }
         return removedSuccessfully;
+    }
+
+    /**
+     * this will be executed according to {@link #getInterval()} and {@link #getIntervalUnit()}.
+     */
+    @Override
+    public void runLater() {
+        saveAll(savableEntries);
+    }
+
+    /**
+     * @return the object that was removed.
+     */
+    public V removeValue(K key) {
+        return savableEntries.remove(key);
     }
 }

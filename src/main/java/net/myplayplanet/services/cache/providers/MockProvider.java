@@ -12,11 +12,18 @@ public class MockProvider<K extends Serializable, V extends Serializable> implem
     @Getter
     @Setter
     private static int expireAfterSeconds = 10;
+    @Getter
+    private static HashMap<String, HashMap> totalMap = new HashMap<>();
 
     private HashMap<K, V> map;
 
-    public MockProvider() {
+
+    private Cache<K, V> cache;
+
+    public MockProvider(Cache<K, V> cache) {
+        this.cache = cache;
         map = new HashMap<>();
+        totalMap.put(cache.getName(), map);
     }
 
     @Override

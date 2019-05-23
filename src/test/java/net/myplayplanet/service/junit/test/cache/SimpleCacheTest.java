@@ -4,11 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.service.junit.utils.ServiceInitializer;
 import net.myplayplanet.service.junit.utils.TestObject;
 import net.myplayplanet.services.cache.Cache;
+import net.myplayplanet.services.cache.providers.MockProvider;
 import org.junit.jupiter.api.*;
 
 import java.util.UUID;
 @Slf4j
-public class SimpleCacheTests {
+public class SimpleCacheTest {
     Cache<String, TestObject> sut;
 
     @BeforeAll
@@ -61,5 +62,9 @@ public class SimpleCacheTests {
         //assert
         Assertions.assertEquals("test", newTestObj.getString());
         Assertions.assertEquals(obj.getUuid(), newTestObj.getUuid());
+
     }
+
+
+
 }

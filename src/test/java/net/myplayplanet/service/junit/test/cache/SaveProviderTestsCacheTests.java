@@ -1,7 +1,8 @@
-package net.myplayplanet.service.junit.cache;
+package net.myplayplanet.service.junit.test.cache;
 
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.service.junit.ServiceInitializer;
+import net.myplayplanet.service.junit.utils.ServiceInitializer;
+import net.myplayplanet.service.junit.utils.TestObject;
 import net.myplayplanet.services.cache.AbstractSaveProvider;
 import net.myplayplanet.services.cache.Cache;
 import org.junit.jupiter.api.*;
@@ -52,12 +53,27 @@ public class SaveProviderTestsCacheTests {
         Assertions.assertEquals(0, sqlSave.size());
 
         try {
-            Thread.sleep(1000);
+            Thread.sleep(1100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         Assertions.assertEquals(1, sqlSave.size());
         Assertions.assertEquals(obj, sqlSave.get("test"));
+    }
+    @Test
+    public void simple_test_2() {
+        TestObject obj = sut.get("test");
+
+        <
+
+        try {
+            Thread.sleep(1100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Assertions.assertEquals(1, sqlSave.size());
+        Assertions.assertNotEquals(obj.getUuid(), sqlSave.get("test").getUuid());
     }
 }

@@ -1,15 +1,12 @@
-package net.myplayplanet.service.junit.config;
+package net.myplayplanet.service.junit.test.config;
 
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.service.junit.ServiceInitializer;
+import net.myplayplanet.service.junit.utils.ServiceInitializer;
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.config.ConfigManager;
-import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.logger.Log;
-import net.myplayplanet.services.logger.LoggerService;
 import org.junit.jupiter.api.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 @Slf4j

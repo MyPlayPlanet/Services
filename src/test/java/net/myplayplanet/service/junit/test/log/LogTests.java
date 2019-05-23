@@ -1,11 +1,9 @@
-package net.myplayplanet.service.junit.log;
+package net.myplayplanet.service.junit.test.log;
 
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.service.junit.ServiceInitializer;
+import net.myplayplanet.service.junit.utils.ServiceInitializer;
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.logger.Log;
-import net.myplayplanet.services.logger.LogLevel;
-import net.myplayplanet.services.logger.LoggerService;
 import org.junit.jupiter.api.*;
 
 @Slf4j
@@ -38,7 +36,7 @@ public class LogTests {
     @Test
     public void simple_log_message() {
         //the result should be something like:
-        //[main] INFO net.myplayplanet.service.junit.log.LogTests  - test message!
+        //[main] INFO LogTests  - test message!
         Log.getLog(log).info("test message!"); //todo automate checking this
     }
 }

@@ -1,4 +1,4 @@
-package net.myplayplanet.service.junit.cache;
+package net.myplayplanet.service.junit.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

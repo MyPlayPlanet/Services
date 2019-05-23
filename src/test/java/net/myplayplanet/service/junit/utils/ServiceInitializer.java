@@ -1,4 +1,4 @@
-package net.myplayplanet.service.junit;
+package net.myplayplanet.service.junit.utils;
 
 import lombok.Getter;
 import lombok.Setter;

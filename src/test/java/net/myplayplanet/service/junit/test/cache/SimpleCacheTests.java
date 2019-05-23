@@ -1,10 +1,9 @@
-package net.myplayplanet.service.junit.cache;
+package net.myplayplanet.service.junit.test.cache;
 
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.service.junit.ServiceInitializer;
-import net.myplayplanet.services.ServiceCluster;
+import net.myplayplanet.service.junit.utils.ServiceInitializer;
+import net.myplayplanet.service.junit.utils.TestObject;
 import net.myplayplanet.services.cache.Cache;
-import net.myplayplanet.services.logger.Log;
 import org.junit.jupiter.api.*;
 
 import java.util.UUID;
@@ -29,8 +28,8 @@ public class SimpleCacheTests {
     @Test
     public void simple_test_1() {
         TestObject obj = sut.get("test");
-        Assertions.assertEquals("test", obj.string);
-        Assertions.assertEquals(obj.uuid, obj.uuid);
+        Assertions.assertEquals("test", obj.getString());
+        Assertions.assertEquals(obj.getUuid(), obj.getUuid());
     }
 
     @Test
@@ -44,8 +43,8 @@ public class SimpleCacheTests {
         TestObject newTestObj = sut.get("test");
 
         //assert
-        Assertions.assertEquals("test", newTestObj.string);
-        Assertions.assertNotEquals(obj.uuid, newTestObj.uuid);
+        Assertions.assertEquals("test", newTestObj.getString());
+        Assertions.assertNotEquals(obj.getUuid(), newTestObj.getUuid());
     }
 
 
@@ -60,7 +59,7 @@ public class SimpleCacheTests {
         TestObject newTestObj = sut.get("test");
 
         //assert
-        Assertions.assertEquals("test", newTestObj.string);
-        Assertions.assertEquals(obj.uuid, newTestObj.uuid);
+        Assertions.assertEquals("test", newTestObj.getString());
+        Assertions.assertEquals(obj.getUuid(), newTestObj.getUuid());
     }
 }

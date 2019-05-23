@@ -1,4 +1,4 @@
-package net.myplayplanet.service.junit;
+package net.myplayplanet.service.junit.test;
 
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.config.ConfigManager;

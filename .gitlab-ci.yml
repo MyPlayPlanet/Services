@@ -12,19 +12,7 @@ cache:
   untracked: true
 
 stages:
-  - build
-  - test
   - deploy
-
-build:
-  stage: build
-  script:
-    - mvn $MAVEN_CLI_OPTS compile -P ci-snapshot,attach-javadocs,attach-sources
-
-test:
-  stage: test
-  script:
-    - mvn $MAVEN_CLI_OPTS test -P ci-snapshot,attach-javadocs,attach-sources
 
 deploy-snapshot:
   stage: deploy

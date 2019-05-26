@@ -49,9 +49,12 @@ public class LogEntry {
         this.messageAfterFieldExtraction = bracePattern.matcher(message).replaceAll("{}");
 
         if (fields.size() != args.length) {
-            throw new IllegalArgumentException(
+            System.out.println("msg: " + message);
+            System.out.println("lvl: " + level.name());
+            System.out.println("dta: " + date.toString());
+            Log.getLog(logger).error(new IllegalArgumentException(
                     "messsage contains not the same amount of braces then objects! (field size: "
-                            + fields.size() + ", object size: " + args.length + ")");
+                            + fields.size() + ", object size: " + args.length + ")"), "Error at message: {message}", message);
         }
 
         this.content = new HashMap<>();

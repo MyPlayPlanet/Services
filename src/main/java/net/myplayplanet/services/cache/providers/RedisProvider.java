@@ -44,11 +44,12 @@ public class RedisProvider<K extends Serializable, V extends Serializable> imple
 
             //this makes is so that if the cache entry is older that one Hour it will be removed from redis and the cache is forced to reload it.
 
-            if (new Timestamp(System.currentTimeMillis()).after(new Timestamp(value.getRefreshOn()))) {
-                ConnectionManager.getInstance().getByteConnection().async().hdel(this.getCache().getName().getBytes(), keyAsByteArray);
-                return null;
+            if (this.expireAfterSeconds() != -1) {
+                if (new Timestamp(System.currentTimeMillis()).after(new Timestamp(value.getRefreshOn()))) {
+                    ConnectionManager.getInstance().getByteConnection().async().hdel(this.getCache().getName().getBytes(), keyAsByteArray);
+                    return null;
+                }
             }
-
             return value.getValue();
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e, "Error while getting {key} from cache {name}.", key.toString(), this.getCache().getName());

@@ -16,7 +16,6 @@ public class Logger {
 
     public void log(Throwable ex, LogLevel level, String message, Object... args) {
         executorService.submit(() -> {
-            System.out.println("mssg: " + message);
             LogEntry logEntry = new LogEntry(ex, level, message, logger, Calendar.getInstance().getTime(), args);
 
             Log.getSink().save(logEntry);

@@ -149,17 +149,15 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
             ScheduledTaskProvider.getInstance().register(saveProvider);
 
-            Runtime.getRuntime().addShutdownHook(new Thread(this::saveAll));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> saveAll(saveProvider.getSavableEntries())));
         }
     }
 
     /**
      * calls the "saveAll" implementation from the AbstractSaveProvider and removes the values that where updated successfully.
      */
-    private void saveAll() {
-        for (K k : saveProvider.saveAll(saveProvider.getSavableEntries())) {
-            saveProvider.getSavableEntries().remove(k);
-        }
+    private void saveAll(HashMap<K, V> values) {
+        saveProvider.saveAll(values);
     }
 
     public V get(@NonNull K key, boolean forceReload) {

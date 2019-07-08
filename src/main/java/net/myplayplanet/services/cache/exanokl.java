@@ -12,20 +12,55 @@ import java.util.UUID;
 
 public class exanokl {
     public static void main(String[] args) {
-
     }
 
+    private static void normal_cache_no_save_no_expiring_example() {
+        Cache<Integer, Baum> cache = new Cache<>(
+                "normal-cache",
+                -1L, //it is important that this is a long, if not it will just set the local cache expiring time to -1 and that will throw a exception
+                integer -> { //Must have
+                    //load values from db or other sources.
+                    //if this method returns null the Cache will NOT fail. So feel free to do that.
+                    return new Baum(UUID.randomUUID().toString(), 1);
+                });
+    }
+
+
+    private static void normal_cache_no_save_example() {
+        Cache<Integer, Baum> cache = new Cache<>("normal-cache",
+                integer -> { //Must have
+                    //load values from db or other sources.
+                    //if this method returns null the Cache will NOT fail. So feel free to do that.
+                    return new Baum(UUID.randomUUID().toString(), 1);
+                });
+    }
+
+    private static void normal_cache_with_save_example() {
+        Cache<Integer, Baum> cache = new Cache<>("normal-cache",
+                integer -> {  // Must have
+                    //load values from db or other source.
+                    //if this method returns null the Cache will NOT fail. So feel free to do that.
+                    return new Baum(UUID.randomUUID().toString(), 1);
+                }, new AbstractSaveProvider<Integer, Baum>() {
+            @Override
+            public boolean save(Integer key, Baum value) {  // Must have
+                //save entry to db or somewhere else.
+                return false;
+            }
+        });
+    }
 
     private static void list_cache_example() {
         MapCache<Integer, Baum> cache = new ListCache<>("list-cache",
                 i -> {
-                    //get value from db via key
+                    //load values from db or other sources.
+                    //if this method returns null the Cache will NOT fail. So feel free to do that.
                     return new Baum("baum", i);
                 },
                 new AbstractSaveProvider<Integer, Baum>() {
                     @Override
                     public boolean save(Integer key, Baum value) { // Must have
-                        //save to db.
+                        //save entry to db or somewhere else.
                         return false;
                     }
 
@@ -47,7 +82,8 @@ public class exanokl {
     private static void example_mapCache() {
         MapCache<UUID, String> cache = new MapCache<>("example",
                 uuid -> {
-                    //load single entry from database.
+                    //load values from db or other sources.
+                    //if this method returns null the Cache will NOT fail. So feel free to do that.
                     return uuid.toString();
                 },
                 new AbstractSaveProvider<UUID, String>() {
@@ -72,8 +108,9 @@ public class exanokl {
         HashMap<Integer, HashMap<String, String>> r = null;
 
         MapCacheCollection<Integer, String, String> mapCacheCollection = new MapCacheCollection<>("example",
-                (integer, s) -> {
-                    //get value from db.
+                (masterKey, singleKey) -> {
+                    //load values from db or other sources.
+                    //if this method returns null the Cache will NOT fail. So feel free to do that.
                     return null;
 
                 },
@@ -108,13 +145,15 @@ public class exanokl {
         HashMap<Integer, HashMap<Integer, Baum>> r = null;
 
         ListCacheCollection<Integer, Integer, Baum> listCacheCollection = new ListCacheCollection<>("example",
-                (a, b) -> {
-                    //get value from db.
+                (masterKey, key) -> {
+                    //load values from db or other sources.
+                    //if this method returns null the Cache will NOT fail. So feel free to do that.
                     return null;
 
                 },
-                (a, baum) -> {
-                    return baum.getKey();
+                (masterKey, value) -> {
+                    //get "singleKey" from value "baum".
+                    return value.getKey();
                 },
                 new CacheCollectionSaveProvider<Integer, Integer, Baum>() {
                     @Override
@@ -126,6 +165,7 @@ public class exanokl {
                     @Override
                     public HashMap<Integer, Baum> load(Integer masterKey) { //must have
                         //load every Entry from db. (this Method is really important because if this Method contains nothing the list will contain Nothing.)
+                        //the save Methods should save to the same space from where this Method loads.
                         return null;
                     }
 

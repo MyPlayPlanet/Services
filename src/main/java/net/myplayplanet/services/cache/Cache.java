@@ -115,6 +115,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
      * @param redisCacheExpire the time in Seconds then the Redis Cache Should expire (default: 3600 sec.(1h))
      */
     public Cache(String name, int localCacheExpire, long redisCacheExpire, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
+        System.out.println("creating cache " + name + " " + localCacheExpire + " " +redisCacheExpire);
         this.name = name;
         this.function = function;
         this.updateEvents = new ArrayList<>();

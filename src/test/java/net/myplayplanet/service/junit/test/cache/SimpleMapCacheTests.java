@@ -75,4 +75,59 @@ public class SimpleMapCacheTests {
         Assertions.assertEquals(1, saveAmount);
 
     }
+
+    @Test
+    public void aasdsda() {
+        HashMap<String, TestObject> sqlMap = new HashMap<>();
+
+        MapCache<String, TestObject> mapCache = new MapCache<>("test-cache", s -> {
+            TestObject testObject = sqlMap.get(s);
+
+            if (testObject != null) {
+                return testObject;
+            }
+
+            return new TestObject(s, UUID.randomUUID());
+        }, new AbstractSaveProvider<String, TestObject>() {
+            @Override
+            public boolean save(String key, TestObject value) {
+                sqlMap.put(key, value);
+                saveAmount++;
+                if (key.contains("end")){
+                    return false;
+                }
+                return true;
+            }
+
+            @Override
+            public HashMap<String, TestObject> load() {
+                return sqlMap;
+            }
+
+            @Override
+            public TimeUnit getIntervalUnit() {
+                return TimeUnit.SECONDS;
+            }
+
+            @Override
+
+            public int getInterval() {
+                return 1;
+            }
+        });
+
+        mapCache.get("baum");
+        mapCache.get("asa");
+        mapCache.get("end");
+
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Assertions.assertEquals(4, saveAmount);
+
+    }
 }

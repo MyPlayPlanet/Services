@@ -38,6 +38,7 @@ public class ConnectionManager {
         Log.getLog(log).info("creating ConnectionManager.");
         instance = this;
         if (ServiceCluster.isDebug()) {
+            //provider = new SqlRedisConnectionProvider(redisSetting, mysqlSetting);
             provider = new MockConnectionProvider();
         }else {
             provider = new SqlRedisConnectionProvider(redisSetting, mysqlSetting);

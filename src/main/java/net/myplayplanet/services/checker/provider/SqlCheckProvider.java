@@ -142,7 +142,7 @@ public class SqlCheckProvider implements ICheckProvider {
         //<editor-fold desc="load everything from sql">
         Connection conn = ConnectionManager.getInstance().getMySQLConnection();
         try {
-            PreparedStatement statement = conn.prepareStatement("select bezeichung from bad_words_permutaitons where word_id = ?; ");
+            PreparedStatement statement = conn.prepareStatement("SELECT bezeichung FROM bad_words_permutaitons WHERE word_bezeichnung = ?; ");
             statement.setString(1, badWord);
             ResultSet set = statement.executeQuery();
 

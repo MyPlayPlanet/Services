@@ -34,7 +34,7 @@ public class ConfigService extends AbstractService {
 
         this.configManager = ConfigManager.createInstance(path);
 
-        Properties redisProperties = new Properties();
+        Properties redisProperties = new Properties();a
         Properties mysqlProperties = new Properties();
 
         try {

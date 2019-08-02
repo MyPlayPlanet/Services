@@ -46,30 +46,18 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
      * @param values list of all values that should be saved.
      * @return all the values that where successfully saved.
      */
-    public List<K> saveAll(List<AbstractMap.SimpleEntry<K, V>> values) {
-        List<K> removedSuccessfully = new ArrayList<>();
 
-        for (AbstractMap.SimpleEntry<K, V> value : values) {
-            if (save(value.getKey(), value.getValue())) {
-                removedSuccessfully.add(value.getKey());
-            }
-        }
-        return removedSuccessfully;
-    }
-
-    /**
-     * @param values list of all values that should be saved.
+    /**@param savableEntries the entries that should be saved.
      * @return all the values that where successfully saved.
      */
-    public List<K> saveAll(HashMap<K, V> values) {
-        List<K> removedSuccessfully = new ArrayList<>();
-
-        for (K k : values.keySet()) {
-            if (save(k, values.get(k))) {
-                removedSuccessfully.add(k);
+    public List<K> saveAll(HashMap<K, V> savableEntries) {
+        List<K> result = new ArrayList<>();
+        savableEntries.forEach((k, v) -> {
+            if (save(k, v)) {
+                result.add(k);
             }
-        }
-        return removedSuccessfully;
+        });
+        return result;
     }
 
     /**
@@ -77,7 +65,10 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
      */
     @Override
     public void runLater() {
-        saveAll(savableEntries);
+        List<K> successfullyRemovedValues = saveAll(savableEntries);
+        for (K successfullyRemovedValue : successfullyRemovedValues) {
+            savableEntries.remove(successfullyRemovedValue);
+        }
     }
 
     /**

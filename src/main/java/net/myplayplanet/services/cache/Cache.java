@@ -115,6 +115,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
      * @param redisCacheExpire the time in Seconds then the Redis Cache Should expire (default: 3600 sec.(1h))
      */
     public Cache(String name, int localCacheExpire, long redisCacheExpire, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
+        System.out.println("creating cache " + name + " " + localCacheExpire + " " +redisCacheExpire);
         this.name = name;
         this.function = function;
         this.updateEvents = new ArrayList<>();
@@ -149,17 +150,15 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
             ScheduledTaskProvider.getInstance().register(saveProvider);
 
-            Runtime.getRuntime().addShutdownHook(new Thread(this::saveAll));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> saveAll(saveProvider.getSavableEntries())));
         }
     }
 
     /**
      * calls the "saveAll" implementation from the AbstractSaveProvider and removes the values that where updated successfully.
      */
-    private void saveAll() {
-        for (K k : saveProvider.saveAll(saveProvider.getSavableEntries())) {
-            saveProvider.getSavableEntries().remove(k);
-        }
+    private void saveAll(HashMap<K, V> values) {
+        saveProvider.saveAll(values);
     }
 
     public V get(@NonNull K key, boolean forceReload) {

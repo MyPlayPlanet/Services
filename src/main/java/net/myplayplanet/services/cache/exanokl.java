@@ -69,11 +69,6 @@ public class exanokl {
                         //this Method will be used to check for Consistency within the list so no items get Lost
                         return super.load();
                     }
-
-                    @Override
-                    public List<Integer> saveAll(HashMap<Integer, Baum> values) { //not necessary.
-                        return super.saveAll(values);
-                    }
                 },
                 baum -> {
                     //get key via object
@@ -102,12 +97,6 @@ public class exanokl {
                     public HashMap<UUID, String> load() { //Must have
                         //this Method will be used to check for Consistency within the list so no items get Lost
                         return super.load();
-                    }
-
-                    @Override
-                    public List<UUID> saveAll(HashMap<UUID, String> values) { //not necessary.
-                        //save all objects that are not saved yet at once.
-                        return super.saveAll(values);
                     }
                 });
 

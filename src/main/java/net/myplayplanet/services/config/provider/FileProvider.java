@@ -36,6 +36,7 @@ public class FileProvider extends AbstractConfigProvider {
      */
     public boolean createSettingWithProperties(File file, Properties properties) throws IOException {
         if (!(file.exists())) {
+            Files.createParentDirs(file);
             file.createNewFile();
             this.setProperties(file, properties);
             return true;

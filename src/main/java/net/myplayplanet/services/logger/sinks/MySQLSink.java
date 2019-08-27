@@ -100,11 +100,6 @@ public class MySQLSink implements ISink {
                 entry.getLogger().getName(), entry.getLogMessage());
 
         entry.getContent().forEach((fieldName, value) -> insertContent(con, fieldName, uuid, value));
-        try {
-            con.prepareStatement("");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     private void insertContent(@NonNull Connection con, @NonNull String fieldName,

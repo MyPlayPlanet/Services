@@ -91,7 +91,6 @@ public class SqlCheckProvider implements ICheckProvider {
             }
 
             statement.executeUpdate();
-            statement.closeOnCompletion();
             return new ArrayList<>(values.values());
         } catch (SQLException ex) {
             ex.printStackTrace();

@@ -3,6 +3,7 @@ package net.myplayplanet.services;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.services.auth.AuthenticationService;
 import net.myplayplanet.services.checker.CheckService;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.connection.ConnectionService;
@@ -24,11 +25,16 @@ public class ServiceCluster {
 
     public static void addServices(boolean initiate, final AbstractService... IServices) {
         List<AbstractService> services = Arrays.asList(IServices);
+        List<AbstractService> alreadyIntializedServices = new ArrayList<>();
+
         services.forEach(service -> {
             if (validate(IServiceList.stream().anyMatch(abstractService1 -> abstractService1.getClass() == service.getClass()), "Already initialized")) {
-                services.remove(service);
+                System.out.println("Service already Intialized: " + service.getClass());
+                alreadyIntializedServices.add(service);
             }
         });
+
+        alreadyIntializedServices.forEach(services::remove);
 
         IServiceList.addAll(services);
         if (initiate) {
@@ -46,6 +52,7 @@ public class ServiceCluster {
         addServices(true, new ConnectionService());
         addServices(true, new ScheduleService());
         addServices(true, new CheckService());
+        addServices(true, new AuthenticationService());
     }
 
     public static void shutdownCluster() {

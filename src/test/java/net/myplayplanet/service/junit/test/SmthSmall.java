@@ -5,7 +5,6 @@ import net.myplayplanet.services.cache.Cache;
 import net.myplayplanet.services.connection.ConnectionManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

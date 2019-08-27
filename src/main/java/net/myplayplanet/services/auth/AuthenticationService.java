@@ -22,7 +22,7 @@ public class AuthenticationService extends AbstractService {
         UUID password = UUID.randomUUID();
 
         authenticationManager.updateCredentials(username, password.toString());
-        authenticationManager.setSecretToken(authenticationManager.requestToken(username, username.toString()));
+        authenticationManager.setSecretToken(authenticationManager.requestToken(username, password.toString()));
     }
 
 

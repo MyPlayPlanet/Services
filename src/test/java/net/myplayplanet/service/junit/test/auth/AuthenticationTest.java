@@ -12,7 +12,7 @@ public class AuthenticationTest {
     @Test
     public void auth() {
         ServiceCluster.startupCluster(new File("MyPlayPlanet-Services"));
-        Assertions.assertNotEquals(AuthenticationManager.getInstance().getSecretToken(), "");
+        Assertions.assertNotNull(AuthenticationManager.getInstance().getSecretToken());
     }
 
 }

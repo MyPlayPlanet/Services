@@ -56,11 +56,6 @@ public class AuthenticationManager {
                 os.write(input, 0, input.length);
             }
 
-            if(con.getResponseCode()  == 401 || con.getResponseCode() == 403) {
-                Log.getLog(log).warning("Invalid Authentication Credentials");
-                return "";
-            }
-
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(con.getInputStream(), "utf-8"))) {
                 StringBuilder response = new StringBuilder();
@@ -77,7 +72,7 @@ public class AuthenticationManager {
             e.printStackTrace();
         }
 
-        return "";
+        return null;
     }
 
 }

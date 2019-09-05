@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.cache.providers.ICacheProvider;
@@ -33,6 +34,9 @@ public class Cache<K extends Serializable, V extends Serializable> {
     private String name;
     private AbstractSaveProvider<K, V> saveProvider;
 
+    @Getter
+    @Setter
+    private boolean saveAfterGet = true;
 
     /**
      * @param name             the name of the Cache that will be created.
@@ -255,7 +259,9 @@ public class Cache<K extends Serializable, V extends Serializable> {
         provider.update(key, value);
 
         if (saveProvider != null) {
-            saveProvider.getSavableEntries().put(key, value);
+            if (saveAfterGet) {
+                saveProvider.getSavableEntries().put(key, value);
+            }
         }
     }
 

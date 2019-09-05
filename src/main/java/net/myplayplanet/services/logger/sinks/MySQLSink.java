@@ -14,16 +14,10 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class MySQLSink implements ISink {
-    @Setter@Getter
-    private static boolean disable = false;
-
     private HashSet<LogEntry> entrys = new HashSet<>();
 
     @Override
     public void save(LogEntry entry) {
-        if (disable) {
-            return;
-        }
         Connection con;
         try {
             con = ConnectionManager.getInstance().getMySQLConnection();
@@ -52,10 +46,6 @@ public class MySQLSink implements ISink {
 
     @Override
     public List<Object> getLogEntrys(Date from, Date to) {
-        if (disable) {
-            return new ArrayList<>();
-        }
-
         Connection con = ConnectionManager.getInstance().getMySQLConnection();
         List<Object> entrys = new ArrayList<>();
 
@@ -105,9 +95,6 @@ public class MySQLSink implements ISink {
     }
 
     private void save(LogEntry entry, Connection con) {
-        if (disable) {
-            return;
-        }
         UUID uuid = createAndInsertLogEntry(con, entry.getDate(), entry.getLevel(),
                 entry.getLogger().getName(), entry.getLogMessage());
 
@@ -116,10 +103,6 @@ public class MySQLSink implements ISink {
 
     private void insertContent(@NonNull Connection con, @NonNull String fieldName,
                                @NonNull UUID entryId, @NonNull String content) {
-
-        if (disable) {
-            return;
-        }
         try {
             PreparedStatement statement = con.prepareStatement
                     ("INSERT INTO log_field_content (id, log_entry_id, field_id, content) VALUES (?, ?, ?, ?)");
@@ -137,9 +120,6 @@ public class MySQLSink implements ISink {
     private UUID createAndInsertLogEntry(@NonNull Connection con, @NonNull Date date,
                                          @NonNull LogLevel level, @NonNull String originClass,
                                          @NonNull String message) {
-        if (disable) {
-            return null;
-        }
         UUID uuid = UUID.randomUUID();
         try {
             PreparedStatement statement = con.prepareStatement
@@ -157,7 +137,5 @@ public class MySQLSink implements ISink {
         }
         return uuid;
     }
-
-
 }
 

@@ -31,7 +31,8 @@ public class ConfigService extends AbstractService {
     @Override
     public void init() {
         Log.getLog(log).info("Starting {service}...", "ConfigService");
-        this.configManager = new ConfigManager(path);
+
+        this.configManager = ConfigManager.createInstance(path);
 
         Properties redisProperties = new Properties();
         Properties mysqlProperties = new Properties();
@@ -66,9 +67,11 @@ public class ConfigService extends AbstractService {
     }
 
     public ConnectionSettings getMySQLSettings(){
+        //return new ConnectionSettings("minecraft" ,"195.201.61.79", "<insert password>", 3307, "minecraft");
         return this.getConfigManager().getConnectionSettings("mysql-settings");
     }
     public ConnectionSettings getRedisSettings(){
+        //return new ConnectionSettings("" ,"localhost", "", 6379, "");
         return this.getConfigManager().getConnectionSettings("redis-settings");
     }
 }

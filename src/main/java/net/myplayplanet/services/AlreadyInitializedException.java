@@ -1,4 +1,4 @@
-package net.myplayplanet.services.exeption;
+package net.myplayplanet.services;
 
 public class AlreadyInitializedException extends Exception {
 

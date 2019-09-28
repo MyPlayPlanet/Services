@@ -1,16 +1,13 @@
 package net.myplayplanet.services.cache;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 import java.io.Serializable;
-import java.util.UUID;
 
-@Getter
 @AllArgsConstructor
-public class CacheObject implements Serializable {
-
-    private UUID cachedObjectID;
-    private byte[] data;
-
+@Data
+public class CacheObject<V extends Serializable> implements Serializable {
+    long refreshOn;
+    V value;
 }

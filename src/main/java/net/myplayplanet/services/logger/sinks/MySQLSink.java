@@ -1,9 +1,8 @@
 package net.myplayplanet.services.logger.sinks;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.logger.LogEntry;
 import net.myplayplanet.services.logger.LogLevel;
@@ -50,10 +49,6 @@ public class MySQLSink implements ISink {
         Connection con = ConnectionManager.getInstance().getMySQLConnection();
         List<Object> entrys = new ArrayList<>();
 
-        System.out.println("date1: " + from.toString());
-        System.out.println("date2: " + to.toString());
-
-
         Calendar fromCalender = Calendar.getInstance();
         fromCalender.setTime(from);
         fromCalender.add(Calendar.DATE, -1);
@@ -85,7 +80,6 @@ public class MySQLSink implements ISink {
                         .message(message)
                         .build());
             }
-            System.out.println("statement: " + statement.toString());
             statement.close();
 
         } catch (SQLException e) {
@@ -105,11 +99,6 @@ public class MySQLSink implements ISink {
                 entry.getLogger().getName(), entry.getLogMessage());
 
         entry.getContent().forEach((fieldName, value) -> insertContent(con, fieldName, uuid, value));
-        try {
-            con.prepareStatement("");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     private void insertContent(@NonNull Connection con, @NonNull String fieldName,
@@ -148,7 +137,5 @@ public class MySQLSink implements ISink {
         }
         return uuid;
     }
-
-
 }
 

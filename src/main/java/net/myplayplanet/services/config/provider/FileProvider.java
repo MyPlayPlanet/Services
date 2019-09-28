@@ -12,9 +12,9 @@ public class FileProvider extends AbstractConfigProvider {
     }
 
     /**
-     * @param name       The name of the File which should be created
-     * @param properties {@link Properties}
-     * @throws IOException
+     * @param name         The name of the File which should be created
+     * @param properties   {@link Properties}
+     * @throws IOException No further information provided
      */
     public boolean createSettingWithProperties(String name, Properties properties) throws IOException {
         File settings = new File(this.getPath().getAbsolutePath() + "/" + name.toLowerCase() + ".properties");
@@ -30,9 +30,9 @@ public class FileProvider extends AbstractConfigProvider {
     }
 
     /**
-     * @param file       The File which should be created
-     * @param properties {@link Properties}
-     * @throws IOException
+     * @param file         The File which should be created
+     * @param properties   {@link Properties}
+     * @throws IOException No further information provided
      */
     public boolean createSettingWithProperties(File file, Properties properties) throws IOException {
         if (!(file.exists())) {

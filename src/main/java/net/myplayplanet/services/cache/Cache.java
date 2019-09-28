@@ -239,6 +239,8 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
     /**
      * updates a value to local cache and if a saveProvider is given will put it in the Queue to be saved later via the save Method.
+     * @param key No further information provided
+     * @param value No further information provided
      */
     public void update(@NonNull K key, V value) {
         if (value == null) {
@@ -268,7 +270,7 @@ public class Cache<K extends Serializable, V extends Serializable> {
     /**
      * Adds a a Consumer with a Event that will be executed before something is updated.
      *
-     * @param updateEvent
+     * @param updateEvent No further information provided
      */
     public void registerUpdateEvent(Consumer<CacheUpdateEvent> updateEvent) {
         this.updateEvents.add(updateEvent);

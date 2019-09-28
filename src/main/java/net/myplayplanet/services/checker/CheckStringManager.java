@@ -87,7 +87,9 @@ public class CheckStringManager {
      * Adds an String to the Bad String List in MySQL
      * Also the String to the Cache
      *
-     * @param word Which should be added
+     * @param word         Which should be added
+     * @param permutations No further information provided
+     * @return             No further information provided
      */
     public int add(String word, boolean permutations) {
         AtomicInteger integer = new AtomicInteger(0);
@@ -132,7 +134,7 @@ public class CheckStringManager {
      * Gets all Strings from the Cache and loads them from MySQL to the Cache if
      * the Cache is Empty
      *
-     * @return {@link List<String>} with all Strings from the List
+     * @return {@link List} with all Strings from the List
      */
     public HashSet<String> getStrings() {
         HashSet<String> result = new HashSet<>();

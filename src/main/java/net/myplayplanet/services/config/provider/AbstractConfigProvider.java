@@ -18,14 +18,16 @@ public abstract class AbstractConfigProvider {
     /**
      * @param name       The name of the File which should be created
      * @param properties {@link Properties}
-     * @throws IOException
+     * @throws           IOException No further information provided
+     * @return           No further information provided
      */
     public abstract boolean createSettingWithProperties(String name, Properties properties) throws IOException;
 
     /**
-     * @param file       The File which should be created
-     * @param properties {@link Properties}
-     * @throws IOException
+     * @param file         The File which should be created
+     * @param properties   {@link Properties}
+     * @throws IOException No further information provided
+     * @return             No further information provided
      */
     public abstract boolean createSettingWithProperties(File file, Properties properties) throws IOException;
 

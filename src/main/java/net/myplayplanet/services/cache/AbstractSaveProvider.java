@@ -31,6 +31,8 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
     }
 
     /**
+     * @param key   No further information provided
+     * @param value No further information provided
      * @return true if successful, false if not
      */
     public abstract boolean save(K key, V value);
@@ -72,6 +74,7 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
     }
 
     /**
+     * @param key No further information provided
      * @return the object that was removed.
      */
     public V removeValue(K key) {

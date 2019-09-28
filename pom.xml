@@ -7,15 +7,15 @@
     <parent>
         <artifactId>MyPlayPlanet</artifactId>
         <groupId>net.myplayplanet</groupId>
-        <version>1.14.0.0-SNAPSHOT</version>
+        <version>1.14.0-SNAPSHOT</version>
     </parent>
 
     <groupId>net.myplayplanet</groupId>
     <artifactId>MyPlayPlanet-Services</artifactId>
-    <version>${versionstring}</version>
+    <version>${revision}</version>
 
     <properties>
-        <projectVersion>1.14.0.0</projectVersion>
+        <projectVersion>1.14.0</projectVersion>
     </properties>
 
     <build>

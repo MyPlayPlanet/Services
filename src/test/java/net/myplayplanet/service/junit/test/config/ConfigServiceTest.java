@@ -10,7 +10,7 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.util.Properties;
 @Slf4j
-public class ConfigServiceTests {
+public class ConfigServiceTest {
     @BeforeAll
     public static void beforeAll() {
         ServiceInitializer.beforeAll();
@@ -18,23 +18,8 @@ public class ConfigServiceTests {
 
     @AfterAll
     public static void afterAll() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        ServiceCluster.shutdownCluster();
+        ServiceInitializer.afterAll();
     }
-    @BeforeEach
-    public void beforeEach() {
-        Log.getLog(log).info("============== Before ==============");
-    }
-
-    @AfterEach
-    public void afterEach() {
-        Log.getLog(log).info("============== After ==============");
-    }
-
     @Test
     public void create_add_and_get_setting_test() {
         //Arrange

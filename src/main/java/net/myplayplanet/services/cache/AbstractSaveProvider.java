@@ -31,6 +31,8 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
     }
 
     /**
+     * @param key   No further information provided
+     * @param value No further information provided
      * @return true if successful, false if not
      */
     public abstract boolean save(K key, V value);
@@ -46,15 +48,18 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
      * @param values list of all values that should be saved.
      * @return all the values that where successfully saved.
      */
-    public List<K> saveAll(List<AbstractMap.SimpleEntry<K, V>> values) {
-        List<K> removedSuccessfully = new ArrayList<>();
 
-        for (AbstractMap.SimpleEntry<K, V> value : values) {
-            if (save(value.getKey(), value.getValue())) {
-                removedSuccessfully.add(value.getKey());
+    /**@param savableEntries the entries that should be saved.
+     * @return all the values that where successfully saved.
+     */
+    public List<K> saveAll(HashMap<K, V> savableEntries) {
+        List<K> result = new ArrayList<>();
+        savableEntries.forEach((k, v) -> {
+            if (save(k, v)) {
+                result.add(k);
             }
-        }
-        return removedSuccessfully;
+        });
+        return result;
     }
 
     /**
@@ -62,28 +67,17 @@ public abstract class AbstractSaveProvider<K, V> implements IScheduledTask {
      */
     @Override
     public void runLater() {
-        saveAll(savableEntries);
+        List<K> successfullyRemovedValues = saveAll(savableEntries);
+        for (K successfullyRemovedValue : successfullyRemovedValues) {
+            savableEntries.remove(successfullyRemovedValue);
+        }
     }
 
     /**
+     * @param key No further information provided
      * @return the object that was removed.
      */
     public V removeValue(K key) {
         return savableEntries.remove(key);
-    }
-
-    /**
-     * @param values list of all values that should be saved.
-     * @return all the values that where successfully saved.
-     */
-    public List<K> saveAll(HashMap<K, V> values) {
-        List<K> removedSuccessfully = new ArrayList<>();
-
-        for (K k : values.keySet()) {
-            if (save(k, values.get(k))) {
-                removedSuccessfully.add(k);
-            }
-        }
-        return removedSuccessfully;
     }
 }

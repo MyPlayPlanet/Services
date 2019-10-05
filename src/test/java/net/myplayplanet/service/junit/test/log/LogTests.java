@@ -16,21 +16,7 @@ public class LogTests {
 
     @AfterAll
     public static void afterAll() {
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        ServiceCluster.shutdownCluster();
-    }
-    @BeforeEach
-    public void beforeEach() {
-        Log.getLog(log).info("============== Before ==============");
-    }
-
-    @AfterEach
-    public void afterEach() {
-        Log.getLog(log).info("============== After ==============");
+        ServiceInitializer.afterAll();
     }
 
     @Test

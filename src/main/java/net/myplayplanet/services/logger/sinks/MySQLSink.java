@@ -1,9 +1,8 @@
 package net.myplayplanet.services.logger.sinks;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.logger.LogEntry;
 import net.myplayplanet.services.logger.LogLevel;
@@ -100,11 +99,6 @@ public class MySQLSink implements ISink {
                 entry.getLogger().getName(), entry.getLogMessage());
 
         entry.getContent().forEach((fieldName, value) -> insertContent(con, fieldName, uuid, value));
-        try {
-            con.prepareStatement("");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     private void insertContent(@NonNull Connection con, @NonNull String fieldName,
@@ -143,7 +137,5 @@ public class MySQLSink implements ISink {
         }
         return uuid;
     }
-
-
 }
 

@@ -8,6 +8,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Data
 public class CacheObject<V extends Serializable> implements Serializable {
-    long lastModified;
+    long refreshOn;
     V value;
 }

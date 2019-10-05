@@ -1,6 +1,8 @@
 package net.myplayplanet.services.cache.advanced;
 
 import java.io.Serializable;
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -17,5 +19,14 @@ public interface CacheCollectionSaveProvider<MK extends Serializable, K extends 
 
     HashMap<K, V> load(MK masterKey);
 
-    List<K> saveAll(MK masterKey,HashMap<K, V> values);
+    default List<K> saveAll(MK masterKey,HashMap<K, V> values) {
+        List<K> removedSuccessfully = new ArrayList<>();
+
+        for (K k : values.keySet()) {
+            if (save(masterKey, k, values.get(k))) {
+                removedSuccessfully.add(k);
+            }
+        }
+        return removedSuccessfully;
+    }
 }

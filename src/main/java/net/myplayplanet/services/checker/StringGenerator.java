@@ -7,7 +7,7 @@ public class StringGenerator {
     /**
      * Generate all possible permutations
      *
-     * @param strings {@link java.util.List<String>} all Permutations
+     * @param strings {@link java.util.List} all Permutations
      * @param string  {@link String} The Original Word
      */
     public void generate(HashSet<String> strings, String string) {

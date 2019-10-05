@@ -5,6 +5,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.cache.providers.ICacheProvider;
@@ -33,23 +34,100 @@ public class Cache<K extends Serializable, V extends Serializable> {
     private String name;
     private AbstractSaveProvider<K, V> saveProvider;
 
+    @Getter
+    @Setter
+    private boolean saveAfterGet = true;
+
+    /**
+     * @param name             the name of the Cache that will be created.
+     * @param redisCacheExpire the time in Seconds then the Redis Cache Should expire (default: 3600 sec.(1h))
+     * @param function         the Function that will be called when no entry was found in the local or the redis cache.
+     *                         this also makes it possible to load from Sql etc.
+     * @param saveProvider     the class that is used to save the cache entries.
+     */
+    public Cache(String name, long redisCacheExpire, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
+        this(name, 21, redisCacheExpire, function, saveProvider);
+    }
+
+    /**
+     * @param name             the name of the Cache that will be created.
+     * @param localCacheExpire the time in Minutes when the local Cache Expires. (default: 21 Min)
+     * @param function         the Function that will be called when no entry was found in the local or the redis cache.
+     *                         this also makes it possible to load from Sql etc.
+     * @param saveProvider     the class that is used to save the cache entries.
+     */
+    public Cache(String name, int localCacheExpire, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
+        this(name, localCacheExpire, 3600, function, saveProvider);
+    }
+
+    /**
+     * @param name             the name of the Cache that will be created.
+     * @param localCacheExpire the time in Minutes when the local Cache Expires. (default: 21 Min)
+     * @param redisCacheExpire the time in Seconds then the Redis Cache Should expire (default: 3600 sec.(1h))
+     * @param function         the Function that will be called when no entry was found in the local or the redis cache.
+     *                         this also makes it possible to load from Sql etc.
+     */
+    public Cache(String name, int localCacheExpire, long redisCacheExpire, Function<K, V> function) {
+        this(name, localCacheExpire, redisCacheExpire, function, null);
+    }
+
+    /**
+     * @param name         the name of the Cache that will be created.
+     * @param function     the Function that will be called when no entry was found in the local or the redis cache.
+     *                     this also makes it possible to load from Sql etc.
+     * @param saveProvider the class that is used to save the cache entries.
+     */
+    public Cache(String name, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
+        this(name, 21, 3600, function, saveProvider);
+    }
+
+    /**
+     * @param name             the name of the Cache that will be created.
+     * @param redisCacheExpire the time in Seconds then the Redis Cache Should expire (default: 3600 sec.(1h))
+     * @param function         the Function that will be called when no entry was found in the local or the redis cache.
+     *                         this also makes it possible to load from Sql etc.
+     */
+    public Cache(String name, long redisCacheExpire, Function<K, V> function) {
+        this(name, 21, redisCacheExpire, function, null);
+    }
+
+    /**
+     * @param name             the name of the Cache that will be created.
+     * @param localCacheExpire the time in Minutes when the local Cache Expires. (default: 21 Min)
+     * @param function         the Function that will be called when no entry was found in the local or the redis cache.
+     *                         this also makes it possible to load from Sql etc.
+     */
+    public Cache(String name, int localCacheExpire, Function<K, V> function) {
+        this(name, localCacheExpire, 3600, function, null);
+    }
+
+    /**
+     * @param name     the name of the Cache that will be created.
+     * @param function the Function that will be called when no entry was found in the local or the redis cache.
+     *                 this also makes it possible to load from Sql etc.
+     */
+    public Cache(String name, Function<K, V> function) {
+        this(name, 21, 3600, function, null);
+    }
 
     /**
      * @param name             the name of the Cache that will be created.
      * @param function         the Function that will be called when no entry was found in the local or the redis cache.
      *                         this also makes it possible to load from Sql etc.
      * @param saveProvider     the class that is used to save the cache entries.
-     * @param localCacheExpire the time in Minutes when the local Cache Expires.
+     * @param localCacheExpire the time in Minutes when the local Cache Expires. (default: 21 Min)
+     * @param redisCacheExpire the time in Seconds then the Redis Cache Should expire (default: 3600 sec.(1h))
      */
-    public Cache(String name, int localCacheExpire, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
+    public Cache(String name, int localCacheExpire, long redisCacheExpire, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
+        System.out.println("creating cache " + name + " " + localCacheExpire + " " +redisCacheExpire);
         this.name = name;
         this.function = function;
         this.updateEvents = new ArrayList<>();
 
         if (ServiceCluster.isDebug()) {
-            provider = new MockProvider<>();
+            provider = new MockProvider<>(this);
         } else {
-            provider = new RedisProvider<>(this);
+            provider = new RedisProvider<>(this, redisCacheExpire);
         }
 
         localCache = CacheBuilder.newBuilder()
@@ -76,46 +154,15 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
             ScheduledTaskProvider.getInstance().register(saveProvider);
 
-            Runtime.getRuntime().addShutdownHook(new Thread(this::saveAll));
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> saveAll(saveProvider.getSavableEntries())));
         }
-    }
-
-    /**
-     * @param name         the name of the Cache that will be created.
-     * @param function     the Function that will be called when no entry was found in the local or the redis cache.
-     *                     this also makes it possible to load from Sql etc.
-     * @param saveProvider the class that is used to save the cache entries.
-     */
-    public Cache(String name, Function<K, V> function, AbstractSaveProvider<K, V> saveProvider) {
-        this(name, 21, function, saveProvider);
-    }
-
-    /**
-     * @param name             the name of the Cache that will be created.
-     * @param localCacheExpire the time in Minutes when the local Cache Expires.
-     * @param function         the Function that will be called when no entry was found in the local or the redis cache.
-     *                         this also makes it possible to load from Sql etc.
-     */
-    public Cache(String name, int localCacheExpire, Function<K, V> function) {
-        this(name, localCacheExpire, function, null);
-    }
-
-    /**
-     * @param name     the name of the Cache that will be created.
-     * @param function the Function that will be called when no entry was found in the local or the redis cache.
-     *                 this also makes it possible to load from Sql etc.
-     */
-    public Cache(String name, Function<K, V> function) {
-        this(name, 21, function, null);
     }
 
     /**
      * calls the "saveAll" implementation from the AbstractSaveProvider and removes the values that where updated successfully.
      */
-    private void saveAll() {
-        for (K k : saveProvider.saveAll(saveProvider.getSavableEntries())) {
-            saveProvider.getSavableEntries().remove(k);
-        }
+    private void saveAll(HashMap<K, V> values) {
+        saveProvider.saveAll(values);
     }
 
     public V get(@NonNull K key, boolean forceReload) {
@@ -192,6 +239,8 @@ public class Cache<K extends Serializable, V extends Serializable> {
 
     /**
      * updates a value to local cache and if a saveProvider is given will put it in the Queue to be saved later via the save Method.
+     * @param key No further information provided
+     * @param value No further information provided
      */
     public void update(@NonNull K key, V value) {
         if (value == null) {
@@ -212,14 +261,16 @@ public class Cache<K extends Serializable, V extends Serializable> {
         provider.update(key, value);
 
         if (saveProvider != null) {
-            saveProvider.getSavableEntries().put(key, value);
+            if (saveAfterGet) {
+                saveProvider.getSavableEntries().put(key, value);
+            }
         }
     }
 
     /**
      * Adds a a Consumer with a Event that will be executed before something is updated.
      *
-     * @param updateEvent
+     * @param updateEvent No further information provided
      */
     public void registerUpdateEvent(Consumer<CacheUpdateEvent> updateEvent) {
         this.updateEvents.add(updateEvent);

@@ -1,5 +1,7 @@
 package net.myplayplanet.services.logger;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.AbstractService;
 import net.myplayplanet.services.ServiceCluster;
@@ -9,10 +11,17 @@ import net.myplayplanet.services.logger.sinks.MySQLSink;
 
 @Slf4j
 public class LoggerService extends AbstractService {
+    @Getter
+    @Setter
+    private static ISink defaultSink = null;
     @Override
     public void init() {
-        ISink iSink = (ServiceCluster.isDebug()) ? new MockSink() : new MySQLSink();
-        Log.initialize(iSink);
+        if (ServiceCluster.isDebug()) {
+            defaultSink = new MockSink();
+        }else if (defaultSink == null) {
+            defaultSink = new MySQLSink();
+        }
+        Log.initialize(defaultSink);
     }
 
     @Override

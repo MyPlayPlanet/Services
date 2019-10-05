@@ -16,7 +16,7 @@ import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.Properties;
 
-public class ServiceClusterTests {
+public class ServiceClusterTest {
 
     @BeforeAll
     public static void beforeAll() {

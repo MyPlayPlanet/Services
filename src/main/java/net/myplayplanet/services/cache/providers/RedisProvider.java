@@ -18,9 +18,16 @@ import java.util.concurrent.ExecutionException;
 public class RedisProvider<K extends Serializable, V extends Serializable> implements ICacheProvider<K, V> {
     @Getter
     private Cache<K, V> cache;
+    private long expireAfterSeconds;
+
 
     public RedisProvider(Cache<K, V> cache) {
+        this(cache, 3600);
+    }
+
+    public RedisProvider(Cache<K, V> cache, long expireAfterSeconds) {
         this.cache = cache;
+        this.expireAfterSeconds = expireAfterSeconds;
     }
 
     @Override
@@ -36,11 +43,13 @@ public class RedisProvider<K extends Serializable, V extends Serializable> imple
             CacheObject<V> value = SerializationUtils.deserialize(objectData);
 
             //this makes is so that if the cache entry is older that one Hour it will be removed from redis and the cache is forced to reload it.
-            if (new Timestamp(value.getLastModified()).before(new Timestamp(new Date().getTime()))) {
-                ConnectionManager.getInstance().getByteConnection().async().hdel(this.getCache().getName().getBytes(), keyAsByteArray);
-                return null;
-            }
 
+            if (this.expireAfterSeconds() != -1) {
+                if (new Timestamp(System.currentTimeMillis()).after(new Timestamp(value.getRefreshOn()))) {
+                    ConnectionManager.getInstance().getByteConnection().async().hdel(this.getCache().getName().getBytes(), keyAsByteArray);
+                    return null;
+                }
+            }
             return value.getValue();
         } catch (InterruptedException | ExecutionException e) {
             Log.getLog(log).error(e, "Error while getting {key} from cache {name}.", key.toString(), this.getCache().getName());
@@ -50,7 +59,7 @@ public class RedisProvider<K extends Serializable, V extends Serializable> imple
 
     @Override
     public void update(K key, V value) {
-        CacheObject<V> v = new CacheObject<>(new Date().getTime() + this.expireAfterSeconds(), value);
+        CacheObject<V> v = new CacheObject<>(System.currentTimeMillis() + this.expireAfterSeconds()*1000, value);
         ConnectionManager.getInstance().getByteConnection().async().hset(this.getCache().getName().getBytes(), SerializationUtils.serialize(key), SerializationUtils.serialize(v));
     }
 
@@ -75,7 +84,7 @@ public class RedisProvider<K extends Serializable, V extends Serializable> imple
 
     @Override
     public long expireAfterSeconds() {
-        return 3600;
+        return expireAfterSeconds;
     }
 
     @Override

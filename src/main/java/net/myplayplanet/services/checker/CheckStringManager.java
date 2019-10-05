@@ -11,10 +11,7 @@ import net.myplayplanet.services.checker.provider.ICheckProvider;
 import net.myplayplanet.services.checker.provider.MockCheckProvider;
 import net.myplayplanet.services.checker.provider.SqlCheckProvider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -89,7 +86,7 @@ public class CheckStringManager {
      *
      * @param word         Which should be added
      * @param permutations No further information provided
-     * @return             No further information provided
+     * @return No further information provided
      */
     public int add(String word, boolean permutations) {
         AtomicInteger integer = new AtomicInteger(0);
@@ -137,9 +134,9 @@ public class CheckStringManager {
      * @return {@link List} with all Strings from the List
      */
     public HashSet<String> getStrings() {
-        HashSet<String> result = new HashSet<>();
-
-        for (String s : wordCache.getList()) {
+        final Collection<String> list = wordCache.getList();
+        HashSet<String> result = new HashSet<>(list);
+        for (String s : list) {
             result.addAll(permutationCacheCollection.getCache(s).getList());
         }
         return result;
@@ -152,13 +149,11 @@ public class CheckStringManager {
      * @return {@link Boolean#TRUE} when the String is on the Bad String List
      */
     public boolean check(String string) {
-        String message = this.removeDuplicatLetters(this.removeSpecialCharacters(string));
-        for (String s : this.getStrings()) {
-            if (message.contains(s.toUpperCase())) {
-                return true;
-            }
-        }
-        return false;
+        final HashSet<String> badWords = getBadWords(string);
+        System.out.println("badwords found:");
+        System.out.println(String.join(", ", badWords));
+        System.out.println("====");
+        return badWords.size() > 0;
     }
 
     public HashSet<String> getBadWords(String string) {

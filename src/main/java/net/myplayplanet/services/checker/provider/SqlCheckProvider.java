@@ -115,8 +115,7 @@ public class SqlCheckProvider implements ICheckProvider {
                             "(`word_bezeichnung`, " +
                             "`bezeichung`) " +
                             "VALUES (?, ?)" +
-                            "ON DUPLICATE KEY UPDATE " +
-                            "`amount` = `amount`;");
+                            "ON DUPLICATE KEY UPDATE bezeichung=values(bezeichung)");
             statement.setString(1, badWord);
             statement.setString(2, permutation);
 
@@ -178,12 +177,10 @@ public class SqlCheckProvider implements ICheckProvider {
         try {
             PreparedStatement statement = conn.prepareStatement(
                     "INSERT INTO `bad_words_permutaitons` " +
-                            "(`word_id`, " +
+                            "(`word_bezeichnung`, " +
                             "`bezeichung`) " +
                             "VALUES " + SQLUtils.buildValuesString(2, values.size()) +
-                            "ON DUPLICATE KEY UPDATE " +
-                            "`amount` = `amount`;");
-
+                            "ON DUPLICATE KEY UPDATE bezeichung=values(bezeichung)");
 
             int index = 1;
             for (String string : values.values()) {

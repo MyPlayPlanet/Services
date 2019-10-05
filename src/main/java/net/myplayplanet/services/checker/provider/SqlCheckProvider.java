@@ -112,7 +112,7 @@ public class SqlCheckProvider implements ICheckProvider {
         try {
             PreparedStatement statement = conn.prepareStatement(
                     "INSERT INTO `bad_words_permutaitons` " +
-                            "(`word_id`, " +
+                            "(`word_bezeichnung`, " +
                             "`bezeichung`) " +
                             "VALUES (?, ?)" +
                             "ON DUPLICATE KEY UPDATE " +

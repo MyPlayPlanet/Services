@@ -13,6 +13,7 @@ cache:
 
 stages:
   - deploy
+  - trigger
 
 deploy-snapshot:
   stage: deploy
@@ -41,6 +42,6 @@ deploy-release:
       - target/*.jar
 
 trigger_build:
-  stage: deploy
+  stage: trigger
   script:
     - "curl -X POST -F token=${CI_JOB_TOKEN} -F ref=$CI_BUILD_REF_NAME https://gitlab.com/api/v4/projects/8830502/trigger/pipeline"

@@ -183,7 +183,6 @@ public class SqlCheckProvider implements ICheckProvider {
             for (String string : values.values()) {
                 statement.setString(index++, badWord.toUpperCase());
                 statement.setString(index++, string.toUpperCase());
-                System.out.println("string: " + string + ": " + string + ", " + badWord);
             }
 
 

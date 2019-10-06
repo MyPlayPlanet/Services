@@ -12,8 +12,6 @@ import net.myplayplanet.services.checker.provider.MockCheckProvider;
 import net.myplayplanet.services.checker.provider.SqlCheckProvider;
 
 import java.util.*;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 @Slf4j
@@ -39,7 +37,7 @@ public class CheckStringManager {
                 new AbstractSaveProvider<String, String>() {
                     @Override
                     public boolean save(String key, String value) {
-                        return provider.saveBadWord(value);
+                        return provider.saveBadWord(value.toUpperCase());
                     }
 
                     @Override
@@ -61,17 +59,17 @@ public class CheckStringManager {
                 new CacheCollectionSaveProvider<String, String, String>() {
                     @Override
                     public boolean save(String masterKey, String key, String value) {
-                        return provider.savePermutation(masterKey, value);
+                        return provider.savePermutation(masterKey.toUpperCase(), value);
                     }
 
                     @Override
                     public HashMap<String, String> load(String masterKey) {
-                        return provider.loadPermutations(masterKey);
+                        return provider.loadPermutations(masterKey.toUpperCase());
                     }
 
                     @Override
                     public List<String> saveAll(String masterKey, HashMap<String, String> values) {
-                        return provider.saveAllPermutations(masterKey, values);
+                        return provider.saveAllPermutations(masterKey.toUpperCase(), values);
                     }
                 });
     }
@@ -89,25 +87,19 @@ public class CheckStringManager {
      * @return No further information provided
      */
     public int add(String word, boolean permutations) {
-        AtomicInteger integer = new AtomicInteger(0);
-        ForkJoinPool.commonPool().execute(() -> {
-            wordCache.addItem(word);
-
-            if (permutations) {
-                HashSet<String> badWords = new HashSet<>();
-
-                new StringGenerator().generate(badWords, word);
-                integer.set(badWords.size());
-                badWords.add(word.toUpperCase());
-
-                ListCache<String, String> cache = permutationCacheCollection.getCache(word);
-                for (String badWord : badWords) {
-                    cache.addItem(badWord);
-                }
-
+        wordCache.addItem(word.toUpperCase());
+        int size = 0;
+        if (permutations) {
+            HashSet<String> badWords = new HashSet<>();
+            new StringGenerator().generate(badWords, word.toUpperCase());
+            size = badWords.size();
+            badWords.add(word.toUpperCase());
+            ListCache<String, String> cache = permutationCacheCollection.getCache(word.toUpperCase());
+            for (String badWord : badWords) {
+                cache.addItem(badWord.toUpperCase());
             }
-        });
-        return integer.get();
+        }
+        return size;
     }
 
     /**

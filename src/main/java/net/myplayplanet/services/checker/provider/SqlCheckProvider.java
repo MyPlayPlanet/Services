@@ -80,14 +80,12 @@ public class SqlCheckProvider implements ICheckProvider {
                     "INSERT INTO `bad_words` " +
                             "(`bezeichnung`) " +
                             "VALUES " + SQLUtils.buildValuesString(1, values.size()) +
-                            "ON DUPLICATE KEY UPDATE " +
-                            "`bezeichnung` = `bezeichnung`;");
+                            "ON DUPLICATE KEY UPDATE bezeichnung=values(bezeichnung)");
 
 
             int index = 1;
             for (String string : values.values()) {
-                statement.setString(index, string);
-                index += 1;
+                statement.setString(index++, string.toUpperCase());
             }
 
             statement.executeUpdate();
@@ -116,8 +114,8 @@ public class SqlCheckProvider implements ICheckProvider {
                             "`bezeichung`) " +
                             "VALUES (?, ?)" +
                             "ON DUPLICATE KEY UPDATE bezeichung=values(bezeichung)");
-            statement.setString(1, badWord);
-            statement.setString(2, permutation);
+            statement.setString(1, badWord.toUpperCase());
+            statement.setString(2, permutation.toUpperCase());
 
             statement.executeUpdate();
             statement.closeOnCompletion();
@@ -150,8 +148,7 @@ public class SqlCheckProvider implements ICheckProvider {
                 String bezeichung = set.getString("bezeichung");
                 result.put(bezeichung, bezeichung);
             }
-
-            return (result.size() > 0) ? result : null;
+            return result;
         } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
@@ -184,10 +181,11 @@ public class SqlCheckProvider implements ICheckProvider {
 
             int index = 1;
             for (String string : values.values()) {
-                statement.setString(index, string);
-                statement.setString(index + 1, badWord);
-                index += 2;
+                statement.setString(index++, badWord.toUpperCase());
+                statement.setString(index++, string.toUpperCase());
+                System.out.println("string: " + string + ": " + string + ", " + badWord);
             }
+
 
             statement.executeUpdate();
             statement.closeOnCompletion();
@@ -208,45 +206,27 @@ public class SqlCheckProvider implements ICheckProvider {
     @Override
     public boolean remove(String badWord) {
         Connection connection = ConnectionManager.getInstance().getMySQLConnection();
-
-        int id = -1;
-
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("SELECT id FROM bad_words WHERE bezeichnung=?");
-            preparedStatement.setString(1, badWord);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            while (resultSet.next()) {
-                id = resultSet.getInt("id");
-                break;
-            }
+            connection.setAutoCommit(false);
+            PreparedStatement deleteBadWords = connection.prepareStatement("DELETE FROM bad_words WHERE bezeichnung=?");
+            deleteBadWords.setString(1, badWord.toUpperCase());
+            deleteBadWords.executeQuery();
+            PreparedStatement deletePermutations = connection.prepareStatement("DELETE FROM bad_words_permutaitons WHERE word_bezeichnung=?");
+            deletePermutations.setString(1, badWord.toUpperCase());
+            deletePermutations.executeQuery();
+            connection.commit();
+            return true;
         } catch (SQLException exception) {
             exception.printStackTrace();
-        }
-
-        if (id == -1) {
             try {
-                connection.close();
+                connection.rollback();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
             return false;
-        }
-
-        try {
-            PreparedStatement deleteBadWords = connection.prepareStatement("DELETE FROM bad_words WHERE id=?");
-            deleteBadWords.setInt(1, id);
-            deleteBadWords.executeQuery();
-            PreparedStatement deletePermutations = connection.prepareStatement("DELETE FROM bad_words_permutaitons WHERE word_id=?");
-            deletePermutations.setInt(1, id);
-            deletePermutations.executeQuery();
-            return true;
-        } catch (SQLException exception) {
-            exception.printStackTrace();
-            return false;
         }finally {
             try {
+                connection.setAutoCommit(true);
                 connection.close();
             } catch (SQLException e) {
                 e.printStackTrace();

@@ -11,6 +11,8 @@ import net.myplayplanet.services.logger.Log;
 
 import java.io.File;
 import java.net.Inet4Address;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 @Getter
@@ -66,12 +68,8 @@ public class ConfigService extends AbstractService {
         Log.getLog(log).info("Shutting down {service}...", "ConfigService");
     }
 
-    public ConnectionSettings getMySQLSettings(){
-        //return new ConnectionSettings("minecraft" ,"195.201.61.79", "<insert password>", 3307, "minecraft");
-        return this.getConfigManager().getConnectionSettings("mysql-settings");
+    public HashMap<String, ConnectionSettings> getConnectionSettings(){
+        return this.getConfigManager().getAllSettingsFromDirectory(this.getPath());
     }
-    public ConnectionSettings getRedisSettings(){
-        //return new ConnectionSettings("" ,"localhost", "", 6379, "");
-        return this.getConfigManager().getConnectionSettings("redis-settings");
-    }
+
 }

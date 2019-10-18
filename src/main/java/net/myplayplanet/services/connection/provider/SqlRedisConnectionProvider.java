@@ -33,6 +33,9 @@ public class SqlRedisConnectionProvider implements IConnectionProvider {
     private HikariDataSource mysqlDataSource;
 
     public SqlRedisConnectionProvider(ConnectionSettings redisSetting, ConnectionSettings mysqlSetting) {
+        assert redisSetting != null : "Redis Setting can not be null";
+        assert mysqlSetting != null : "SQL Setting can not be null";
+
         this.redisSetting = redisSetting;
         this.mysqlSetting = mysqlSetting;
 
@@ -68,14 +71,16 @@ public class SqlRedisConnectionProvider implements IConnectionProvider {
     }
 
     private void createRedisConnection() throws ExecutionException, InterruptedException {
-        Log.getLog(log).debug("creating Redis Connection with hostname  {hostname} port {port} and database {datebase}.",
-                this.redisSetting.getHostname(), this.redisSetting.getPort(), this.redisSetting.getDatabase());
+        String hostname = this.redisSetting.getHostname();
+        Integer port = this.redisSetting.getPort();
+        Log.getLog(log).debug("creating Redis Connection with hostname  {hostname} port {port}.",
+                hostname, port);
 
         RedisURI redisUri;
         if (this.redisSetting.getPassword() == null) {
-            redisUri = RedisURI.Builder.redis(this.redisSetting.getHostname()).withPort(this.redisSetting.getPort()).build();
+            redisUri = RedisURI.Builder.redis(hostname).withPort(port).build();
         } else {
-            redisUri = RedisURI.Builder.redis(this.redisSetting.getHostname()).withPort(this.redisSetting.getPort()).withPassword(this.redisSetting.getPassword()).build();
+            redisUri = RedisURI.Builder.redis(hostname).withPort(port).withPassword(this.redisSetting.getPassword()).build();
         }
 
         RedisClient redisClient = RedisClient.create(redisUri);

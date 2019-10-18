@@ -11,6 +11,9 @@ import net.myplayplanet.services.logger.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 @Slf4j
@@ -61,5 +64,9 @@ public class ConfigManager {
 
     public ConnectionSettings getConnectionSettings(File file) {
         return provider.getConnectionSettings(file);
+    }
+
+    public HashMap<String, ConnectionSettings> getAllSettingsFromDirectory(File file){
+        return provider.getAllSettingsFromDirectory(file);
     }
 }

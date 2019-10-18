@@ -4,6 +4,8 @@ import lombok.Getter;
 import net.myplayplanet.services.connection.ConnectionSettings;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 public abstract class AbstractConfigProvider {
@@ -59,5 +61,11 @@ public abstract class AbstractConfigProvider {
      * @return {@link ConnectionSettings} which are apply from the File
      */
     public abstract ConnectionSettings getConnectionSettings(File file);
+
+    /**
+     * @param file of which the {@link ConnectionSettings}
+     * @return {@link ConnectionSettings} which are apply from the File
+     */
+    public abstract HashMap<String, ConnectionSettings> getAllSettingsFromDirectory(File file);
 
 }

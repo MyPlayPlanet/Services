@@ -3,7 +3,9 @@ package net.myplayplanet.services.config.provider;
 import net.myplayplanet.services.connection.ConnectionSettings;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 
 public class MockProvider extends AbstractConfigProvider {
@@ -60,5 +62,16 @@ public class MockProvider extends AbstractConfigProvider {
                 this.getProperty(file, "username"));
 
         return connectionSettings;
+    }
+
+    @Override
+    public HashMap<String, ConnectionSettings> getAllSettingsFromDirectory(File file) {
+        HashMap<String, ConnectionSettings> settings = new HashMap<>();
+
+        for (File listFile : this.data.keySet()) {
+            settings.put(listFile.getName(), this.getConnectionSettings(listFile));
+        }
+
+        return settings;
     }
 }

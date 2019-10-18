@@ -14,9 +14,26 @@ import java.sql.Connection;
 
 @Slf4j
 public class ConnectionManager {
-    @Getter
-    private static ConnectionManager instance;
     private IConnectionProvider provider;
+
+    protected ConnectionManager(ConnectionSettings redisSetting, ConnectionSettings mysqlSetting) {
+        assert redisSetting != null : "Redis Setting can not be null";
+        assert mysqlSetting != null : "SQL Setting can not be null";
+        Log.getLog(log).info("creating ConnectionManager.");
+        if (ServiceCluster.isDebug()) {
+            provider = new MockConnectionProvider();
+        }else {
+            provider = new SqlRedisConnectionProvider(redisSetting, mysqlSetting);
+        }
+        Log.getLog(log).info("created ConnectionManager.");
+    }
+
+    public static ConnectionManager getInstance(String database) {
+        return ServiceCluster.get(ConnectionService.class).getConnectionManager(database);
+    }
+    public static ConnectionManager getInstance() {
+        return ServiceCluster.get(ConnectionService.class).getConnectionManager();
+    }
 
     public StatefulRedisConnection<byte[], byte[]> getByteConnection() {
         return provider.getByteConnection();
@@ -32,18 +49,6 @@ public class ConnectionManager {
 
     public StatefulRedisPubSubConnection<String, String> getStringPubSubConnection() {
         return provider.getStringPubSubConnection();
-    }
-
-    protected ConnectionManager(ConnectionSettings redisSetting, ConnectionSettings mysqlSetting) {
-        Log.getLog(log).info("creating ConnectionManager.");
-        instance = this;
-        if (ServiceCluster.isDebug()) {
-            //provider = new SqlRedisConnectionProvider(redisSetting, mysqlSetting);
-            provider = new MockConnectionProvider();
-        }else {
-            provider = new SqlRedisConnectionProvider(redisSetting, mysqlSetting);
-        }
-        Log.getLog(log).info("created ConnectionManager.");
     }
 
     public Connection getMySQLConnection() {

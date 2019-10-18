@@ -4,7 +4,7 @@ import com.google.common.io.Files;
 import net.myplayplanet.services.connection.ConnectionSettings;
 
 import java.io.*;
-import java.util.Properties;
+import java.util.*;
 
 public class FileProvider extends AbstractConfigProvider {
     public FileProvider(File path) {
@@ -160,6 +160,17 @@ public class FileProvider extends AbstractConfigProvider {
                 this.getProperty(file, "password"),
                 Integer.valueOf(this.getProperty(file, "port")),
                 this.getProperty(file, "username"));
+        return connectionSettings;
+    }
+
+    @Override
+    public HashMap<String, ConnectionSettings> getAllSettingsFromDirectory(File file) {
+        HashMap<String, ConnectionSettings> connectionSettings = new HashMap<>();
+
+        for (File listFile : file.listFiles((dir, name) -> name.endsWith("settings.properties"))) {
+            connectionSettings.put(listFile.getName(), this.getConnectionSettings(listFile));
+        }
+
         return connectionSettings;
     }
 }

@@ -168,10 +168,8 @@ public class CheckStringManager {
     public String removeDuplicatLetters(String string) {
         List<Character> chars = new ArrayList<>();
 
-        String trimedString = string.toUpperCase().trim().replace(" ", "");
-
         char lastChar = 0;
-        for (char c : trimedString.toCharArray()) {
+        for (char c : string.toCharArray()) {
             if (lastChar != c) {
                 chars.add(c);
             }
@@ -194,11 +192,9 @@ public class CheckStringManager {
      * @return The String without Special Characters
      */
     public String removeSpecialCharacters(String string) {
-        String trimedString = string.toUpperCase().trim().replace(" ", "");
-
         StringBuilder stringBuilder = new StringBuilder();
 
-        for (char c : trimedString.toCharArray()) {
+        for (char c : string.toCharArray()) {
             for (Letters value : Letters.values()) {
                 char c1 = value.name().charAt(0);
                 if (c1 == c || value.contains(value, c)) {

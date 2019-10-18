@@ -11,12 +11,7 @@ import net.myplayplanet.services.checker.provider.ICheckProvider;
 import net.myplayplanet.services.checker.provider.MockCheckProvider;
 import net.myplayplanet.services.checker.provider.SqlCheckProvider;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 
 @Getter
 @Slf4j
@@ -42,7 +37,7 @@ public class CheckStringManager {
                 new AbstractSaveProvider<String, String>() {
                     @Override
                     public boolean save(String key, String value) {
-                        return provider.saveBadWord(value);
+                        return provider.saveBadWord(value.toUpperCase());
                     }
 
                     @Override
@@ -64,17 +59,17 @@ public class CheckStringManager {
                 new CacheCollectionSaveProvider<String, String, String>() {
                     @Override
                     public boolean save(String masterKey, String key, String value) {
-                        return provider.savePermutation(masterKey, value);
+                        return provider.savePermutation(masterKey.toUpperCase(), value);
                     }
 
                     @Override
                     public HashMap<String, String> load(String masterKey) {
-                        return provider.loadPermutations(masterKey);
+                        return provider.loadPermutations(masterKey.toUpperCase());
                     }
 
                     @Override
                     public List<String> saveAll(String masterKey, HashMap<String, String> values) {
-                        return provider.saveAllPermutations(masterKey, values);
+                        return provider.saveAllPermutations(masterKey.toUpperCase(), values);
                     }
                 });
     }
@@ -89,28 +84,22 @@ public class CheckStringManager {
      *
      * @param word         Which should be added
      * @param permutations No further information provided
-     * @return             No further information provided
+     * @return No further information provided
      */
     public int add(String word, boolean permutations) {
-        AtomicInteger integer = new AtomicInteger(0);
-        ForkJoinPool.commonPool().execute(() -> {
-            wordCache.addItem(word);
-
-            if (permutations) {
-                HashSet<String> badWords = new HashSet<>();
-
-                new StringGenerator().generate(badWords, word);
-                integer.set(badWords.size());
-                badWords.add(word.toUpperCase());
-
-                ListCache<String, String> cache = permutationCacheCollection.getCache(word);
-                for (String badWord : badWords) {
-                    cache.addItem(badWord);
-                }
-
+        wordCache.addItem(word.toUpperCase());
+        int size = 0;
+        if (permutations) {
+            HashSet<String> badWords = new HashSet<>();
+            new StringGenerator().generate(badWords, word.toUpperCase());
+            size = badWords.size();
+            badWords.add(word.toUpperCase());
+            ListCache<String, String> cache = permutationCacheCollection.getCache(word.toUpperCase());
+            for (String badWord : badWords) {
+                cache.addItem(badWord.toUpperCase());
             }
-        });
-        return integer.get();
+        }
+        return size;
     }
 
     /**
@@ -137,9 +126,9 @@ public class CheckStringManager {
      * @return {@link List} with all Strings from the List
      */
     public HashSet<String> getStrings() {
-        HashSet<String> result = new HashSet<>();
-
-        for (String s : wordCache.getList()) {
+        final Collection<String> list = wordCache.getList();
+        HashSet<String> result = new HashSet<>(list);
+        for (String s : list) {
             result.addAll(permutationCacheCollection.getCache(s).getList());
         }
         return result;
@@ -152,13 +141,11 @@ public class CheckStringManager {
      * @return {@link Boolean#TRUE} when the String is on the Bad String List
      */
     public boolean check(String string) {
-        String message = this.removeDuplicatLetters(this.removeSpecialCharacters(string));
-        for (String s : this.getStrings()) {
-            if (message.contains(s.toUpperCase())) {
-                return true;
-            }
-        }
-        return false;
+        final HashSet<String> badWords = getBadWords(string);
+        System.out.println("badwords found:");
+        System.out.println(String.join(", ", badWords));
+        System.out.println("====");
+        return badWords.size() > 0;
     }
 
     public HashSet<String> getBadWords(String string) {

@@ -25,7 +25,6 @@ public class ConnectionManager {
         }else {
             provider = new SqlRedisConnectionProvider(redisSetting, mysqlSetting);
         }
-        Log.getLog(log).info("created ConnectionManager.");
     }
 
     public static ConnectionManager getInstance(String database) {

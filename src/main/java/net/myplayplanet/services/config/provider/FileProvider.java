@@ -1,11 +1,14 @@
 package net.myplayplanet.services.config.provider;
 
 import com.google.common.io.Files;
+import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.ConnectionSettings;
+import net.myplayplanet.services.logger.Log;
 
 import java.io.*;
 import java.util.*;
 
+@Slf4j
 public class FileProvider extends AbstractConfigProvider {
     public FileProvider(File path) {
         super(path);
@@ -154,6 +157,11 @@ public class FileProvider extends AbstractConfigProvider {
             return null;
         }
 
+        if (!file.getName().toLowerCase().contains("redis") && !file.getName().toLowerCase().contains("mysql")) {
+            Log.getLog(log).warning("Settings file with name {name} was not recognised as a SQL or Redis Setting.", file.getName());
+            return null;
+        }
+
         ConnectionSettings connectionSettings = new ConnectionSettings(
                 this.getProperty(file, "database"),
                 this.getProperty(file, "hostname"),
@@ -168,9 +176,12 @@ public class FileProvider extends AbstractConfigProvider {
         HashMap<String, ConnectionSettings> connectionSettings = new HashMap<>();
 
         for (File listFile : file.listFiles((dir, name) -> name.endsWith("settings.properties"))) {
-            connectionSettings.put(listFile.getName(), this.getConnectionSettings(listFile));
-        }
+            ConnectionSettings settings = this.getConnectionSettings(listFile);
 
+            if (settings != null) {
+                connectionSettings.put(listFile.getName(), settings);
+            }
+        }
         return connectionSettings;
     }
 }

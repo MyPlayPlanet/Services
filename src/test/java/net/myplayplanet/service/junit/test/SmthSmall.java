@@ -23,17 +23,25 @@ public class SmthSmall {
     }
     //@Test
     public void test() {
+        ConnectionManager instance = ConnectionManager.getInstance();
+        Connection mySQLConnection = instance.getMySQLConnection();
         try {
-            ConnectionManager instance = ConnectionManager.getInstance();
-            Connection mySQLConnection = instance.getMySQLConnection();
             PreparedStatement statement = mySQLConnection.prepareStatement("SELECT * FROM `user_settings`");
             ResultSet set = statement.executeQuery();
 
             while (set.next()) {
                 System.out.println("got: " + set.getString("uuid") +" -> " + set.getInt("setting_state"));
             }
+            statement.closeOnCompletion();
+            set.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                mySQLConnection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
 
         Cache<Integer, String> cache = new Cache<>(

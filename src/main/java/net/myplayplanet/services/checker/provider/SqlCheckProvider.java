@@ -22,6 +22,7 @@ public class SqlCheckProvider implements ICheckProvider {
 
             statement.setString(1, badWord);
             statement.executeUpdate();
+            statement.closeOnCompletion();
             return true;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -52,7 +53,8 @@ public class SqlCheckProvider implements ICheckProvider {
                 String value = set.getString("bezeichnung");
                 result.put(value, value);
             }
-
+            statement.closeOnCompletion();
+            set.close();
             return result;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -89,6 +91,7 @@ public class SqlCheckProvider implements ICheckProvider {
             }
 
             statement.executeUpdate();
+            statement.closeOnCompletion();
             return new ArrayList<>(values.values());
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -148,6 +151,8 @@ public class SqlCheckProvider implements ICheckProvider {
                 String bezeichung = set.getString("bezeichung");
                 result.put(bezeichung, bezeichung);
             }
+            statement.closeOnCompletion();
+            set.close();
             return result;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -213,6 +218,7 @@ public class SqlCheckProvider implements ICheckProvider {
             PreparedStatement deletePermutations = connection.prepareStatement("DELETE FROM bad_words_permutaitons WHERE word_bezeichnung=?");
             deletePermutations.setString(1, badWord.toUpperCase());
             deletePermutations.executeQuery();
+            deleteBadWords.closeOnCompletion();
             connection.commit();
             return true;
         } catch (SQLException exception) {

@@ -111,7 +111,7 @@ public class MySQLSink implements ISink {
             statement.setString(3, fieldName);
             statement.setString(4, content);
             statement.executeUpdate();
-            statement.close();
+            statement.closeOnCompletion();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -130,7 +130,7 @@ public class MySQLSink implements ISink {
             statement.setString(4, originClass);
             statement.setString(5, message);
             statement.executeUpdate();
-            statement.close();
+            statement.closeOnCompletion();
         } catch (SQLException e) {
             e.printStackTrace();
             return null;

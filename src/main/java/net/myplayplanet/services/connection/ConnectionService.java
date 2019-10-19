@@ -31,7 +31,7 @@ public class ConnectionService extends AbstractService {
             if (string.endsWith("mysql-settings.properties")) {
                 String replace = (string.equalsIgnoreCase("mysql-settings.properties")) ? "minecraft" : string.replace("mysql-settings.properties", "");
                 sqlSettings.put(replace, settingsMap.get(string));
-            }else if (string.endsWith("redis-settings.properties"))  {
+            } else if (string.endsWith("redis-settings.properties")) {
                 String replace = (string.equalsIgnoreCase("redis-settings.properties")) ? "minecraft" : string.replace("redis-settings.properties", "");
                 redisSettings.put(replace, settingsMap.get(string));
             }

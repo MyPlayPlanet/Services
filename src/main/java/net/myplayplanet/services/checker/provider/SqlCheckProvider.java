@@ -54,7 +54,6 @@ public class SqlCheckProvider implements ICheckProvider {
                 result.put(value, value);
             }
             statement.closeOnCompletion();
-            set.close();
             return result;
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -152,7 +151,6 @@ public class SqlCheckProvider implements ICheckProvider {
                 result.put(bezeichung, bezeichung);
             }
             statement.closeOnCompletion();
-            set.close();
             return result;
         } catch (SQLException ex) {
             ex.printStackTrace();

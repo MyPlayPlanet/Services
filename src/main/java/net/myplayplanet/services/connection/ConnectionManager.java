@@ -5,6 +5,7 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.ServiceCluster;
+import net.myplayplanet.services.connection.debug.PPConnection;
 import net.myplayplanet.services.connection.provider.IConnectionProvider;
 import net.myplayplanet.services.connection.provider.MockConnectionProvider;
 import net.myplayplanet.services.connection.provider.SqlRedisConnectionProvider;
@@ -52,6 +53,6 @@ public class ConnectionManager {
     }
 
     public Connection getMySQLConnection() {
-        return this.provider.getMySQLConnection();
+        return new PPConnection(this.provider.getMySQLConnection());
     }
 }

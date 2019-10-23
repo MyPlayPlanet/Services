@@ -1,10 +1,8 @@
 package net.myplayplanet.services.connection.debug;
 
-import lombok.experimental.Delegate;
 import net.myplayplanet.services.connection.ConnectionManager;
 
 import java.sql.*;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -13,13 +11,16 @@ import java.util.concurrent.Executor;
 public class PPConnection implements Connection {
 
     private Connection connection;
+    private String origin;
 
-    public PPConnection(Connection connection) {
+    public PPConnection(Connection connection, String origin) {
         this.connection = connection;
+        this.origin = origin;
     }
 
-    private static void addCall(String methodName) {
-        methodName.replace(" ", "_");
+    private void addCall(String methodName) {
+        methodName = methodName.replace(" ", "_");
+        methodName = methodName + this.origin;
         try {
             if (!ConnectionManager.getInstance().getStringConnection().async().hgetall("mysql_debugs").get().containsKey(methodName)) {
                 ConnectionManager.getInstance().getStringConnection().async().hset("mysql_debugs", methodName, "0");
@@ -27,9 +28,7 @@ public class PPConnection implements Connection {
             int value = Integer.valueOf(ConnectionManager.getInstance().getStringConnection().async().hget("mysql_debugs", methodName).get());
             value++;
             ConnectionManager.getInstance().getStringConnection().async().hset("mysql_debugs", methodName, value + "");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
     }

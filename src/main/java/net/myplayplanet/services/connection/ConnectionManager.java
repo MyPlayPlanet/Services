@@ -52,6 +52,6 @@ public class ConnectionManager {
     }
 
     public Connection getMySQLConnection() {
-        return new PPConnection(this.provider.getMySQLConnection());
+        return new PPConnection(this.provider.getMySQLConnection(), Thread.currentThread().getStackTrace()[2].getClassName());
     }
 }

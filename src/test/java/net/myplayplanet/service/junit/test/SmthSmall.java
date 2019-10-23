@@ -33,7 +33,6 @@ public class SmthSmall {
                 System.out.println("got: " + set.getString("uuid") +" -> " + set.getInt("setting_state"));
             }
             statement.closeOnCompletion();
-            set.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }finally {

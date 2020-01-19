@@ -1,8 +1,6 @@
 package net.myplayplanet.services.logger.sinks;
 
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.Setter;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.logger.LogEntry;
 import net.myplayplanet.services.logger.LogLevel;
@@ -18,10 +16,20 @@ public class MySQLSink implements ISink {
 
     @Override
     public void save(LogEntry entry) {
-        Connection con;
-        try {
-            con = ConnectionManager.getInstance().getMySQLConnection();
-        }catch (NullPointerException ex) {
+        try (Connection con = ConnectionManager.getInstance().getMySQLConnection()) {
+            for (LogEntry logEntry : entrys) {
+                save(logEntry, con);
+            }
+            entrys = new HashSet<>();
+
+            save(entry, con);
+
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (NullPointerException | SQLException ex) {
             this.entrys.add(entry);
 
             if (entrys.size() > 2500) {
@@ -29,43 +37,28 @@ public class MySQLSink implements ISink {
             }
             return;
         }
-
-        for (LogEntry logEntry : entrys) {
-            save(logEntry, con);
-        }
-        entrys = new HashSet<>();
-
-        save(entry, con);
-
-        try {
-            con.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public List<Object> getLogEntrys(Date from, Date to) {
-        Connection con = ConnectionManager.getInstance().getMySQLConnection();
         List<Object> entrys = new ArrayList<>();
+        try (Connection con = ConnectionManager.getInstance().getMySQLConnection()) {
+            Calendar fromCalender = Calendar.getInstance();
+            fromCalender.setTime(from);
+            fromCalender.add(Calendar.DATE, -1);
+            Date before = fromCalender.getTime();
 
-        Calendar fromCalender = Calendar.getInstance();
-        fromCalender.setTime(from);
-        fromCalender.add(Calendar.DATE, -1);
-        Date before = fromCalender.getTime();
+            Calendar toCalender = Calendar.getInstance();
+            toCalender.setTime(to);
+            toCalender.add(Calendar.DATE, +1);
+            Date next = toCalender.getTime();
 
-        Calendar toCalender = Calendar.getInstance();
-        toCalender.setTime(to);
-        toCalender.add(Calendar.DATE, +1);
-        Date next = toCalender.getTime();
-
-        try {
             PreparedStatement statement = con.prepareStatement("SELECT * FROM `log_entry` WHERE entry_time >= ? AND entry_time <= ?");
             statement.setDate(1, new java.sql.Date(before.getTime()));
             statement.setDate(2, new java.sql.Date(next.getTime()));
             ResultSet result = statement.executeQuery();
 
-            while (result.next())  {
+            while (result.next()) {
                 String id = result.getString("id");
                 Date date = result.getDate("entry_time");
                 LogLevel level = LogLevel.valueOf(result.getString("log_level"));
@@ -81,16 +74,10 @@ public class MySQLSink implements ISink {
                         .build());
             }
             statement.close();
-
         } catch (SQLException e) {
             e.printStackTrace();
-        }finally {
-            try {
-                con.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
+
         return entrys;
     }
 

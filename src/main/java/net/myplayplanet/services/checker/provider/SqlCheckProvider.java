@@ -15,9 +15,7 @@ public class SqlCheckProvider implements ICheckProvider {
     @Override
     public boolean saveBadWord(String badWord) {
         //<editor-fold desc="save single entry to SQL">
-        Connection conn = ConnectionManager.getInstance().getMySQLConnection();
-
-        try {
+        try (Connection conn = ConnectionManager.getInstance().getMySQLConnection()) {
             PreparedStatement statement = conn.prepareStatement("insert into bad_words(`bezeichnung`) VALUES (?)");
 
             statement.setString(1, badWord);
@@ -27,12 +25,6 @@ public class SqlCheckProvider implements ICheckProvider {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return false;
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         //</editor-fold>
     }
@@ -40,9 +32,7 @@ public class SqlCheckProvider implements ICheckProvider {
     @Override
     public HashMap<String, String> loadBadWords() {
         //<editor-fold desc="load everything from sql">
-        Connection conn = ConnectionManager.getInstance().getMySQLConnection();
-
-        try {
+        try (Connection conn = ConnectionManager.getInstance().getMySQLConnection()) {
             PreparedStatement statement = conn.prepareStatement("select bezeichnung from bad_words");
 
             ResultSet set = statement.executeQuery();
@@ -58,12 +48,6 @@ public class SqlCheckProvider implements ICheckProvider {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         //</editor-fold>
     }
@@ -75,8 +59,7 @@ public class SqlCheckProvider implements ICheckProvider {
         }
 
         //<editor-fold desc="save everything to sql">
-        Connection conn = ConnectionManager.getInstance().getMySQLConnection();
-        try {
+        try (Connection conn = ConnectionManager.getInstance().getMySQLConnection()) {
             PreparedStatement statement = conn.prepareStatement(
                     "INSERT INTO `bad_words` " +
                             "(`bezeichnung`) " +
@@ -95,12 +78,6 @@ public class SqlCheckProvider implements ICheckProvider {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return new ArrayList<>();
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         //</editor-fold>
     }
@@ -108,8 +85,7 @@ public class SqlCheckProvider implements ICheckProvider {
     @Override
     public boolean savePermutation(String badWord, String permutation) {
         //<editor-fold desc="save everything to sql">
-        Connection conn = ConnectionManager.getInstance().getMySQLConnection();
-        try {
+        try (Connection conn = ConnectionManager.getInstance().getMySQLConnection()) {
             PreparedStatement statement = conn.prepareStatement(
                     "INSERT INTO `bad_words_permutaitons` " +
                             "(`word_bezeichnung`, " +
@@ -125,12 +101,6 @@ public class SqlCheckProvider implements ICheckProvider {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return false;
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         //</editor-fold>
     }
@@ -138,8 +108,7 @@ public class SqlCheckProvider implements ICheckProvider {
     @Override
     public HashMap<String, String> loadPermutations(String badWord) {
         //<editor-fold desc="load everything from sql">
-        Connection conn = ConnectionManager.getInstance().getMySQLConnection();
-        try {
+        try (Connection conn = ConnectionManager.getInstance().getMySQLConnection()) {
             PreparedStatement statement = conn.prepareStatement("SELECT bezeichung FROM bad_words_permutaitons WHERE word_bezeichnung = ?; ");
             statement.setString(1, badWord);
             ResultSet set = statement.executeQuery();
@@ -155,12 +124,6 @@ public class SqlCheckProvider implements ICheckProvider {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return null;
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         //</editor-fold>
     }
@@ -173,8 +136,7 @@ public class SqlCheckProvider implements ICheckProvider {
 
 
         //<editor-fold desc="save everything to sql">
-        Connection conn = ConnectionManager.getInstance().getMySQLConnection();
-        try {
+        try (Connection conn = ConnectionManager.getInstance().getMySQLConnection()) {
             PreparedStatement statement = conn.prepareStatement(
                     "INSERT INTO `bad_words_permutaitons` " +
                             "(`word_bezeichnung`, " +
@@ -195,20 +157,13 @@ public class SqlCheckProvider implements ICheckProvider {
         } catch (SQLException ex) {
             ex.printStackTrace();
             return new ArrayList<>();
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         //</editor-fold>
     }
 
     @Override
     public boolean remove(String badWord) {
-        Connection connection = ConnectionManager.getInstance().getMySQLConnection();
-        try {
+        try (Connection connection = ConnectionManager.getInstance().getMySQLConnection()) {
             connection.setAutoCommit(false);
             PreparedStatement deleteBadWords = connection.prepareStatement("DELETE FROM bad_words WHERE bezeichnung=?");
             deleteBadWords.setString(1, badWord.toUpperCase());
@@ -221,19 +176,7 @@ public class SqlCheckProvider implements ICheckProvider {
             return true;
         } catch (SQLException exception) {
             exception.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
             return false;
-        }finally {
-            try {
-                connection.setAutoCommit(true);
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

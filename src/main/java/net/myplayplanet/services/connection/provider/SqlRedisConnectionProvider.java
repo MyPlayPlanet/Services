@@ -64,7 +64,7 @@ public class SqlRedisConnectionProvider implements IConnectionProvider {
         config.addDataSourceProperty("useServerPrepStmts", "true");
 
         this.mysqlDataSource = new HikariDataSource(config);
-        int size = 2000000;
+        int size = 100;
         this.mysqlDataSource.setMaximumPoolSize(size);
         Log.getLog(log).debug("set maxPoolSize to {size}", size);
         Log.getLog(log).info("created MySQL Client!");

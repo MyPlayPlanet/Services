@@ -11,7 +11,6 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.ConnectionSettings;
-import net.myplayplanet.services.logger.Log;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -49,8 +48,8 @@ public class SqlRedisConnectionProvider implements IConnectionProvider {
     }
 
     private void createMySQLClient() {
-        Log.getLog(log).debug("creating MySQL Client with hostname  {hostname} port {port} and database {datebase}.",
-                this.mysqlSetting.getHostname(), this.mysqlSetting.getPort(), this.mysqlSetting.getDatabase());
+        System.out.println("creating MySQL Client with hostname " + this.mysqlSetting.getHostname() + "" +
+                " port " + this.mysqlSetting.getPort() + " and database " + this.mysqlSetting.getDatabase() + ".");
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:mysql://" + this.mysqlSetting.getHostname() + ":" + this.mysqlSetting.getPort() + "/" + this.mysqlSetting.getDatabase()
                 + "?autoReconnect=true&serverTimezone=" + TimeZone
@@ -64,17 +63,14 @@ public class SqlRedisConnectionProvider implements IConnectionProvider {
         config.addDataSourceProperty("useServerPrepStmts", "true");
 
         this.mysqlDataSource = new HikariDataSource(config);
-        int size = 100;
-        this.mysqlDataSource.setMaximumPoolSize(size);
-        Log.getLog(log).debug("set maxPoolSize to {size}", size);
-        Log.getLog(log).info("created MySQL Client!");
+        this.mysqlDataSource.setMaximumPoolSize(100);
+        System.out.println("created MySQL Client!");
     }
 
     private void createRedisConnection() throws ExecutionException, InterruptedException {
         String hostname = this.redisSetting.getHostname();
         Integer port = this.redisSetting.getPort();
-        Log.getLog(log).debug("creating Redis Connection with hostname  {hostname} port {port}.",
-                hostname, port);
+        System.out.println("creating Redis Connection with hostname  " + hostname + " port " + port + ".");
 
         RedisURI redisUri;
         if (this.redisSetting.getPassword() == null) {
@@ -90,12 +86,11 @@ public class SqlRedisConnectionProvider implements IConnectionProvider {
         this.stringConnection = redisClient.connect(new StringCodec());
         this.stringPubSubConnection = redisClient.connectPubSub(new StringCodec());
 
-        Log.getLog(log).info("Testing Byte Connection: {ping}", this.byteConnection.async().ping().get());
-        Log.getLog(log).info("Testing BytePubSub Connection: {ping}", this.bytePubSubConnection.async().ping().get());
-        Log.getLog(log).info("Testing String Connection: {ping}", this.stringConnection.async().ping().get());
-        Log.getLog(log).info("Testing StringPubSub Connection: {ping}", this.stringPubSubConnection.async().ping().get());
-
-        Log.getLog(log).info("created Redis Connection!");
+        System.out.println("Testing Byte Connection: {ping}" + this.byteConnection.async().ping().get());
+        System.out.println("Testing BytePubSub Connection: {ping}" + this.bytePubSubConnection.async().ping().get());
+        System.out.println("Testing String Connection: {ping}" + this.stringConnection.async().ping().get());
+        System.out.println("Testing StringPubSub Connection: {ping}" + this.stringPubSubConnection.async().ping().get());
+        System.out.println("created Redis Connection!");
     }
 
     public Connection getMySQLConnection() {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,7 +14,7 @@
     <version>${revision}</version>
 
     <properties>
-        <projectVersion>1.14.0</projectVersion>
+        <projectVersion>1.16.0</projectVersion>
     </properties>
 
     <build>
@@ -27,12 +27,12 @@
                     <target>8</target>
                 </configuration>
             </plugin>
-            <plugin> 
-               <groupId>org.apache.maven.plugins</groupId> 
-               <artifactId>maven-javadoc-plugin</artifactId> 
-               <configuration> 
-               <source>8</source> 
-               </configuration> 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>

@@ -3,25 +3,26 @@ package net.myplayplanet.services.connection;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.AbstractService;
 import net.myplayplanet.services.ServiceCluster;
-import net.myplayplanet.services.config.ConfigManager;
 import net.myplayplanet.services.config.ConfigService;
-import net.myplayplanet.services.logger.Log;
 
 import java.util.HashMap;
 
 @Slf4j
 public class ConnectionService extends AbstractService {
     HashMap<String, ConnectionManager> managerHashMap;
+    private boolean debug;
 
-    public ConnectionService() {
+    public ConnectionService(ServiceCluster cluster, boolean debug) {
+        super(cluster);
+        this.debug = debug;
         managerHashMap = new HashMap<>();
     }
 
     @Override
     public void init() {
-        Log.getLog(log).info("Starting {service}...", "ConnectionService");
+        System.out.println("starting ConnectionService");
 
-        ConfigService service = ServiceCluster.get(ConfigService.class);
+        ConfigService service = this.getCluster().get(ConfigService.class);
 
         HashMap<String, ConnectionSettings> sqlSettings = new HashMap<>();
         HashMap<String, ConnectionSettings> redisSettings = new HashMap<>();
@@ -44,14 +45,9 @@ public class ConnectionService extends AbstractService {
             assert sqlSetting != null : "SQL setting for name " + settingName + " could not be found.";
             assert redisSetting != null : "Redis setting for name " + settingName + " could not be found.";
 
-            managerHashMap.put(settingName, new ConnectionManager(redisSetting, sqlSetting));
-            Log.getLog(log).info("Created ConnectionManager with [{setting}] ConnectionSettings", settingName.toUpperCase());
+            managerHashMap.put(settingName, new ConnectionManager(redisSetting, sqlSetting, debug));
+            System.out.println("Created ConnectionManager with [" + settingName.toUpperCase() + "] ConnectionSettings");
         }
-    }
-
-    @Override
-    public void disable() {
-        Log.getLog(log).info("Shutting down {service}...", "ConnectionService");
     }
 
     public ConnectionManager getConnectionManager(String name) {

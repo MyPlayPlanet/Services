@@ -2,11 +2,10 @@ package net.myplayplanet.services.connection;
 
 public class SQLUtils {
     /**
-     *
      * @param amountOfDifferentValues the amount of Questionsmarks. In the example it would be 4.
-     * @param amountOfEntries the amount of Value Strings. In the example it would be 3.
-     * @return  the whole Values String.
-     *          example: (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?)
+     * @param amountOfEntries         the amount of Value Strings. In the example it would be 3.
+     * @return the whole Values String.
+     * example: (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?)
      */
     public static String buildValuesString(int amountOfDifferentValues, int amountOfEntries) {
         StringBuilder builder = new StringBuilder();
@@ -23,10 +22,9 @@ public class SQLUtils {
     }
 
     /**
-     *
      * @param valueAmount the amount of question Marks. in the example it would be 3.
-     * @return  the Values String needed for SQL.
-     *          example: (?, ?, ?)
+     * @return the Values String needed for SQL.
+     * example: (?, ?, ?)
      */
     public static String buildQuestionMarkString(int valueAmount) {
         StringBuilder builder = new StringBuilder("(");

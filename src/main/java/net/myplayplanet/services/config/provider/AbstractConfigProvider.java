@@ -3,9 +3,9 @@ package net.myplayplanet.services.config.provider;
 import lombok.Getter;
 import net.myplayplanet.services.connection.ConnectionSettings;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 
 public abstract class AbstractConfigProvider {
@@ -20,16 +20,16 @@ public abstract class AbstractConfigProvider {
     /**
      * @param name       The name of the File which should be created
      * @param properties {@link Properties}
-     * @throws           IOException No further information provided
-     * @return           No further information provided
+     * @return No further information provided
+     * @throws IOException No further information provided
      */
     public abstract boolean createSettingWithProperties(String name, Properties properties) throws IOException;
 
     /**
-     * @param file         The File which should be created
-     * @param properties   {@link Properties}
+     * @param file       The File which should be created
+     * @param properties {@link Properties}
+     * @return No further information provided
      * @throws IOException No further information provided
-     * @return             No further information provided
      */
     public abstract boolean createSettingWithProperties(File file, Properties properties) throws IOException;
 
@@ -48,7 +48,7 @@ public abstract class AbstractConfigProvider {
      * @param <T>  The Type you want to apply back
      * @return The Property in the Type you want
      */
-    public abstract  <T> T getProperty(File file, String key);
+    public abstract <T> T getProperty(File file, String key);
 
     /**
      * @param name of the {@link ConnectionSettings} {@link File}

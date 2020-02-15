@@ -4,25 +4,22 @@ import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.config.ConfigManager;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.connection.ConnectionSettings;
-import net.myplayplanet.services.logger.LoggerService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
-import java.util.Properties;
 
 public class ServiceClusterTest {
-
+    private static ServiceCluster cluster;
     @BeforeAll
     public static void beforeAll() {
-        ServiceCluster.setDebug(true);
-        ServiceCluster.addServices(true, new LoggerService());
-        ServiceCluster.addServices(true, new ConfigService(new File("home")));
+        File file = new File("file");
+        cluster = new ServiceCluster();
+        cluster.startupCluster(file, true);
     }
 
     @AfterAll
@@ -45,7 +42,7 @@ public class ServiceClusterTest {
         }
 
         //Act
-        ConnectionSettings setting = ConfigManager.getInstance().getConnectionSettings("mysql-settings");
+        ConnectionSettings setting = cluster.get(ConfigService.class).getConfigManager().getConnectionSettings("mysql-settings");
 
         //Assert
         Assertions.assertEquals(hostAddress, setting.getHostname());
@@ -66,7 +63,7 @@ public class ServiceClusterTest {
         }
 
         //Act
-        ConnectionSettings setting = ConfigManager.getInstance().getConnectionSettings("redis-settings");
+        ConnectionSettings setting = cluster.get(ConfigService.class).getConfigManager().getConnectionSettings("redis-settings");
 
         //Assert
         Assertions.assertEquals(hostAddress, setting.getHostname());

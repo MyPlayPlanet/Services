@@ -5,7 +5,7 @@ import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 
 import java.sql.Connection;
 
-public class MockConnectionProvider implements IConnectionProvider{
+public class MockConnectionProvider implements IConnectionProvider {
     @Override
     public StatefulRedisConnection<byte[], byte[]> getByteConnection() {
         return null;

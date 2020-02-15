@@ -3,10 +3,10 @@ package net.myplayplanet.services.config.provider;
 import com.google.common.io.Files;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.ConnectionSettings;
-import net.myplayplanet.services.logger.Log;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Properties;
 
 @Slf4j
 public class FileProvider extends AbstractConfigProvider {
@@ -15,8 +15,8 @@ public class FileProvider extends AbstractConfigProvider {
     }
 
     /**
-     * @param name         The name of the File which should be created
-     * @param properties   {@link Properties}
+     * @param name       The name of the File which should be created
+     * @param properties {@link Properties}
      * @throws IOException No further information provided
      */
     public boolean createSettingWithProperties(String name, Properties properties) throws IOException {
@@ -27,14 +27,14 @@ public class FileProvider extends AbstractConfigProvider {
             settings.createNewFile();
             this.setProperties(settings, properties);
             return true;
-        }else {
+        } else {
             return false;
         }
     }
 
     /**
-     * @param file         The File which should be created
-     * @param properties   {@link Properties}
+     * @param file       The File which should be created
+     * @param properties {@link Properties}
      * @throws IOException No further information provided
      */
     public boolean createSettingWithProperties(File file, Properties properties) throws IOException {
@@ -158,7 +158,7 @@ public class FileProvider extends AbstractConfigProvider {
         }
 
         if (!file.getName().toLowerCase().contains("redis") && !file.getName().toLowerCase().contains("mysql")) {
-            Log.getLog(log).warning("Settings file with name {name} was not recognised as a SQL or Redis Setting.", file.getName());
+            System.out.println("Settings file with name "+file.getName()+" was not recognised as a SQL or Redis Setting.");
             return null;
         }
 

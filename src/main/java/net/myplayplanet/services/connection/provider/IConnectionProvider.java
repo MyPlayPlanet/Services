@@ -7,8 +7,12 @@ import java.sql.Connection;
 
 public interface IConnectionProvider {
     StatefulRedisConnection<byte[], byte[]> getByteConnection();
+
     StatefulRedisPubSubConnection<byte[], byte[]> getBytePubSubConnection();
+
     StatefulRedisConnection<String, String> getStringConnection();
+
     StatefulRedisPubSubConnection<String, String> getStringPubSubConnection();
+
     Connection getMySQLConnection();
 }

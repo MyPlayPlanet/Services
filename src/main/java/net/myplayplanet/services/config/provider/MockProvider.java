@@ -3,9 +3,7 @@ package net.myplayplanet.services.config.provider;
 import net.myplayplanet.services.connection.ConnectionSettings;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Properties;
 
 public class MockProvider extends AbstractConfigProvider {

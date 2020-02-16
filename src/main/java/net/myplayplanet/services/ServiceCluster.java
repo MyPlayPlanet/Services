@@ -50,12 +50,17 @@ public class ServiceCluster {
     }
 
     /**
-     * @param type Class of the {@link AbstractService}, which ist requested
+     * @param clazz Class of the {@link AbstractService}, which ist requested
      * @param <T>  Type of the {@link AbstractService} to cast it automatically to the wanted {@link AbstractService}
      * @return The service instance filtered by type
      */
-    public <T extends AbstractService> T get(final Class<T> type) {
-        return type.cast(IServiceList.stream().filter(IService -> IService.getClass() == type).findFirst().get());
+    public <T extends AbstractService> T get(Class<T> clazz) {
+        for (AbstractService abstractService : IServiceList) {
+            if (abstractService.getClass() == clazz) {
+                return (T) abstractService;
+            }
+        }
+        return null;
     }
 
     /**

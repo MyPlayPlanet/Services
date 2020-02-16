@@ -6,6 +6,7 @@ import net.myplayplanet.services.connection.ConnectionSettings;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Properties;
 
 public abstract class AbstractConfigProvider {
@@ -33,6 +34,13 @@ public abstract class AbstractConfigProvider {
      */
     public abstract boolean createSettingWithProperties(File file, Properties properties) throws IOException;
 
+    public <T> T getPropertyFromResource(String resourceName, String key) {
+        String newResourceName = (resourceName.endsWith(".properties") ? resourceName : resourceName + ".properties");
+        File file = new File(
+                Objects.requireNonNull(getClass().getClassLoader().getResource(newResourceName)).getFile()
+        );
+        return getProperty(file, key);
+    }
 
     /**
      * @param settingsName The File Name from which you apply the Property

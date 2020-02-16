@@ -34,6 +34,10 @@ public class ConfigManager {
         provider.createSettingWithProperties(file, properties);
     }
 
+    public <T> T getPropertyFromResource(String resourceName, String key) {
+        return provider.getPropertyFromResource(resourceName, key);
+    }
+
     public <T> T getProperty(String settingsName, String key) {
         return provider.getProperty(settingsName, key);
     }

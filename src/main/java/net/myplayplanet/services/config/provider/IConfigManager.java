@@ -1,9 +1,11 @@
 package net.myplayplanet.services.config.provider;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 public interface IConfigManager {
 
@@ -48,6 +50,8 @@ public interface IConfigManager {
      * @return The Property in the Type you want
      */
     <T> T getProperty(File file, String key);
+
+    File[] getAllFilesInDirectory(File path, Predicate<String> filter);
 
     default boolean exists(String fileName) {
         return exists(new File(this.getPath(), fileName));

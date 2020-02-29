@@ -3,8 +3,10 @@ package net.myplayplanet.services.config.provider;
 import lombok.Getter;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 public class MockConfigManager implements IConfigManager {
 
@@ -38,6 +40,11 @@ public class MockConfigManager implements IConfigManager {
     public <T> T getProperty(File file, String key) {
         Properties properties = data.get(file);
         return (T) properties.get(key);
+    }
+
+    @Override
+    public File[] getAllFilesInDirectory(File path, Predicate<String> filter) {
+        return data.keySet().stream().filter(file -> filter.test(file.getName())).toArray(File[]::new);
     }
 
     @Override

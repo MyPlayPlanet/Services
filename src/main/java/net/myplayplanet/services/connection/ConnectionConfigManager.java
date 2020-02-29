@@ -48,7 +48,7 @@ public class ConnectionConfigManager {
     public HashMap<String, ConnectionSetting> getAllSettingsFromDirectory(File file) {
         HashMap<String, ConnectionSetting> connectionSettings = new HashMap<>();
 
-        for (File listFile : file.listFiles((dir, name) -> name.endsWith("settings.properties"))) {
+        for (File listFile : this.configManager.getAllFilesInDirectory(file, (name) -> name.endsWith("settings.properties"))) {
             ConnectionSetting settings = this.getConnectionSettings(listFile);
 
             if (settings != null) {

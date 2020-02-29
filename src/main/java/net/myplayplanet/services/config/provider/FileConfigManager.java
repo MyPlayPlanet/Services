@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.function.Predicate;
 
 @Slf4j
 public class FileConfigManager implements IConfigManager {
@@ -104,6 +105,11 @@ public class FileConfigManager implements IConfigManager {
         }
 
         return null;
+    }
+
+    @Override
+    public File[] getAllFilesInDirectory(File path, Predicate<String> filter) {
+        return path.listFiles((dir, name) -> filter.test(name));
     }
 
     /**

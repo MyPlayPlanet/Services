@@ -1,8 +1,10 @@
 package net.myplayplanet.services;
 
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.config.ConfigManager;
 import net.myplayplanet.services.config.ConfigService;
+import net.myplayplanet.services.config.provider.FileConfigManager;
+import net.myplayplanet.services.config.provider.IConfigManager;
+import net.myplayplanet.services.config.provider.MockConfigManager;
 import net.myplayplanet.services.connection.ConnectionService;
 import net.myplayplanet.services.schedule.ScheduleService;
 
@@ -39,7 +41,10 @@ public class ServiceCluster {
     }
 
     public void startupCluster(File configPath, boolean debug) {
-        addServices(true, new ConfigService(this, configPath, new ConfigManager(configPath, debug)));
+        IConfigManager configManager = debug ? new MockConfigManager(configPath) : new FileConfigManager(configPath);
+
+
+        addServices(true, new ConfigService(this, configManager));
         addServices(true, new ConnectionService(this, debug));
         addServices(true, new ScheduleService(this));
     }

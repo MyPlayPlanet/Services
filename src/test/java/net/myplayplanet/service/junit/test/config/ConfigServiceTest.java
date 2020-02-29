@@ -2,8 +2,8 @@ package net.myplayplanet.service.junit.test.config;
 
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.ServiceCluster;
-import net.myplayplanet.services.config.ConfigManager;
 import net.myplayplanet.services.config.ConfigService;
+import net.myplayplanet.services.config.provider.IConfigManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,7 +40,7 @@ public class ConfigServiceTest {
 
         Properties properties = new Properties();
         properties.setProperty("key", "value");
-        ConfigManager configManager = cluster.get(ConfigService.class).getConfigManager();
+        IConfigManager configManager = cluster.get(ConfigService.class).getConfigManager();
 
         //Act
         try {

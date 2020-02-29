@@ -14,30 +14,30 @@ public class ConnectionConfigManager {
         this.configManager = configManager;
     }
 
-    public HashMap<String, ConnectionSettings> getConnectionSettings() {
+    public HashMap<String, ConnectionSetting> getConnectionSettings() {
         return getAllSettingsFromDirectory(configManager.getPath());
     }
 
     /**
-     * @param name of the {@link ConnectionSettings} {@link File}
-     * @return {@link ConnectionSettings} which are apply from the File
+     * @param name of the {@link ConnectionSetting} {@link File}
+     * @return {@link ConnectionSetting} which are apply from the File
      */
-    public ConnectionSettings getConnectionSettings(String name) {
+    public ConnectionSetting getConnectionSettings(String name) {
         File setting = new File(configManager.getPath().getAbsolutePath() + "/" + name.toLowerCase() + ".properties");
 
         return getConnectionSettings(setting);
     }
 
     /**
-     * @param file of which the {@link ConnectionSettings}
-     * @return {@link ConnectionSettings} which are apply from the File
+     * @param file of which the {@link ConnectionSetting}
+     * @return {@link ConnectionSetting} which are apply from the File
      */
-    public ConnectionSettings getConnectionSettings(File file) {
+    public ConnectionSetting getConnectionSettings(File file) {
         if (!configManager.exists(file)) {
             return null;
         }
 
-        return new ConnectionSettings(
+        return new ConnectionSetting(
                 configManager.getProperty(file, "database"),
                 configManager.getProperty(file, "hostname"),
                 configManager.getProperty(file, "password"),
@@ -45,11 +45,11 @@ public class ConnectionConfigManager {
                 configManager.getProperty(file, "username"));
     }
 
-    public HashMap<String, ConnectionSettings> getAllSettingsFromDirectory(File file) {
-        HashMap<String, ConnectionSettings> connectionSettings = new HashMap<>();
+    public HashMap<String, ConnectionSetting> getAllSettingsFromDirectory(File file) {
+        HashMap<String, ConnectionSetting> connectionSettings = new HashMap<>();
 
         for (File listFile : file.listFiles((dir, name) -> name.endsWith("settings.properties"))) {
-            ConnectionSettings settings = this.getConnectionSettings(listFile);
+            ConnectionSetting settings = this.getConnectionSettings(listFile);
 
             if (settings != null) {
                 connectionSettings.put(listFile.getName(), settings);

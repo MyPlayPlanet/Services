@@ -1,19 +1,18 @@
 package net.myplayplanet.services.config.provider;
 
 import lombok.Getter;
-import net.myplayplanet.services.connection.ConnectionSettings;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Properties;
 
-public class MockManager implements IConfigManager {
+public class MockConfigManager implements IConfigManager {
 
     private HashMap<File, Properties> data = new HashMap<>();
     @Getter
     private File path;
 
-    public MockManager(File path) {
+    public MockConfigManager(File path) {
         this.path = path;
     }
 

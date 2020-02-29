@@ -3,18 +3,16 @@ package net.myplayplanet.services.config.provider;
 import com.google.common.io.Files;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.connection.ConnectionSettings;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Properties;
 
 @Slf4j
-public class FileManager implements IConfigManager {
+public class FileConfigManager implements IConfigManager {
     @Getter
     private File path;
 
-    public FileManager(File path) {
+    public FileConfigManager(File path) {
         this.path = path;
     }
 

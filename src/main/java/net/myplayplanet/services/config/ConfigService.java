@@ -21,9 +21,9 @@ public class ConfigService extends AbstractService {
     @NonNull
     private File path;
 
-    public ConfigService(ServiceCluster cluster, File configPath, IConfigManager configManager) {
+    public ConfigService(ServiceCluster cluster, IConfigManager configManager) {
         super(cluster);
-        this.path = configPath;
+        this.path = configManager.getPath();
         this.configManager = configManager;
     }
 

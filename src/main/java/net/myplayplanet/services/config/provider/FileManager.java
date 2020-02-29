@@ -1,6 +1,7 @@
 package net.myplayplanet.services.config.provider;
 
 import com.google.common.io.Files;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.ConnectionSettings;
 
@@ -9,9 +10,12 @@ import java.util.HashMap;
 import java.util.Properties;
 
 @Slf4j
-public class FileProvider extends AbstractConfigProvider {
-    public FileProvider(File path) {
-        super(path);
+public class FileManager implements IConfigManager {
+    @Getter
+    private File path;
+
+    public FileManager(File path) {
+        this.path = path;
     }
 
     /**
@@ -110,9 +114,7 @@ public class FileProvider extends AbstractConfigProvider {
      */
     private void setProperties(File file, Properties properties) {
         OutputStream outputStream = null;
-
         try {
-
             outputStream = new FileOutputStream(file);
             properties.store(outputStream, null);
         } catch (IOException io) {
@@ -128,60 +130,8 @@ public class FileProvider extends AbstractConfigProvider {
         }
     }
 
-    /**
-     * @param name of the {@link ConnectionSettings} {@link File}
-     * @return {@link ConnectionSettings} which are apply from the File
-     */
-    public ConnectionSettings getConnectionSettings(String name) {
-        File setting = new File(this.getPath().getAbsolutePath() + "/" + name.toLowerCase() + ".properties");
-
-        if (!(setting.exists())) {
-            return null;
-        }
-
-        ConnectionSettings connectionSettings = new ConnectionSettings(
-                this.getProperty(name, "database"),
-                this.getProperty(name, "hostname"),
-                this.getProperty(name, "password"),
-                Integer.valueOf(this.getProperty(name, "port")),
-                this.getProperty(name, "username"));
-        return connectionSettings;
-    }
-
-    /**
-     * @param file of which the {@link ConnectionSettings}
-     * @return {@link ConnectionSettings} which are apply from the File
-     */
-    public ConnectionSettings getConnectionSettings(File file) {
-        if (!(file.exists())) {
-            return null;
-        }
-
-        if (!file.getName().toLowerCase().contains("redis") && !file.getName().toLowerCase().contains("mysql")) {
-            System.out.println("Settings file with name "+file.getName()+" was not recognised as a SQL or Redis Setting.");
-            return null;
-        }
-
-        ConnectionSettings connectionSettings = new ConnectionSettings(
-                this.getProperty(file, "database"),
-                this.getProperty(file, "hostname"),
-                this.getProperty(file, "password"),
-                Integer.valueOf(this.getProperty(file, "port")),
-                this.getProperty(file, "username"));
-        return connectionSettings;
-    }
-
     @Override
-    public HashMap<String, ConnectionSettings> getAllSettingsFromDirectory(File file) {
-        HashMap<String, ConnectionSettings> connectionSettings = new HashMap<>();
-
-        for (File listFile : file.listFiles((dir, name) -> name.endsWith("settings.properties"))) {
-            ConnectionSettings settings = this.getConnectionSettings(listFile);
-
-            if (settings != null) {
-                connectionSettings.put(listFile.getName(), settings);
-            }
-        }
-        return connectionSettings;
+    public boolean exists(File file) {
+        return file.exists();
     }
 }

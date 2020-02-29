@@ -27,8 +27,8 @@ public class SqlRedisConnectionProvider implements IConnectionProvider {
     private StatefulRedisConnection<String, String> stringConnection;
     @Getter
     private StatefulRedisPubSubConnection<String, String> stringPubSubConnection;
-    private ConnectionSettings redisSetting;
-    private ConnectionSettings mysqlSetting;
+    private final ConnectionSettings redisSetting;
+    private final ConnectionSettings mysqlSetting;
     private HikariDataSource mysqlDataSource;
 
     public SqlRedisConnectionProvider(ConnectionSettings redisSetting, ConnectionSettings mysqlSetting) {
@@ -86,10 +86,10 @@ public class SqlRedisConnectionProvider implements IConnectionProvider {
         this.stringConnection = redisClient.connect(new StringCodec());
         this.stringPubSubConnection = redisClient.connectPubSub(new StringCodec());
 
-        System.out.println("Testing Byte Connection: {ping}" + this.byteConnection.async().ping().get());
-        System.out.println("Testing BytePubSub Connection: {ping}" + this.bytePubSubConnection.async().ping().get());
-        System.out.println("Testing String Connection: {ping}" + this.stringConnection.async().ping().get());
-        System.out.println("Testing StringPubSub Connection: {ping}" + this.stringPubSubConnection.async().ping().get());
+        System.out.println("Testing Byte Connection: " + this.byteConnection.async().ping().get());
+        System.out.println("Testing BytePubSub Connection: " + this.bytePubSubConnection.async().ping().get());
+        System.out.println("Testing String Connection: " + this.stringConnection.async().ping().get());
+        System.out.println("Testing StringPubSub Connection: " + this.stringPubSubConnection.async().ping().get());
         System.out.println("created Redis Connection!");
     }
 

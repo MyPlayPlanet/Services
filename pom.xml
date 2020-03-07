@@ -188,5 +188,13 @@
             <version>0.4</version>
             <scope>compile</scope>
         </dependency>
+
+        <!-- Kucken obs da bleibt!!!!-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>2.1.7.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 </project>

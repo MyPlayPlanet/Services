@@ -1,8 +1,6 @@
 package net.myplayplanet.services.config.provider;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.function.Predicate;
@@ -27,12 +25,21 @@ public interface IConfigManager {
      */
     boolean createSettingWithProperties(File file, Properties properties) throws IOException;
 
-    default <T> T getPropertyFromResource(String resourceName, String key) {
+    default <T> T getPropertyFromResource(String resourceName, String key) throws IOException {
         String newResourceName = (resourceName.endsWith(".properties") ? resourceName : resourceName + ".properties");
         File file = new File(
                 Objects.requireNonNull(getClass().getClassLoader().getResource(newResourceName)).getFile()
         );
-        return getProperty(file, key);
+
+        InputStream inputStream = new FileInputStream(file);
+
+        Properties properties = new Properties();
+
+        properties.load(inputStream);
+
+        inputStream.close();
+
+        return (T) properties.get(key);
     }
 
     /**
@@ -42,7 +49,6 @@ public interface IConfigManager {
      * @return The Property in the Type you want
      */
     <T> T getProperty(String settingsName, String key);
-
     /**
      * @param file The File from which you apply the Property
      * @param key  The key from which you apply the Property

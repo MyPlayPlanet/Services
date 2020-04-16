@@ -4,6 +4,7 @@ import net.myplayplanet.services.config.provider.IConfigManager;
 import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;
 import net.myplayplanet.services.connection.exceptions.InvalidConnectionSettingFileException;
 import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ public class ConnectionManager {
     }
 
     private void loadClasses() {
-        Reflections reflections = new Reflections("net.myplayplanet.services.connection.provider");
+        Reflections reflections = new Reflections("net.myplayplanet.services.connection.provider", new SubTypesScanner());
 
         Set<Class<? extends AbstractConnectionManager>> allClasses =
                 reflections.getSubTypesOf(AbstractConnectionManager.class);

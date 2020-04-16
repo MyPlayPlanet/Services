@@ -1,5 +1,7 @@
 package net.myplayplanet.services.config.provider;
 
+import org.springframework.core.io.ClassPathResource;
+
 import java.io.*;
 import java.util.Objects;
 import java.util.Properties;
@@ -27,11 +29,8 @@ public interface IConfigManager {
 
     default <T> T getPropertyFromResource(String resourceName, String key) throws IOException {
         String newResourceName = (resourceName.endsWith(".properties") ? resourceName : resourceName + ".properties");
-        File file = new File(
-                Objects.requireNonNull(getClass().getClassLoader().getResource(newResourceName)).getFile()
-        );
-
-        InputStream inputStream = new FileInputStream(file);
+        ClassPathResource classPathResource = new ClassPathResource(newResourceName);
+        InputStream inputStream = classPathResource.getInputStream();
 
         Properties properties = new Properties();
 

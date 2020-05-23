@@ -19,7 +19,7 @@
 
     <repositories>
         <repository>
-            <id>pp-public</id>
+            <id>pp</id>
             <url>https://nexus.myplayplanet.net/repository/public/</url>
         </repository>
     </repositories>

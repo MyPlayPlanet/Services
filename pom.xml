@@ -17,12 +17,13 @@
         <projectVersion>1.0.0</projectVersion>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>pp</id>
+    <distributionManagement>
+      <repository>
+            <id>pp-public</id>
+            <name>pp-public</name>
             <url>https://nexus.myplayplanet.net/repository/public/</url>
         </repository>
-    </repositories>
+    </distributionManagement>
 
     <dependencies>
         <dependency>

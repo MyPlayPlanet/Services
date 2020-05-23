@@ -5,10 +5,10 @@ import lombok.Getter;
 public abstract class AbstractService {
 
     @Getter
-    private static AbstractService instance;
+    private ServiceCluster cluster;
 
-    public AbstractService(){
-        instance = this;
+    public AbstractService(ServiceCluster cluster) {
+        this.cluster = cluster;
     }
 
     public void init() {

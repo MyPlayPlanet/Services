@@ -6,70 +6,29 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.AbstractService;
-import net.myplayplanet.services.connection.ConnectionSettings;
-import net.myplayplanet.services.logger.Log;
+import net.myplayplanet.services.ServiceCluster;
+import net.myplayplanet.services.config.provider.IConfigManager;
 
 import java.io.File;
-import java.net.Inet4Address;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
 
 @Getter
 @Setter
 @Slf4j
 public class ConfigService extends AbstractService {
 
+    @Setter(AccessLevel.PROTECTED)
+    protected IConfigManager configManager;
     @NonNull
     private File path;
-    @Getter(AccessLevel.PROTECTED)
-    @Setter(AccessLevel.PROTECTED)
-    protected ConfigManager configManager;
 
-    public ConfigService(File configPath) {
-        this.path = configPath;
+    public ConfigService(ServiceCluster cluster, IConfigManager configManager) {
+        super(cluster);
+        this.path = configManager.getPath();
+        this.configManager = configManager;
     }
 
     @Override
     public void init() {
-        Log.getLog(log).info("Starting {service}...", "ConfigService");
-
-        this.configManager = ConfigManager.createInstance(path);
-
-        Properties redisProperties = new Properties();
-        Properties mysqlProperties = new Properties();
-
-        try {
-            redisProperties.setProperty("hostname", Inet4Address.getLocalHost().getHostAddress());
-            redisProperties.setProperty("database", "database");
-            redisProperties.setProperty("port", "6379");
-            redisProperties.setProperty("password", "foobared");
-            redisProperties.setProperty("username", "username");
-
-            mysqlProperties.setProperty("hostname", Inet4Address.getLocalHost().getHostAddress());
-            mysqlProperties.setProperty("database", "database");
-            mysqlProperties.setProperty("port", "3306");
-            mysqlProperties.setProperty("password", "password");
-            mysqlProperties.setProperty("username", "username");
-
-            if (this.configManager.createSettingWithProperties("redis-settings", redisProperties)) {
-                Log.getLog(log).info("created setting {setting}" , "redis-settings");
-            }
-            if (this.configManager.createSettingWithProperties("mysql-settings", mysqlProperties)) {
-                Log.getLog(log).info("created setting {setting}" , "mysql-settings");
-            }
-        } catch (Exception e) {
-            Log.getLog(log).error(e, "error setting properties. {exceptionMessage} " + e.getMessage());
-        }
+        System.out.println("Started ConfigService");
     }
-
-    @Override
-    public void disable() {
-        Log.getLog(log).info("Shutting down {service}...", "ConfigService");
-    }
-
-    public HashMap<String, ConnectionSettings> getConnectionSettings(){
-        return this.getConfigManager().getAllSettingsFromDirectory(this.getPath());
-    }
-
 }

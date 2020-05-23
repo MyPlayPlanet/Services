@@ -2,7 +2,6 @@ package net.myplayplanet.services.schedule;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.logger.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,18 +29,18 @@ public class ScheduledTaskProvider {
 
     public <T extends IScheduledTask> void register(T task) {
         if (task.getInterval() <= 0) {
-            Log.getLog(log).error("ScheduledTask Interval must be higher than 0!");
+            System.out.println("ScheduledTask Interval must be higher than 0!");
             return;
         }
         this.getUpdatebleObjects().add(task);
         this.scheduleTask(task);
     }
 
-    private <T extends IScheduledTask> void scheduleTask(T task){
+    private <T extends IScheduledTask> void scheduleTask(T task) {
         this.startedTask.put(task.getClass().getName().toLowerCase(), this.getExecutorService().scheduleAtFixedRate(task::runLater, 0, task.getInterval(), task.getIntervalUnit()));
     }
 
-    public <T extends IScheduledTask> ScheduledFuture get(T task){
+    public <T extends IScheduledTask> ScheduledFuture get(T task) {
         return this.getStartedTask().get(task.getClass().getName().toLowerCase());
     }
 }

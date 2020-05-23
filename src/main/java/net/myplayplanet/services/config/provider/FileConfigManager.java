@@ -1,22 +1,25 @@
 package net.myplayplanet.services.config.provider;
 
 import com.google.common.io.Files;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.connection.ConnectionSettings;
-import net.myplayplanet.services.logger.Log;
 
 import java.io.*;
-import java.util.*;
+import java.util.Properties;
+import java.util.function.Predicate;
 
 @Slf4j
-public class FileProvider extends AbstractConfigProvider {
-    public FileProvider(File path) {
-        super(path);
+public class FileConfigManager implements IConfigManager {
+    @Getter
+    private File path;
+
+    public FileConfigManager(File path) {
+        this.path = path;
     }
 
     /**
-     * @param name         The name of the File which should be created
-     * @param properties   {@link Properties}
+     * @param name       The name of the File which should be created
+     * @param properties {@link Properties}
      * @throws IOException No further information provided
      */
     public boolean createSettingWithProperties(String name, Properties properties) throws IOException {
@@ -27,14 +30,14 @@ public class FileProvider extends AbstractConfigProvider {
             settings.createNewFile();
             this.setProperties(settings, properties);
             return true;
-        }else {
+        } else {
             return false;
         }
     }
 
     /**
-     * @param file         The File which should be created
-     * @param properties   {@link Properties}
+     * @param file       The File which should be created
+     * @param properties {@link Properties}
      * @throws IOException No further information provided
      */
     public boolean createSettingWithProperties(File file, Properties properties) throws IOException {
@@ -103,6 +106,10 @@ public class FileProvider extends AbstractConfigProvider {
 
         return null;
     }
+    @Override
+    public File[] getAllFilesInDirectory(File path, Predicate<String> filter) {
+        return path.listFiles((dir, name) -> filter.test(name));
+    }
 
     /**
      * @param file       the File in which the Settings are set
@@ -110,9 +117,7 @@ public class FileProvider extends AbstractConfigProvider {
      */
     private void setProperties(File file, Properties properties) {
         OutputStream outputStream = null;
-
         try {
-
             outputStream = new FileOutputStream(file);
             properties.store(outputStream, null);
         } catch (IOException io) {
@@ -128,60 +133,8 @@ public class FileProvider extends AbstractConfigProvider {
         }
     }
 
-    /**
-     * @param name of the {@link ConnectionSettings} {@link File}
-     * @return {@link ConnectionSettings} which are apply from the File
-     */
-    public ConnectionSettings getConnectionSettings(String name) {
-        File setting = new File(this.getPath().getAbsolutePath() + "/" + name.toLowerCase() + ".properties");
-
-        if (!(setting.exists())) {
-            return null;
-        }
-
-        ConnectionSettings connectionSettings = new ConnectionSettings(
-                this.getProperty(name, "database"),
-                this.getProperty(name, "hostname"),
-                this.getProperty(name, "password"),
-                Integer.valueOf(this.getProperty(name, "port")),
-                this.getProperty(name, "username"));
-        return connectionSettings;
-    }
-
-    /**
-     * @param file of which the {@link ConnectionSettings}
-     * @return {@link ConnectionSettings} which are apply from the File
-     */
-    public ConnectionSettings getConnectionSettings(File file) {
-        if (!(file.exists())) {
-            return null;
-        }
-
-        if (!file.getName().toLowerCase().contains("redis") && !file.getName().toLowerCase().contains("mysql")) {
-            Log.getLog(log).warning("Settings file with name {name} was not recognised as a SQL or Redis Setting.", file.getName());
-            return null;
-        }
-
-        ConnectionSettings connectionSettings = new ConnectionSettings(
-                this.getProperty(file, "database"),
-                this.getProperty(file, "hostname"),
-                this.getProperty(file, "password"),
-                Integer.valueOf(this.getProperty(file, "port")),
-                this.getProperty(file, "username"));
-        return connectionSettings;
-    }
-
     @Override
-    public HashMap<String, ConnectionSettings> getAllSettingsFromDirectory(File file) {
-        HashMap<String, ConnectionSettings> connectionSettings = new HashMap<>();
-
-        for (File listFile : file.listFiles((dir, name) -> name.endsWith("settings.properties"))) {
-            ConnectionSettings settings = this.getConnectionSettings(listFile);
-
-            if (settings != null) {
-                connectionSettings.put(listFile.getName(), settings);
-            }
-        }
-        return connectionSettings;
+    public boolean exists(File file) {
+        return file.exists();
     }
 }

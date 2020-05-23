@@ -1,56 +1,88 @@
 package net.myplayplanet.services.connection;
 
-import io.lettuce.core.api.StatefulRedisConnection;
-import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.ServiceCluster;
-import net.myplayplanet.services.connection.provider.IConnectionProvider;
-import net.myplayplanet.services.connection.provider.MockConnectionProvider;
-import net.myplayplanet.services.connection.provider.SqlRedisConnectionProvider;
-import net.myplayplanet.services.logger.Log;
+import net.myplayplanet.services.config.provider.IConfigManager;
+import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;
+import net.myplayplanet.services.connection.exceptions.InvalidConnectionSettingFileException;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 
-import java.sql.Connection;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Set;
 
-@Slf4j
 public class ConnectionManager {
-    private IConnectionProvider provider;
+    private HashMap<String, HashMap<String, AbstractConnectionManager>> managers;
+    private HashMap<String, Class<? extends AbstractConnectionManager>> configManagerTypesStringClass;
+    private HashMap<Class<?>, String> configManagerTypesClassString;
+    private ConnectionConfigManager iConfigManager;
 
-    protected ConnectionManager(ConnectionSettings redisSetting, ConnectionSettings mysqlSetting) {
-        assert redisSetting != null : "Redis Setting can not be null";
-        assert mysqlSetting != null : "SQL Setting can not be null";
-        Log.getLog(log).info("creating ConnectionManager.");
-        if (ServiceCluster.isDebug()) {
-            provider = new MockConnectionProvider();
-        }else {
-            provider = new SqlRedisConnectionProvider(redisSetting, mysqlSetting);
+    public ConnectionManager(IConfigManager iConfigManager) throws NoSuchMethodException, ConnectionTypeNotFoundException, IllegalAccessException, InstantiationException, InvalidConnectionSettingFileException, InvocationTargetException {
+        this.managers = new HashMap<>();
+        this.configManagerTypesStringClass = new HashMap<>();
+        this.configManagerTypesClassString = new HashMap<>();
+        this.iConfigManager = new ConnectionConfigManager(iConfigManager);
+        this.loadClasses();
+        this.load();
+    }
+
+    private void loadClasses() {
+        Reflections reflections = new Reflections("net.myplayplanet.services.connection.provider", new SubTypesScanner());
+
+        Set<Class<? extends AbstractConnectionManager>> allClasses =
+                reflections.getSubTypesOf(AbstractConnectionManager.class);
+
+        for (Class<? extends AbstractConnectionManager> aClass : allClasses) {
+            addManagerType(aClass);
         }
     }
 
-    public static ConnectionManager getInstance(String database) {
-        return ServiceCluster.get(ConnectionService.class).getConnectionManager(database);
-    }
-    public static ConnectionManager getInstance() {
-        return ServiceCluster.get(ConnectionService.class).getConnectionManager();
-    }
-
-    public StatefulRedisConnection<byte[], byte[]> getByteConnection() {
-        return provider.getByteConnection();
+    public void addManagerType(Class<? extends AbstractConnectionManager> clazz) {
+        String managerName = clazz.getSimpleName().replace("Manager", "").toLowerCase();
+        configManagerTypesStringClass.put(managerName, clazz);
+        configManagerTypesClassString.put(clazz, managerName);
+        managers.put(managerName, new HashMap<>());
     }
 
-    public StatefulRedisPubSubConnection<byte[], byte[]> getBytePubSubConnection() {
-        return provider.getBytePubSubConnection();
+    private void load() throws InvalidConnectionSettingFileException, ConnectionTypeNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        HashMap<String, ConnectionSetting> connectionSettings = this.iConfigManager.getConnectionSettings();
+        for (String key : connectionSettings.keySet()) {
+
+            if (key.startsWith("example")) {
+                System.out.println("skipped example properties file.");
+                continue;
+            }
+
+            ConnectionSetting setting = connectionSettings.get(key);
+            if (!key.contains("-")) {
+                throw new InvalidConnectionSettingFileException("invalid filename \" " + key +"\". Correct name pattern: \"<type>-[instance name]-settings.properties\"");
+            }
+
+            String[] split = key.split("-");
+            String type = split[0].toLowerCase();
+            String instanceName = split[1].contains("settings.properties") || split[1].trim().equalsIgnoreCase("")? "default" :  split[1];
+            if (!configManagerTypesStringClass.containsKey(type)) {
+                throw new ConnectionTypeNotFoundException("type with name \"" + type + "\" not found.");
+            }
+
+            System.out.println(
+                    "start creating connectionManager with instanceName '" + instanceName + "' and type ''" + type + "' for hostname '" + setting.hostname + "'...");
+            HashMap<String, AbstractConnectionManager> stringAbstractConnectionManagerHashMap = managers.get(type);
+            AbstractConnectionManager abstractConnectionManager = configManagerTypesStringClass.get(type).getConstructor(ConnectionSetting.class).newInstance(setting);
+
+            stringAbstractConnectionManagerHashMap.put(instanceName, abstractConnectionManager);
+            System.out.println("added connectionManager.");
+        }
     }
 
-    public StatefulRedisConnection<String, String> getStringConnection() {
-        return provider.getStringConnection();
+    public <T extends AbstractConnectionManager> T get(Class<T> clazz, String instance) {
+        if (!configManagerTypesClassString.containsKey(clazz)) {
+            return null;
+        }
+
+        return (T) managers.get(configManagerTypesClassString.get(clazz)).get(instance);
     }
 
-    public StatefulRedisPubSubConnection<String, String> getStringPubSubConnection() {
-        return provider.getStringPubSubConnection();
-    }
-
-    public Connection getMySQLConnection() {
-        return this.provider.getMySQLConnection();
+    public <T extends AbstractConnectionManager> T get(Class<T> clazz) {
+        return get(clazz, "default");
     }
 }

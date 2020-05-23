@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ConnectionSettings {
+public class ConnectionSetting {
     String database;
     String hostname;
     String password;

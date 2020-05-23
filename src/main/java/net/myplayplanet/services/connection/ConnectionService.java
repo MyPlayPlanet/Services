@@ -1,64 +1,54 @@
 package net.myplayplanet.services.connection;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.AbstractService;
 import net.myplayplanet.services.ServiceCluster;
-import net.myplayplanet.services.config.ConfigManager;
 import net.myplayplanet.services.config.ConfigService;
-import net.myplayplanet.services.logger.Log;
+import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;
+import net.myplayplanet.services.connection.exceptions.InvalidConnectionSettingFileException;
 
-import java.util.HashMap;
+import java.lang.reflect.InvocationTargetException;
+import java.net.Inet4Address;
+import java.util.Properties;
 
 @Slf4j
 public class ConnectionService extends AbstractService {
-    HashMap<String, ConnectionManager> managerHashMap;
+    private boolean debug;
+    @Getter
+    private ConnectionManager loader;
 
-    public ConnectionService() {
-        managerHashMap = new HashMap<>();
+    public ConnectionService(ServiceCluster cluster, boolean debug) {
+        super(cluster);
+        this.debug = debug;
     }
 
     @Override
     public void init() {
-        Log.getLog(log).info("Starting {service}...", "ConnectionService");
+        System.out.println("starting ConnectionService");
 
-        ConfigService service = ServiceCluster.get(ConfigService.class);
+        ConfigService service = this.getCluster().get(ConfigService.class);
 
-        HashMap<String, ConnectionSettings> sqlSettings = new HashMap<>();
-        HashMap<String, ConnectionSettings> redisSettings = new HashMap<>();
+        Properties example = new Properties();
 
-        HashMap<String, ConnectionSettings> settingsMap = service.getConnectionSettings();
-        for (String string : settingsMap.keySet()) {
-            if (string.endsWith("mysql-settings.properties")) {
-                String replace = (string.equalsIgnoreCase("mysql-settings.properties")) ? "minecraft" : string.replace("mysql-settings.properties", "");
-                sqlSettings.put(replace, settingsMap.get(string));
-            } else if (string.endsWith("redis-settings.properties")) {
-                String replace = (string.equalsIgnoreCase("redis-settings.properties")) ? "minecraft" : string.replace("redis-settings.properties", "");
-                redisSettings.put(replace, settingsMap.get(string));
+        try {
+            example.setProperty("hostname", Inet4Address.getLocalHost().getHostAddress());
+            example.setProperty("database", "database");
+            example.setProperty("port", "6379");
+            example.setProperty("password", "foobared");
+            example.setProperty("username", "username");
+
+            if (service.getConfigManager().createSettingWithProperties("example-settings", example)) {
+                System.out.println("created setting redis-settings");
             }
+        } catch (Exception e) {
+            System.out.println("error setting properties: " + e.getMessage());
         }
 
-        for (String settingName : sqlSettings.keySet()) {
-            ConnectionSettings sqlSetting = sqlSettings.getOrDefault(settingName, null);
-            ConnectionSettings redisSetting = redisSettings.getOrDefault(settingName, null);
-
-            assert sqlSetting != null : "SQL setting for name " + settingName + " could not be found.";
-            assert redisSetting != null : "Redis setting for name " + settingName + " could not be found.";
-
-            managerHashMap.put(settingName, new ConnectionManager(redisSetting, sqlSetting));
-            Log.getLog(log).info("Created ConnectionManager with [{setting}] ConnectionSettings", settingName.toUpperCase());
+        try {
+            loader = new ConnectionManager(service.getConfigManager());
+        } catch (NoSuchMethodException | ConnectionTypeNotFoundException | IllegalAccessException | InstantiationException | InvalidConnectionSettingFileException | InvocationTargetException e) {
+            e.printStackTrace();
         }
-    }
-
-    @Override
-    public void disable() {
-        Log.getLog(log).info("Shutting down {service}...", "ConnectionService");
-    }
-
-    public ConnectionManager getConnectionManager(String name) {
-        return managerHashMap.getOrDefault(name, null);
-    }
-
-    public ConnectionManager getConnectionManager() {
-        return getConnectionManager("minecraft");
     }
 }

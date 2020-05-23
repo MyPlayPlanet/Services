@@ -21,14 +21,14 @@
       <repository>
             <id>pp-public</id>
             <name>pp-public</name>
-            <url>https://nexus.myplayplanet.net/repository/public/</url>
+            <url>http://nexus.myplayplanet.net/repository/public/</url>
         </repository>
     </distributionManagement>
     
     <repositories>
          <repository>
              <id>pp-public</id>
-             <url>https://nexus.myplayplanet.net/repository/public/</url>
+             <url>http://nexus.myplayplanet.net/repository/public/</url>
          </repository>
      </repositories>
 

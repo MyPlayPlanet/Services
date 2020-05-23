@@ -10,24 +10,34 @@ cache:
     - target/
   key: "$CI_PIPELINE_ID"
   untracked: true
-
+  
 stages:
+  - build
+  - test
   - deploy
-  - trigger
+
+build:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS compile -P ci-snapshot,attach-javadocs,attach-sources
+
+test:
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS test -P ci-snapshot,attach-javadocs,attach-sources
 
 deploy-snapshot:
   stage: deploy
   script:
     - mvn $MAVEN_CLI_OPTS deploy -P ci-snapshot,deploy-snapshot,attach-javadocs,attach-sources
   only:
-    - test
     - develop
     - development
   artifacts:
     when: on_success
     expire_in: 1 week
     paths:
-      - target/*.jar
+    - target/*.jar
 
 deploy-release:
   stage: deploy
@@ -39,7 +49,7 @@ deploy-release:
     when: on_success
     expire_in: 1 month
     paths:
-      - target/*.jar
+    - target/*.jar
 
 trigger_build:
   stage: trigger

@@ -12,6 +12,7 @@ cache:
   untracked: true
 
 stages:
+  - build
   - deploy
   - trigger
 

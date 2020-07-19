@@ -18,20 +18,12 @@ public class ConnectionConfigManager {
         return getAllSettingsFromDirectory(configManager.getPath());
     }
 
-    /**
-     * @param name of the {@link ConnectionSetting} {@link File}
-     * @return {@link ConnectionSetting} which are apply from the File
-     */
     public ConnectionSetting getConnectionSettings(String name) {
         File setting = new File(configManager.getPath().getAbsolutePath() + "/" + name.toLowerCase() + ".properties");
 
         return getConnectionSettings(setting);
     }
 
-    /**
-     * @param file of which the {@link ConnectionSetting}
-     * @return {@link ConnectionSetting} which are apply from the File
-     */
     public ConnectionSetting getConnectionSettings(File file) {
         if (!configManager.exists(file)) {
             return null;

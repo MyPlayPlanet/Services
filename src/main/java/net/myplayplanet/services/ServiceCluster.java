@@ -54,11 +54,6 @@ public class ServiceCluster {
         IServiceList.clear();
     }
 
-    /**
-     * @param clazz Class of the {@link AbstractService}, which ist requested
-     * @param <T>  Type of the {@link AbstractService} to cast it automatically to the wanted {@link AbstractService}
-     * @return The service instance filtered by type
-     */
     public <T extends AbstractService> T get(Class<T> clazz) {
         for (AbstractService abstractService : IServiceList) {
             if (abstractService.getClass() == clazz) {
@@ -67,12 +62,6 @@ public class ServiceCluster {
         }
         return null;
     }
-
-    /**
-     * @param expression which should be true
-     * @param message    the error message which will be thrown
-     * @return expression
-     */
 
     public boolean validate(boolean expression, String message) {
         if (expression) {

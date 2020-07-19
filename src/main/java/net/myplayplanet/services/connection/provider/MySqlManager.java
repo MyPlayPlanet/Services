@@ -2,14 +2,16 @@ package net.myplayplanet.services.connection.provider;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.myplayplanet.services.connection.ConnectionSetting;
+import lombok.Getter;
 import net.myplayplanet.services.connection.AbstractConnectionManager;
+import net.myplayplanet.services.connection.ConnectionSetting;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.TimeZone;
 
 public class MySqlManager extends AbstractConnectionManager {
+    @Getter
     private HikariDataSource mysqlDataSource;
 
     public MySqlManager(ConnectionSetting settings) {

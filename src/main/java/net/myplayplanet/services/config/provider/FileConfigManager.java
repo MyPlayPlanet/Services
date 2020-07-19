@@ -17,11 +17,6 @@ public class FileConfigManager implements IConfigManager {
         this.path = path;
     }
 
-    /**
-     * @param name       The name of the File which should be created
-     * @param properties {@link Properties}
-     * @throws IOException No further information provided
-     */
     public boolean createSettingWithProperties(String name, Properties properties) throws IOException {
         File settings = new File(this.getPath().getAbsolutePath() + "/" + name.toLowerCase() + ".properties");
 
@@ -35,11 +30,6 @@ public class FileConfigManager implements IConfigManager {
         }
     }
 
-    /**
-     * @param file       The File which should be created
-     * @param properties {@link Properties}
-     * @throws IOException No further information provided
-     */
     public boolean createSettingWithProperties(File file, Properties properties) throws IOException {
         if (!(file.exists())) {
             Files.createParentDirs(file);
@@ -50,12 +40,6 @@ public class FileConfigManager implements IConfigManager {
         return false;
     }
 
-    /**
-     * @param settingsName The File Name from which you apply the Property
-     * @param key          The key from which you apply the Property
-     * @param <T>          The Type you want to apply back
-     * @return The Property in the Type you want
-     */
     public <T> T getProperty(String settingsName, String key) {
         File setting = new File(this.getPath().getAbsolutePath() + "/" + settingsName.toLowerCase() + ".properties");
 
@@ -80,12 +64,6 @@ public class FileConfigManager implements IConfigManager {
         return null;
     }
 
-    /**
-     * @param file The File from which you apply the Property
-     * @param key  The key from which you apply the Property
-     * @param <T>  The Type you want to apply back
-     * @return The Property in the Type you want
-     */
     public <T> T getProperty(File file, String key) {
         if (!(file.exists())) {
             return null;
@@ -111,10 +89,6 @@ public class FileConfigManager implements IConfigManager {
         return path.listFiles((dir, name) -> filter.test(name));
     }
 
-    /**
-     * @param file       the File in which the Settings are set
-     * @param properties the Properties which you want to set
-     */
     private void setProperties(File file, Properties properties) {
         OutputStream outputStream = null;
         try {

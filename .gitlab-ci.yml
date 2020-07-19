@@ -18,7 +18,7 @@ stages:
 deploy-snapshot:
   stage: deploy
   script:
-    - mvn $MAVEN_CLI_OPTS deploy -P ci-snapshot,deploy-snapshot,attach-javadocs,attach-sources
+    - mvn $MAVEN_CLI_OPTS deploy -P ci-snapshot,deploy-snapshot,attach-sources
   only:
     - test
     - develop

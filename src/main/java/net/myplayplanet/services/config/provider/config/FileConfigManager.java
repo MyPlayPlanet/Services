@@ -1,8 +1,9 @@
-package net.myplayplanet.services.config.provider;
+package net.myplayplanet.services.config.provider.config;
 
 import com.google.common.io.Files;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.services.config.provider.IConfigManager;
 
 import java.io.*;
 import java.util.Properties;

@@ -2,9 +2,10 @@ package net.myplayplanet.services;
 
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.config.ConfigService;
-import net.myplayplanet.services.config.provider.FileConfigManager;
 import net.myplayplanet.services.config.provider.IConfigManager;
-import net.myplayplanet.services.config.provider.MockConfigManager;
+import net.myplayplanet.services.config.provider.IResourceProvider;
+import net.myplayplanet.services.config.provider.config.FileConfigManager;
+import net.myplayplanet.services.config.provider.config.MockConfigManager;
 import net.myplayplanet.services.connection.ConnectionService;
 import net.myplayplanet.services.schedule.ScheduleService;
 
@@ -18,7 +19,18 @@ import java.util.Properties;
 
 @Slf4j
 public class ServiceCluster {
-    private ArrayList<AbstractService> IServiceList = new ArrayList<>();
+    private final ArrayList<AbstractService> IServiceList;
+    private final IResourceProvider resourceProvider;
+
+    public ServiceCluster(IResourceProvider resourceProvider) {
+        this.resourceProvider = resourceProvider;
+        IServiceList = new ArrayList<>();
+    }
+
+    public ServiceCluster() {
+        this(IResourceProvider.getResourceProvider());
+    }
+
 
     public void addServices(boolean initiate, final AbstractService... IServices) {
         List<AbstractService> services = Arrays.asList(IServices);
@@ -51,6 +63,7 @@ public class ServiceCluster {
         addServices(true, new ConnectionService(this, debug));
         addServices(true, new ScheduleService(this));
     }
+
     public void startupCluster(InputStream resourceStream) throws IOException {
         Properties properties = new Properties();
         properties.load(resourceStream);
@@ -61,6 +74,12 @@ public class ServiceCluster {
         boolean debug = Boolean.parseBoolean(properties.getProperty("mpp.basic.debug"));
 
         this.startupCluster(configFile, debug);
+    }
+
+    public void startupCluster(String resourceFileName) throws IOException {
+        try (InputStream inputStream = this.resourceProvider.getResourceFile(resourceFileName)) {
+            this.startupCluster(inputStream);
+        }
     }
 
     public void shutdownCluster() {

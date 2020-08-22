@@ -1,6 +1,7 @@
-package net.myplayplanet.services.config.provider;
+package net.myplayplanet.services.config.provider.config;
 
 import lombok.Getter;
+import net.myplayplanet.services.config.provider.IConfigManager;
 
 import java.io.File;
 import java.io.FilenameFilter;

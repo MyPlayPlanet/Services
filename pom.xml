@@ -11,10 +11,10 @@
     </parent>
 
     <artifactId>MyPlayPlanet-Services</artifactId>
-    <version>${projectVersion}</version>
+    <version>1.17.0</version>
 
     <properties>
-        <projectVersion>1.0.0</projectVersion>
+        <projectVersion>1.17.0</projectVersion>
     </properties>
     
     <repositories>
@@ -48,6 +48,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+            <version>21.0</version>
             <scope>compile</scope>
         </dependency>
 
@@ -137,55 +138,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <!--<build>-->
-    <!--    <plugins>-->
-    <!--        <plugin>-->
-    <!--            <groupId>org.apache.maven.plugins</groupId>-->
-    <!--            <artifactId>maven-compiler-plugin</artifactId>-->
-    <!--            <configuration>-->
-    <!--                <source>8</source>-->
-    <!--                <target>8</target>-->
-    <!--            </configuration>-->
-    <!--        </plugin>-->
-    <!--        <plugin>-->
-    <!--            <groupId>org.apache.maven.plugins</groupId>-->
-    <!--            <artifactId>maven-javadoc-plugin</artifactId>-->
-    <!--            <configuration>-->
-    <!--                <source>8</source>-->
-    <!--            </configuration>-->
-    <!--        </plugin>-->
-    <!--        <plugin>-->
-    <!--            <artifactId>maven-surefire-plugin</artifactId>-->
-    <!--            <version>2.19</version>-->
-    <!--            <dependencies>-->
-    <!--                <dependency>-->
-    <!--                    <groupId>org.junit.platform</groupId>-->
-    <!--                    <artifactId>junit-platform-surefire-provider</artifactId>-->
-    <!--                    <version>1.0.0-M4</version>-->
-    <!--                </dependency>-->
-    <!--                <dependency>-->
-    <!--                    <groupId>org.junit.jupiter</groupId>-->
-    <!--                    <artifactId>junit-jupiter-engine</artifactId>-->
-    <!--                    <version>5.0.0-M4</version>-->
-    <!--                </dependency>-->
-    <!--            </dependencies>-->
-    <!--        </plugin>-->
-            <!--<plugin>-->
-            <!--    <artifactId>maven-assembly-plugin</artifactId>-->
-            <!--    <executions>-->
-            <!--        <execution>-->
-            <!--            <phase>package</phase>-->
-            <!--            <goals>-->
-            <!--                <goal>single</goal>-->
-            <!--            </goals>-->
-            <!--        </execution>-->
-            <!--    </executions>-->
-            <!--    <configuration>-->
-            <!--        <descriptorRefs>-->
-            <!--            <descriptorRef>jar-with-dependencies</descriptorRef>-->
-            <!--        </descriptorRefs>-->
-            <!--    </configuration>-->
-            <!--</plugin>-->
-    <!--    </plugins>-->
-    <!--</build>-->
 </project>

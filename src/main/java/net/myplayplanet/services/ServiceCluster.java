@@ -9,9 +9,12 @@ import net.myplayplanet.services.connection.ConnectionService;
 import net.myplayplanet.services.schedule.ScheduleService;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 @Slf4j
 public class ServiceCluster {
@@ -47,6 +50,17 @@ public class ServiceCluster {
         addServices(true, new ConfigService(this, configManager));
         addServices(true, new ConnectionService(this, debug));
         addServices(true, new ScheduleService(this));
+    }
+    public void startupCluster(InputStream resourceStream) throws IOException {
+        Properties properties = new Properties();
+        properties.load(resourceStream);
+        resourceStream.close();
+
+        String configPath = properties.getProperty("mpp.basic.config-path");
+        File configFile = new File(configPath);
+        boolean debug = Boolean.parseBoolean(properties.getProperty("mpp.basic.debug"));
+
+        this.startupCluster(configFile, debug);
     }
 
     public void shutdownCluster() {

@@ -49,6 +49,11 @@ public class MockConfigManager implements IConfigManager {
     }
 
     @Override
+    public File[] getAllFilesInDirectory(Predicate<String> filter) {
+        return this.getAllFilesInDirectory(null, filter);
+    }
+
+    @Override
     public boolean exists(File file) {
         return data.containsKey(file);
     }

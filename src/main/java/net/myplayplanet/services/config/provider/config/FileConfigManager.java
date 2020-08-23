@@ -90,6 +90,11 @@ public class FileConfigManager implements IConfigManager {
         return path.listFiles((dir, name) -> filter.test(name));
     }
 
+    @Override
+    public File[] getAllFilesInDirectory(Predicate<String> filter) {
+        return this.getAllFilesInDirectory(new File(this.getPath().getAbsolutePath()), filter);
+    }
+
     private void setProperties(File file, Properties properties) {
         OutputStream outputStream = null;
         try {

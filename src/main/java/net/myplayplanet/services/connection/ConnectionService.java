@@ -29,17 +29,22 @@ public class ConnectionService extends AbstractService {
 
         ConfigService service = this.getCluster().get(ConfigService.class);
 
-        Properties example = new Properties();
-
         try {
-            example.setProperty("hostname", Inet4Address.getLocalHost().getHostAddress());
-            example.setProperty("database", "database");
-            example.setProperty("port", "6379");
-            example.setProperty("password", "foobared");
-            example.setProperty("username", "username");
+            if (service.getConfigManager().getAllFilesInDirectory(
+                    s -> s.toLowerCase().endsWith("settings.properties")
+            ).length <= 0) {
+                Properties example = new Properties();
+                example.setProperty("hostname", Inet4Address.getLocalHost().getHostAddress());
+                example.setProperty("database", "database");
+                example.setProperty("port", "6379");
+                example.setProperty("password", "foobared");
+                example.setProperty("username", "username");
 
-            if (service.getConfigManager().createSettingWithProperties("example-settings", example)) {
-                System.out.println("created setting redis-settings");
+                if (service.getConfigManager().createSettingWithProperties("example-settings", example)) {
+                    System.out.println("created setting example-settings");
+                } else {
+                    System.out.println("cloud not create example-settings");
+                }
             }
         } catch (Exception e) {
             System.out.println("error setting properties: " + e.getMessage());

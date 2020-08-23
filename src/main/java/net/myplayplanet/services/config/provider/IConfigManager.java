@@ -35,6 +35,8 @@ public interface IConfigManager {
 
     File[] getAllFilesInDirectory(File path, Predicate<String> filter);
 
+    File[] getAllFilesInDirectory(Predicate<String> filter);
+
     default boolean exists(String fileName) {
         return exists(new File(this.getPath(), fileName));
     }

@@ -11,10 +11,10 @@
     </parent>
 
     <artifactId>MyPlayPlanet-Services</artifactId>
-    <version>1.17.0</version>
+    <version>1.16.1-SNAPSHOT</version>
 
     <properties>
-        <projectVersion>1.17.0</projectVersion>
+        <projectVersion>1.16.1-SNAPSHOT</projectVersion>
     </properties>
     
     <repositories>

@@ -15,7 +15,7 @@ public class Test {
         File path = new File("MyPlayPlanet-Services");
         cluster.startupCluster(path, false);
 
-        ConnectionManager connectionManager = cluster.get(ConnectionService.class).getLoader();
+        ConnectionManager connectionManager = cluster.get(ConnectionService.class).getConnectionManager();
 
 
         try (Connection conn = connectionManager.get(MySqlManager.class).get()){

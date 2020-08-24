@@ -2,9 +2,8 @@ package net.myplayplanet.services.connection;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.AbstractService;
-import net.myplayplanet.services.ServiceCluster;
-import net.myplayplanet.services.config.ConfigService;
+import net.myplayplanet.services.IService;
+import net.myplayplanet.services.config.provider.IConfigManager;
 import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;
 import net.myplayplanet.services.connection.exceptions.InvalidConnectionSettingFileException;
 
@@ -13,24 +12,21 @@ import java.net.Inet4Address;
 import java.util.Properties;
 
 @Slf4j
-public class ConnectionService extends AbstractService {
-    private boolean debug;
+public class ConnectionService implements IService {
     @Getter
-    private ConnectionManager loader;
+    private ConnectionManager connectionManager;
+    private final IConfigManager configManager;
 
-    public ConnectionService(ServiceCluster cluster, boolean debug) {
-        super(cluster);
-        this.debug = debug;
+    public ConnectionService(IConfigManager configManager) {
+        this.configManager = configManager;
     }
 
     @Override
     public void init() {
         System.out.println("starting ConnectionService");
 
-        ConfigService service = this.getCluster().get(ConfigService.class);
-
         try {
-            if (service.getConfigManager().getAllFilesInDirectory(
+            if (configManager.getAllFilesInDirectory(
                     s -> s.toLowerCase().endsWith("settings.properties")
             ).length <= 0) {
                 Properties example = new Properties();
@@ -40,7 +36,7 @@ public class ConnectionService extends AbstractService {
                 example.setProperty("password", "foobared");
                 example.setProperty("username", "username");
 
-                if (service.getConfigManager().createSettingWithProperties("example-settings", example)) {
+                if (configManager.createSettingWithProperties("example-settings", example)) {
                     System.out.println("created setting example-settings");
                 } else {
                     System.out.println("cloud not create example-settings");
@@ -51,7 +47,7 @@ public class ConnectionService extends AbstractService {
         }
 
         try {
-            loader = new ConnectionManager(service.getConfigManager());
+            connectionManager = new ConnectionManager(configManager);
         } catch (NoSuchMethodException | ConnectionTypeNotFoundException | IllegalAccessException | InstantiationException | InvalidConnectionSettingFileException | InvocationTargetException e) {
             e.printStackTrace();
         }

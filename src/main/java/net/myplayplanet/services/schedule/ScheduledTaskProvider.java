@@ -16,9 +16,9 @@ public class ScheduledTaskProvider {
 
     @Getter
     private static ScheduledTaskProvider instance;
-    private List<IScheduledTask> updatebleObjects;
-    private HashMap<String, ScheduledFuture> startedTask;
-    private ScheduledExecutorService executorService;
+    private final List<IScheduledTask> updatebleObjects;
+    private final HashMap<String, ScheduledFuture> startedTask;
+    private final ScheduledExecutorService executorService;
 
     public ScheduledTaskProvider() {
         instance = this;

@@ -1,5 +1,6 @@
 package net.myplayplanet.services;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.config.provider.IConfigManager;
@@ -21,6 +22,8 @@ import java.util.Properties;
 public class ServiceCluster {
     private final ArrayList<AbstractService> IServiceList;
     private final IResourceProvider resourceProvider;
+    @Getter
+    private boolean debug;
 
     public ServiceCluster(IResourceProvider resourceProvider) {
         this.resourceProvider = resourceProvider;
@@ -56,6 +59,7 @@ public class ServiceCluster {
     }
 
     public void startupCluster(File configPath, boolean debug) {
+        this.debug = debug;
         IConfigManager configManager = debug ? new MockConfigManager(configPath) : new FileConfigManager(configPath);
 
 

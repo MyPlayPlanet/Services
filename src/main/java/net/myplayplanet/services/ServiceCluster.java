@@ -5,7 +5,9 @@ import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.config.provider.IResourceProvider;
 import net.myplayplanet.services.connection.ConnectionService;
 import net.myplayplanet.services.internal.CommandExecutor;
+import net.myplayplanet.services.internal.exception.BadSetupException;
 import net.myplayplanet.services.schedule.ScheduleService;
+import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
 
@@ -14,25 +16,70 @@ public class ServiceCluster {
     private final HashMap<String, IService> serviceHashMap;
     private final CommandExecutor commandExecutor;
 
-    public ServiceCluster(IResourceProvider resourceProvider) {
+    private boolean started = false;
+
+    protected ServiceCluster(IResourceProvider resourceProvider, boolean setupScheduler, boolean setupConfig, boolean setupConn) throws BadSetupException {
         serviceHashMap = new HashMap<>();
         commandExecutor = new CommandExecutor();
 
-        addServices(new ConfigService(resourceProvider));
-        addServices(true, new ConnectionService(this.get(ConfigService.class).getConfigManager()));
-        addServices(true, new ScheduleService());
+        if (setupScheduler) {
+            addServices(false, new ScheduleService());
+        }
 
-        commandExecutor.setupCommands(this.get(ConfigService.class).getConfigManager(), this.get(ConnectionService.class).getConnectionManager());
+        if (setupConfig) {
+            addServices(new ConfigService(resourceProvider));
+        }
+
+        if (setupConn) {
+            if (!setupConfig) {
+                throw new BadSetupException("setup Config must be set to true if connection service should be setup");
+            }
+            addServices(false, new ConnectionService(this));
+        }
     }
 
-    public ServiceCluster() {
-        this(IResourceProvider.getResourceProvider());
-    }
+    public boolean runCommand(String[] args) {
+        Validate.isTrue(started, "cluster must be started before it can run commands...");
 
-    public void run(String[] args, Runnable runnable) {
         if (commandExecutor.canExecute(args)) {
             commandExecutor.execute(args);
+            return true;
         } else {
+            return false;
+        }
+    }
+
+    public void startup() {
+        this.startup(null, null);
+    }
+
+    public void startup(Runnable runnable) {
+        this.startup(null, runnable);
+    }
+
+    public void startup(String[] args, Runnable runnable) {
+        Validate.isTrue(!started, "cluster can not be started because startup Method was already called before.");
+
+        for (IService value : this.serviceHashMap.values()) {
+            value.init();
+        }
+
+        this.started = true;
+
+        final ConfigService configService = this.get(ConfigService.class);
+        final ConnectionService connectionService = this.get(ConnectionService.class);
+
+        if (connectionService != null && configService != null) {
+            commandExecutor.setupCommands(configService.getConfigManager(), connectionService.getConnectionManager());
+        }
+
+        boolean run = true;
+
+        if (args != null && runCommand(args)) {
+            run = false;
+        }
+
+        if (runnable != null && run) {
             runnable.run();
         }
     }
@@ -55,7 +102,6 @@ public class ServiceCluster {
             }
         }
     }
-
 
     public void shutdownCluster() {
         for (IService value : serviceHashMap.values()) {

@@ -1,7 +1,7 @@
 package net.myplayplanet.services.connection.dbversion.line.prepared;
 
-import net.myplayplanet.service.core.api.AbstractJavaSqlScript;
-import net.myplayplanet.service.core.dbversion.line.ILineAction;
+import net.myplayplanet.services.connection.dbversion.line.ILineAction;
+import net.myplayplanet.services.internal.api.AbstractJavaSqlScript;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,10 +11,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class GeneratePreparedStatementLineAction implements ILineAction {
-    private AbstractJavaSqlScript abstractJavaSqlScript;
-    private Connection connection;
-    private String content;
-    private Method method;
+    private final AbstractJavaSqlScript abstractJavaSqlScript;
+    private final Connection connection;
+    private final String content;
+    private final Method method;
 
     public GeneratePreparedStatementLineAction(AbstractJavaSqlScript abstractJavaSqlScript, Connection connection, String content, Method method) throws NoSuchMethodException {
         this.abstractJavaSqlScript = abstractJavaSqlScript;

@@ -1,13 +1,13 @@
 package net.myplayplanet.services.connection.dbversion;
 
-import net.myplayplanet.service.core.api.AbstractJavaSqlScript;
-import net.myplayplanet.service.core.dbversion.exception.InvalidReturnTypeException;
-import net.myplayplanet.service.core.dbversion.exception.SetupNotSuccessfulException;
-import net.myplayplanet.service.core.dbversion.line.ILineActionGroup;
 import net.myplayplanet.services.config.provider.IConfigManager;
 import net.myplayplanet.services.config.provider.IResourceProvider;
 import net.myplayplanet.services.connection.ConnectionManager;
+import net.myplayplanet.services.connection.dbversion.exception.InvalidReturnTypeException;
+import net.myplayplanet.services.connection.dbversion.exception.SetupNotSuccessfulException;
+import net.myplayplanet.services.connection.dbversion.line.ILineActionGroup;
 import net.myplayplanet.services.connection.provider.MySqlManager;
+import net.myplayplanet.services.internal.api.AbstractJavaSqlScript;
 
 import java.io.BufferedReader;
 import java.io.IOException;

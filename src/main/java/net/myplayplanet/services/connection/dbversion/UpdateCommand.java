@@ -1,6 +1,7 @@
 package net.myplayplanet.services.connection.dbversion;
 
 import net.myplayplanet.services.config.provider.IResourceProvider;
+import net.myplayplanet.services.connection.dbversion.exception.SetupNotSuccessfulException;
 import net.myplayplanet.services.internal.api.AbstractCommand;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class UpdateCommand extends AbstractCommand {
         UpdateManager updateManager = null;
         try {
             updateManager = new UpdateManager(this.getConfigManager(), this.getConnectionManager(), resourceProvider);
-        } catch (SQLException | IOException e) {
+        } catch (SQLException | IOException | SetupNotSuccessfulException e) {
             System.out.println("error while basic setup:" + e.getMessage());
             e.printStackTrace();
             System.exit(130);

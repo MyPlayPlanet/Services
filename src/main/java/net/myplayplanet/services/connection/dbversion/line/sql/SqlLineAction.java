@@ -1,6 +1,6 @@
 package net.myplayplanet.services.connection.dbversion.line.sql;
 
-import net.myplayplanet.service.core.dbversion.line.ILineAction;
+import net.myplayplanet.services.connection.dbversion.line.ILineAction;
 
 import java.sql.SQLException;
 import java.sql.Statement;

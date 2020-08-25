@@ -3,6 +3,8 @@ package net.myplayplanet.services.connection;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.IService;
+import net.myplayplanet.services.ServiceCluster;
+import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.config.provider.IConfigManager;
 import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;
 import net.myplayplanet.services.connection.exceptions.InvalidConnectionSettingFileException;
@@ -15,15 +17,16 @@ import java.util.Properties;
 public class ConnectionService implements IService {
     @Getter
     private ConnectionManager connectionManager;
-    private final IConfigManager configManager;
+    private ServiceCluster serviceCluster;
 
-    public ConnectionService(IConfigManager configManager) {
-        this.configManager = configManager;
+    public ConnectionService(ServiceCluster serviceCluster) {
+        this.serviceCluster = serviceCluster;
     }
 
     @Override
     public void init() {
         System.out.println("starting ConnectionService");
+        IConfigManager configManager = serviceCluster.get(ConfigService.class).getConfigManager();
 
         try {
             if (configManager.getAllFilesInDirectory(

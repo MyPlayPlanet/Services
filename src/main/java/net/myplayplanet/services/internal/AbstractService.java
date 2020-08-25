@@ -4,6 +4,7 @@ import net.myplayplanet.services.config.provider.IConfigManager;
 import net.myplayplanet.services.config.provider.IResourceProvider;
 import net.myplayplanet.services.connection.ConnectionManager;
 import net.myplayplanet.services.connection.dbversion.UpdateManager;
+import net.myplayplanet.services.connection.dbversion.exception.SetupNotSuccessfulException;
 import net.myplayplanet.services.connection.provider.MySqlManager;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ public abstract class AbstractService {
 
         try {
             this.updateManager = new UpdateManager(configManager, connectionManager, iResourceProvider);
-        } catch (SQLException | IOException e) {
+        } catch (SQLException | IOException | SetupNotSuccessfulException e) {
             System.out.println("error while basic setup:" + e.getMessage());
             e.printStackTrace();
             System.exit(130);

@@ -1,16 +1,16 @@
 package net.myplayplanet.services.connection.dbversion;
 
 import lombok.Getter;
-import net.myplayplanet.service.core.api.AbstractJavaSqlScript;
-import net.myplayplanet.service.core.dbversion.exception.InvalidReturnTypeException;
-import net.myplayplanet.service.core.dbversion.line.ILineAction;
-import net.myplayplanet.service.core.dbversion.line.ILineActionGroup;
-import net.myplayplanet.service.core.dbversion.line.generate.SqlGeneratorLineAction;
-import net.myplayplanet.service.core.dbversion.line.java.JavaLineAction;
-import net.myplayplanet.service.core.dbversion.line.java.JavaLineActionGroup;
-import net.myplayplanet.service.core.dbversion.line.prepared.GeneratePreparedStatementLineAction;
-import net.myplayplanet.service.core.dbversion.line.sql.SqlLineAction;
-import net.myplayplanet.service.core.dbversion.line.sql.SqlLineActionGroup;
+import net.myplayplanet.services.connection.dbversion.exception.InvalidReturnTypeException;
+import net.myplayplanet.services.connection.dbversion.line.ILineAction;
+import net.myplayplanet.services.connection.dbversion.line.ILineActionGroup;
+import net.myplayplanet.services.connection.dbversion.line.generate.SqlGeneratorLineAction;
+import net.myplayplanet.services.connection.dbversion.line.java.JavaLineAction;
+import net.myplayplanet.services.connection.dbversion.line.java.JavaLineActionGroup;
+import net.myplayplanet.services.connection.dbversion.line.prepared.GeneratePreparedStatementLineAction;
+import net.myplayplanet.services.connection.dbversion.line.sql.SqlLineAction;
+import net.myplayplanet.services.connection.dbversion.line.sql.SqlLineActionGroup;
+import net.myplayplanet.services.internal.api.AbstractJavaSqlScript;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -20,10 +20,10 @@ import java.util.List;
 
 @Getter
 public class VersionSqlObject {
-    private int version;
-    private List<ILineActionGroup> iLineActionGroups;
-    private AbstractJavaSqlScript abstractJavaSqlScript;
-    private Class<?> clazz;
+    private final int version;
+    private final List<ILineActionGroup> iLineActionGroups;
+    private final AbstractJavaSqlScript abstractJavaSqlScript;
+    private final Class<?> clazz;
 
     public VersionSqlObject(int version, String fileContent, AbstractJavaSqlScript abstractJavaSqlScript, Connection connection) throws NoSuchMethodException, InvalidReturnTypeException {
         this.version = version;
@@ -52,19 +52,13 @@ public class VersionSqlObject {
                 if (method.getReturnType() == PreparedStatement.class) {
                     GeneratePreparedStatementLineAction action = new GeneratePreparedStatementLineAction(abstractJavaSqlScript, connection, newLine, method);
                     currentGroup = processCreateNewGroup(currentGroup, action);
-                }
-
-                else if (method.getReturnType() == String.class) {
+                } else if (method.getReturnType() == String.class) {
                     SqlGeneratorLineAction action = new SqlGeneratorLineAction(abstractJavaSqlScript, connection, newLine, method);
                     currentGroup = processAddToGroup(currentGroup, action);
-                }
-
-                else if (method.getReturnType() == Void.TYPE) {
+                } else if (method.getReturnType() == Void.TYPE) {
                     JavaLineAction action = new JavaLineAction(abstractJavaSqlScript, connection, newLine, method);
                     currentGroup = processCreateNewGroup(currentGroup, action);
-                }
-
-                else {
+                } else {
                     throw new InvalidReturnTypeException("invalid return type: " + method.getReturnType());
                 }
             } else {

@@ -6,8 +6,11 @@ import net.myplayplanet.services.IService;
 import net.myplayplanet.services.ServiceCluster;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.config.provider.IConfigManager;
+import net.myplayplanet.services.config.provider.IResourceProvider;
+import net.myplayplanet.services.connection.dbversion.UpdateCommand;
 import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;
 import net.myplayplanet.services.connection.exceptions.InvalidConnectionSettingFileException;
+import net.myplayplanet.services.internal.CommandExecutor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.Inet4Address;
@@ -17,10 +20,12 @@ import java.util.Properties;
 public class ConnectionService implements IService {
     @Getter
     private ConnectionManager connectionManager;
+    private IResourceProvider resourceProvider;
     private ServiceCluster serviceCluster;
 
-    public ConnectionService(ServiceCluster serviceCluster) {
+    public ConnectionService(ServiceCluster serviceCluster, IResourceProvider resourceProvider) {
         this.serviceCluster = serviceCluster;
+        this.resourceProvider = resourceProvider;
     }
 
     @Override
@@ -54,5 +59,10 @@ public class ConnectionService implements IService {
         } catch (NoSuchMethodException | ConnectionTypeNotFoundException | IllegalAccessException | InstantiationException | InvalidConnectionSettingFileException | InvocationTargetException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void registerCommand(CommandExecutor executor) {
+        executor.registerCommand(new UpdateCommand(this.resourceProvider));
     }
 }

@@ -36,7 +36,7 @@ public class ServiceCluster {
             if (!setupConfig) {
                 throw new BadSetupException("setup Config must be set to true if connection service should be setup");
             }
-            addServices(false, new ConnectionService(this));
+            addServices(false, new ConnectionService(this, resourceProvider));
         }
     }
 
@@ -63,7 +63,7 @@ public class ServiceCluster {
         Validate.isTrue(!started, "cluster can not be started because startup Method was already called before.");
 
         for (IService value : this.serviceHashMap.values()) {
-            value.init();
+           setupService(value);
         }
 
         this.started = true;
@@ -99,10 +99,14 @@ public class ServiceCluster {
 
             this.serviceHashMap.put(iService.getName(), iService);
             if (initiate) {
-                iService.init();
-                iService.registerCommand(this.commandExecutor);
+                setupService(iService);
             }
         }
+    }
+
+    private void setupService(IService iService) {
+        iService.init();
+        iService.registerCommand(this.commandExecutor);
     }
 
     public void shutdownCluster() {

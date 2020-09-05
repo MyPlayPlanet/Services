@@ -49,8 +49,4 @@ public class ConfigService implements IService {
         System.out.println("Started ConfigService");
     }
 
-    @Override
-    public void registerCommand(CommandExecutor executor) {
-        executor.registerCommand(new UpdateCommand(this.resourceProvider));
-    }
 }

@@ -10,6 +10,8 @@ import net.myplayplanet.services.schedule.ScheduleService;
 import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Slf4j
 public class ServiceCluster {

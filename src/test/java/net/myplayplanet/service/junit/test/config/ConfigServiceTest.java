@@ -1,8 +1,8 @@
 package net.myplayplanet.service.junit.test.config;
 
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.ServiceCluster;
-import net.myplayplanet.services.ServiceClusterBuilder;
+import net.myplayplanet.services.cluster.BaseServiceCluster;
+import net.myplayplanet.services.cluster.ClusterBuilder;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.config.provider.IConfigManager;
 import net.myplayplanet.services.internal.exception.BadSetupException;
@@ -11,17 +11,16 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
 @Slf4j
 public class ConfigServiceTest {
-    private static ServiceCluster cluster;
+    private static BaseServiceCluster cluster;
 
     @BeforeAll
     public static void beforeAll() throws BadSetupException {
-        cluster = new ServiceClusterBuilder().withConfig().mock(true, "").build();
+        cluster = new ClusterBuilder().withConfig().mock(true, "").build();
         cluster.startup();
     }
 

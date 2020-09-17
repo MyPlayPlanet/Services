@@ -2,7 +2,6 @@ package net.myplayplanet.services.schedule;
 
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.IService;
-import net.myplayplanet.services.ServiceCluster;
 
 @Slf4j
 public class ScheduleService implements IService {

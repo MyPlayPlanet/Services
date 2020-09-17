@@ -3,7 +3,7 @@ package net.myplayplanet.services.connection;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.IService;
-import net.myplayplanet.services.ServiceCluster;
+import net.myplayplanet.services.cluster.BaseServiceCluster;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.config.provider.IConfigManager;
 import net.myplayplanet.services.config.provider.IResourceProvider;
@@ -21,17 +21,17 @@ public class ConnectionService implements IService {
     @Getter
     private ConnectionManager connectionManager;
     private IResourceProvider resourceProvider;
-    private ServiceCluster serviceCluster;
+    private BaseServiceCluster baseServiceCluster;
 
-    public ConnectionService(ServiceCluster serviceCluster, IResourceProvider resourceProvider) {
-        this.serviceCluster = serviceCluster;
+    public ConnectionService(BaseServiceCluster baseServiceCluster, IResourceProvider resourceProvider) {
+        this.baseServiceCluster = baseServiceCluster;
         this.resourceProvider = resourceProvider;
     }
 
     @Override
     public void init() {
         System.out.println("starting ConnectionService");
-        IConfigManager configManager = serviceCluster.get(ConfigService.class).getConfigManager();
+        IConfigManager configManager = baseServiceCluster.get(ConfigService.class).getConfigManager();
 
         try {
             if (configManager.getAllFilesInDirectory(

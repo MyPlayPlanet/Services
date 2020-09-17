@@ -1,6 +1,7 @@
-package net.myplayplanet.services;
+package net.myplayplanet.services.cluster;
 
 import lombok.extern.slf4j.Slf4j;
+import net.myplayplanet.services.IService;
 import net.myplayplanet.services.config.ConfigService;
 import net.myplayplanet.services.config.provider.IResourceProvider;
 import net.myplayplanet.services.connection.ConnectionService;
@@ -10,17 +11,15 @@ import net.myplayplanet.services.schedule.ScheduleService;
 import org.apache.commons.lang3.Validate;
 
 import java.util.HashMap;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 @Slf4j
-public class ServiceCluster {
+public abstract class BaseServiceCluster {
     private final HashMap<String, IService> serviceHashMap;
     private final CommandExecutor commandExecutor;
 
     private boolean started = false;
 
-    protected ServiceCluster(IResourceProvider resourceProvider, boolean setupScheduler, boolean setupConfig, boolean setupConn) throws BadSetupException {
+    protected BaseServiceCluster(IResourceProvider resourceProvider, boolean setupScheduler, boolean setupConfig, boolean setupConn) throws BadSetupException {
         serviceHashMap = new HashMap<>();
         commandExecutor = new CommandExecutor();
 
@@ -57,6 +56,9 @@ public class ServiceCluster {
 
     public void startup(Runnable runnable) {
         this.startup(null, runnable);
+    }
+    public void startup(String[] args) {
+        this.startup(args, null);
     }
 
     public void startup(String[] args, Runnable runnable) {

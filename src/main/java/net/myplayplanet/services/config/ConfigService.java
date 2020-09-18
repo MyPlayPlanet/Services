@@ -2,14 +2,11 @@ package net.myplayplanet.services.config;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.IService;
-import net.myplayplanet.services.config.provider.IConfigManager;
-import net.myplayplanet.services.config.provider.IResourceProvider;
+import net.myplayplanet.services.api.IService;
+import net.myplayplanet.services.config.api.IConfigManager;
+import net.myplayplanet.services.config.api.IResourceProvider;
 import net.myplayplanet.services.config.provider.config.FileConfigManager;
 import net.myplayplanet.services.config.provider.config.MockConfigManager;
-import net.myplayplanet.services.connection.ConnectionManager;
-import net.myplayplanet.services.connection.dbversion.UpdateCommand;
-import net.myplayplanet.services.internal.CommandExecutor;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +16,8 @@ import java.util.Properties;
 @Getter
 @Slf4j
 public class ConfigService implements IService {
-    private IConfigManager configManager;
     private final IResourceProvider resourceProvider;
+    private IConfigManager configManager;
     private File path;
     private boolean debug;
 

@@ -1,22 +1,23 @@
 package net.myplayplanet.services.internal.api;
 
-import net.myplayplanet.services.config.provider.IConfigManager;
-import net.myplayplanet.services.connection.ConnectionManager;
+import net.myplayplanet.services.config.api.IConfigManager;
+import net.myplayplanet.services.connection.api.IConnectionManager;
 
 public abstract class AbstractCommand {
-    private ConnectionManager connectionManager;
+    private IConnectionManager IConnectionManager;
     private IConfigManager configManager;
 
-    public void setupCommand(IConfigManager iConfigManager, ConnectionManager connectionManager) {
+    public void setupCommand(IConfigManager iConfigManager, IConnectionManager IConnectionManager) {
         this.configManager = iConfigManager;
-        this.connectionManager = connectionManager;
+        this.IConnectionManager = IConnectionManager;
     }
 
     public abstract void execute(String[] args);
+
     public abstract String getCommandName();
 
-    public ConnectionManager getConnectionManager() {
-        return connectionManager;
+    public IConnectionManager getConnectionManager() {
+        return IConnectionManager;
     }
 
     public IConfigManager getConfigManager() {

@@ -5,7 +5,7 @@ import lombok.Getter;
 public abstract class AbstractConnectionManager {
 
     @Getter
-    private ConnectionSetting setting;
+    private final ConnectionSetting setting;
 
     public AbstractConnectionManager(ConnectionSetting setting) {
         this.setting = setting;
@@ -14,5 +14,6 @@ public abstract class AbstractConnectionManager {
     }
 
     public abstract void createConnection();
+
     public abstract void init();
 }

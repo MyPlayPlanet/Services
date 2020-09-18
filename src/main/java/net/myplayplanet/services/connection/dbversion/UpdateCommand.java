@@ -1,6 +1,6 @@
 package net.myplayplanet.services.connection.dbversion;
 
-import net.myplayplanet.services.config.provider.IResourceProvider;
+import net.myplayplanet.services.config.api.IResourceProvider;
 import net.myplayplanet.services.connection.dbversion.exception.SetupNotSuccessfulException;
 import net.myplayplanet.services.internal.api.AbstractCommand;
 

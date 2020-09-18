@@ -1,7 +1,7 @@
 package net.myplayplanet.services.connection;
 
 
-import net.myplayplanet.services.config.provider.IConfigManager;
+import net.myplayplanet.services.config.api.IConfigManager;
 
 import java.io.File;
 import java.util.HashMap;

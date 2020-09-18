@@ -1,7 +1,7 @@
 package net.myplayplanet.services.internal;
 
-import net.myplayplanet.services.config.provider.IConfigManager;
-import net.myplayplanet.services.connection.ConnectionManager;
+import net.myplayplanet.services.config.api.IConfigManager;
+import net.myplayplanet.services.connection.api.IConnectionManager;
 import net.myplayplanet.services.internal.api.AbstractCommand;
 import org.apache.commons.lang3.Validate;
 
@@ -18,9 +18,9 @@ public class CommandExecutor {
         hashMap.put(cmd.getCommandName(), cmd);
     }
 
-    public void setupCommands(IConfigManager iConfigManager, ConnectionManager connectionManager) {
+    public void setupCommands(IConfigManager iConfigManager, IConnectionManager IConnectionManager) {
         for (AbstractCommand value : hashMap.values()) {
-            value.setupCommand(iConfigManager, connectionManager);
+            value.setupCommand(iConfigManager, IConnectionManager);
         }
     }
 

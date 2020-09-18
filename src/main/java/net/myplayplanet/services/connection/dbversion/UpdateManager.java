@@ -1,8 +1,8 @@
 package net.myplayplanet.services.connection.dbversion;
 
-import net.myplayplanet.services.config.provider.IConfigManager;
-import net.myplayplanet.services.config.provider.IResourceProvider;
-import net.myplayplanet.services.connection.ConnectionManager;
+import net.myplayplanet.services.config.api.IConfigManager;
+import net.myplayplanet.services.config.api.IResourceProvider;
+import net.myplayplanet.services.connection.api.IConnectionManager;
 import net.myplayplanet.services.connection.dbversion.exception.InvalidReturnTypeException;
 import net.myplayplanet.services.connection.dbversion.exception.SetupNotSuccessfulException;
 import net.myplayplanet.services.connection.dbversion.line.ILineActionGroup;
@@ -30,14 +30,14 @@ public class UpdateManager {
     private static final String extension = ".sql";
 
     private final IConfigManager configManager;
-    private final ConnectionManager connectionManager;
-    private IResourceProvider resourceProvider;
+    private final IConnectionManager IConnectionManager;
+    private final IResourceProvider resourceProvider;
 
-    public UpdateManager(IConfigManager configManager, ConnectionManager connectionManager, IResourceProvider resourceProvider) throws SQLException, SetupNotSuccessfulException, IOException {
+    public UpdateManager(IConfigManager configManager, IConnectionManager IConnectionManager, IResourceProvider resourceProvider) throws SQLException, SetupNotSuccessfulException, IOException {
         this.configManager = configManager;
-        this.connectionManager = connectionManager;
+        this.IConnectionManager = IConnectionManager;
         this.resourceProvider = resourceProvider;
-        try (Connection conn = connectionManager.get(MySqlManager.class).get()) {
+        try (Connection conn = IConnectionManager.get(MySqlManager.class).get()) {
             ensureTableExists(conn);
         }
     }
@@ -47,7 +47,7 @@ public class UpdateManager {
     }
 
     public void update() {
-        try (Connection conn = connectionManager.get(MySqlManager.class).get()) {
+        try (Connection conn = IConnectionManager.get(MySqlManager.class).get()) {
             conn.setAutoCommit(false);
             internalUpdate(conn);
             conn.commit();

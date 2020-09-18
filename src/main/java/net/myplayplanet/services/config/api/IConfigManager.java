@@ -1,9 +1,10 @@
-package net.myplayplanet.services.config.provider;
+package net.myplayplanet.services.config.api;
 
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.*;
-import java.util.Objects;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.function.Predicate;
 
@@ -11,7 +12,7 @@ public interface IConfigManager {
 
     File getPath();
 
-     boolean createSettingWithProperties(String name, Properties properties) throws IOException;
+    boolean createSettingWithProperties(String name, Properties properties) throws IOException;
 
     boolean createSettingWithProperties(File file, Properties properties) throws IOException;
 
@@ -40,5 +41,6 @@ public interface IConfigManager {
     default boolean exists(String fileName) {
         return exists(new File(this.getPath(), fileName));
     }
+
     boolean exists(File fileName);
 }

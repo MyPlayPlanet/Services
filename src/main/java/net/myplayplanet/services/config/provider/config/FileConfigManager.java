@@ -3,7 +3,7 @@ package net.myplayplanet.services.config.provider.config;
 import com.google.common.io.Files;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.config.provider.IConfigManager;
+import net.myplayplanet.services.config.api.IConfigManager;
 
 import java.io.*;
 import java.util.Properties;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 @Slf4j
 public class FileConfigManager implements IConfigManager {
     @Getter
-    private File path;
+    private final File path;
 
     public FileConfigManager(File path) {
         this.path = path;
@@ -85,6 +85,7 @@ public class FileConfigManager implements IConfigManager {
 
         return null;
     }
+
     @Override
     public File[] getAllFilesInDirectory(File path, Predicate<String> filter) {
         return path.listFiles((dir, name) -> filter.test(name));

@@ -1,4 +1,4 @@
-package net.myplayplanet.services;
+package net.myplayplanet.services.api;
 
 import net.myplayplanet.services.internal.CommandExecutor;
 

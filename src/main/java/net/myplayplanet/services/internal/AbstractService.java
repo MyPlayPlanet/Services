@@ -1,8 +1,8 @@
 package net.myplayplanet.services.internal;
 
-import net.myplayplanet.services.config.provider.IConfigManager;
-import net.myplayplanet.services.config.provider.IResourceProvider;
-import net.myplayplanet.services.connection.ConnectionManager;
+import net.myplayplanet.services.config.api.IConfigManager;
+import net.myplayplanet.services.config.api.IResourceProvider;
+import net.myplayplanet.services.connection.api.IConnectionManager;
 import net.myplayplanet.services.connection.dbversion.UpdateManager;
 import net.myplayplanet.services.connection.dbversion.exception.SetupNotSuccessfulException;
 import net.myplayplanet.services.connection.provider.MySqlManager;
@@ -14,18 +14,18 @@ import java.sql.SQLException;
 public abstract class AbstractService {
     private UpdateManager updateManager;
 
-    public AbstractService(IConfigManager configManager, ConnectionManager connectionManager) {
+    public AbstractService(IConfigManager configManager, IConnectionManager IConnectionManager) {
         IResourceProvider iResourceProvider = IResourceProvider.getResourceProvider();
 
         try {
-            this.updateManager = new UpdateManager(configManager, connectionManager, iResourceProvider);
+            this.updateManager = new UpdateManager(configManager, IConnectionManager, iResourceProvider);
         } catch (SQLException | IOException | SetupNotSuccessfulException e) {
             System.out.println("error while basic setup:" + e.getMessage());
             e.printStackTrace();
             System.exit(130);
         }
 
-        try (Connection connection = connectionManager.get(MySqlManager.class).get()) {
+        try (Connection connection = IConnectionManager.get(MySqlManager.class).get()) {
             final int currentVersion = updateManager.getCurrentVersion(connection);
             final int newestVersion = updateManager.getNewestVersion();
 

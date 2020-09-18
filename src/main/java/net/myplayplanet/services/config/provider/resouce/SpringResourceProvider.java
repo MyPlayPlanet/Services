@@ -1,6 +1,6 @@
 package net.myplayplanet.services.config.provider.resouce;
 
-import net.myplayplanet.services.config.provider.IResourceProvider;
+import net.myplayplanet.services.config.api.IResourceProvider;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;

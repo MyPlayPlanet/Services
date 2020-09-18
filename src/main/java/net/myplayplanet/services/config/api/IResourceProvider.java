@@ -1,4 +1,4 @@
-package net.myplayplanet.services.config.provider;
+package net.myplayplanet.services.config.api;
 
 import net.myplayplanet.services.config.provider.resouce.JavaResourceProvider;
 import net.myplayplanet.services.config.provider.resouce.MockResourceProvider;
@@ -9,8 +9,6 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public interface IResourceProvider {
-    InputStream getResourceFile(String fileName) throws IOException;
-
     static IResourceProvider getResourceProvider() {
         return getResourceProvider(null);
     }
@@ -34,4 +32,6 @@ public interface IResourceProvider {
             return new JavaResourceProvider();
         }
     }
+
+    InputStream getResourceFile(String fileName) throws IOException;
 }

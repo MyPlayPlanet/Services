@@ -2,11 +2,12 @@ package net.myplayplanet.services.connection;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.myplayplanet.services.IService;
-import net.myplayplanet.services.cluster.BaseServiceCluster;
+import net.myplayplanet.services.api.IService;
+import net.myplayplanet.services.api.IServiceCluster;
+import net.myplayplanet.services.cluster.JavaServiceCluster;
 import net.myplayplanet.services.config.ConfigService;
-import net.myplayplanet.services.config.provider.IConfigManager;
-import net.myplayplanet.services.config.provider.IResourceProvider;
+import net.myplayplanet.services.config.api.IConfigManager;
+import net.myplayplanet.services.config.api.IResourceProvider;
 import net.myplayplanet.services.connection.dbversion.UpdateCommand;
 import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;
 import net.myplayplanet.services.connection.exceptions.InvalidConnectionSettingFileException;
@@ -18,20 +19,20 @@ import java.util.Properties;
 
 @Slf4j
 public class ConnectionService implements IService {
+    private final IResourceProvider resourceProvider;
+    private final IServiceCluster iServiceCluster;
     @Getter
-    private ConnectionManager connectionManager;
-    private IResourceProvider resourceProvider;
-    private BaseServiceCluster baseServiceCluster;
+    private net.myplayplanet.services.connection.api.IConnectionManager IConnectionManager;
 
-    public ConnectionService(BaseServiceCluster baseServiceCluster, IResourceProvider resourceProvider) {
-        this.baseServiceCluster = baseServiceCluster;
+    public ConnectionService(JavaServiceCluster iServiceCluster, IResourceProvider resourceProvider) {
+        this.iServiceCluster = iServiceCluster;
         this.resourceProvider = resourceProvider;
     }
 
     @Override
     public void init() {
         System.out.println("starting ConnectionService");
-        IConfigManager configManager = baseServiceCluster.get(ConfigService.class).getConfigManager();
+        IConfigManager configManager = iServiceCluster.get(ConfigService.class).getConfigManager();
 
         try {
             if (configManager.getAllFilesInDirectory(
@@ -55,7 +56,7 @@ public class ConnectionService implements IService {
         }
 
         try {
-            connectionManager = new ConnectionManager(configManager);
+            IConnectionManager = new ConnectionManager(configManager);
         } catch (NoSuchMethodException | ConnectionTypeNotFoundException | IllegalAccessException | InstantiationException | InvalidConnectionSettingFileException | InvocationTargetException e) {
             e.printStackTrace();
         }

@@ -5,5 +5,6 @@ import java.sql.Statement;
 
 public interface ILineAction {
     String getContent();
+
     void execute(Statement statement) throws SQLException;
 }

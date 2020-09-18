@@ -1,4 +1,4 @@
-package net.myplayplanet.services.schedule;
+package net.myplayplanet.services.schedule.api;
 
 import java.util.concurrent.TimeUnit;
 

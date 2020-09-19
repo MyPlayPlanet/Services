@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.config.api.IConfigManager;
+import net.myplayplanet.services.config.api.IResourceProvider;
 
 import java.io.*;
 import java.util.Properties;
@@ -13,9 +14,11 @@ import java.util.function.Predicate;
 public class FileConfigManager implements IConfigManager {
     @Getter
     private final File path;
+    private final IResourceProvider resourceProvider;
 
-    public FileConfigManager(File path) {
+    public FileConfigManager(File path, IResourceProvider resourceProvider) {
         this.path = path;
+        this.resourceProvider = resourceProvider;
     }
 
     public boolean createSettingWithProperties(String name, Properties properties) throws IOException {
@@ -39,6 +42,11 @@ public class FileConfigManager implements IConfigManager {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public IResourceProvider getResourceProvider() {
+        return this.resourceProvider;
     }
 
     public <T> T getProperty(String settingsName, String key) {

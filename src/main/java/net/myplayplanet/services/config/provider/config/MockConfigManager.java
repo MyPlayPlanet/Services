@@ -2,6 +2,7 @@ package net.myplayplanet.services.config.provider.config;
 
 import lombok.Getter;
 import net.myplayplanet.services.config.api.IConfigManager;
+import net.myplayplanet.services.config.api.IResourceProvider;
 
 import java.io.File;
 import java.util.HashMap;
@@ -13,9 +14,11 @@ public class MockConfigManager implements IConfigManager {
     private final HashMap<File, Properties> data = new HashMap<>();
     @Getter
     private final File path;
+    private final IResourceProvider resourceProvider;
 
-    public MockConfigManager(File path) {
+    public MockConfigManager(File path, IResourceProvider resourceProvider) {
         this.path = path;
+        this.resourceProvider = resourceProvider;
     }
 
     @Override
@@ -28,6 +31,11 @@ public class MockConfigManager implements IConfigManager {
     public boolean createSettingWithProperties(File file, Properties properties) {
         data.put(file, properties);
         return true;
+    }
+
+    @Override
+    public IResourceProvider getResourceProvider() {
+        return this.resourceProvider;
     }
 
     @Override

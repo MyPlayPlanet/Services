@@ -9,6 +9,7 @@ import net.myplayplanet.services.config.provider.config.FileConfigManager;
 import net.myplayplanet.services.config.provider.config.MockConfigManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -30,6 +31,9 @@ public class ConfigService implements IService {
         Properties properties = new Properties();
         try (InputStream inputStream = this.resourceProvider.getResourceFile("service.properties")) {
             properties.load(inputStream);
+        } catch (FileNotFoundException ex) {
+            System.out.println(ex.getLocalizedMessage());
+            return;
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -39,8 +43,8 @@ public class ConfigService implements IService {
 
         this.debug = Boolean.parseBoolean(properties.getProperty("mpp.basic.debug"));
         this.configManager = debug
-                ? new MockConfigManager(configFile)
-                : new FileConfigManager(configFile);
+                ? new MockConfigManager(configFile, this.resourceProvider)
+                : new FileConfigManager(configFile, this.resourceProvider);
 
         this.path = configManager.getPath();
         System.out.println("Started ConfigService");

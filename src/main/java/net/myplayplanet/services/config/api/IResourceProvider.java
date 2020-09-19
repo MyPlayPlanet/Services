@@ -4,6 +4,7 @@ import net.myplayplanet.services.config.provider.resouce.JavaResourceProvider;
 import net.myplayplanet.services.config.provider.resouce.MockResourceProvider;
 import net.myplayplanet.services.config.provider.resouce.SpringResourceProvider;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -26,5 +27,5 @@ public interface IResourceProvider {
         }
     }
 
-    InputStream getResourceFile(String fileName) throws IOException;
+    InputStream getResourceFile(String fileName) throws IOException, FileNotFoundException;
 }

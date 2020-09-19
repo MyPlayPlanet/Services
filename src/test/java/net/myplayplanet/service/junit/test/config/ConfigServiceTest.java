@@ -20,7 +20,7 @@ public class ConfigServiceTest {
 
     @BeforeAll
     public static void beforeAll() throws BadSetupException {
-        cluster = new JavaClusterBuilder().withConfig().mock(true, "").build();
+        cluster = (JavaServiceCluster) new JavaClusterBuilder().withConfig().mock(true, "").build();
         cluster.startup();
     }
 

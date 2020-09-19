@@ -9,10 +9,7 @@ import net.myplayplanet.services.connection.dbversion.line.ILineActionGroup;
 import net.myplayplanet.services.connection.provider.MySqlManager;
 import net.myplayplanet.services.internal.api.AbstractJavaSqlScript;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.sql.Connection;
@@ -177,9 +174,10 @@ public class UpdateManager {
         while (true) {
             String fileName = folder + "/" + count + ".sql";
 
-            InputStream stream = this.resourceProvider.getResourceFile(fileName);
-
-            if (stream == null) {
+            InputStream stream;
+            try {
+                stream = this.resourceProvider.getResourceFile(fileName);
+            }catch (FileNotFoundException ex) {
                 break;
             }
             files.put(count, stream);

@@ -3,10 +3,7 @@ package net.myplayplanet.services.config.provider.resouce;
 import net.myplayplanet.services.config.api.IResourceProvider;
 import org.apache.commons.lang3.Validate;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Properties;
 
 public class MockResourceProvider implements IResourceProvider {
@@ -19,7 +16,7 @@ public class MockResourceProvider implements IResourceProvider {
     }
 
     @Override
-    public InputStream getResourceFile(String fileName) throws IOException {
+    public InputStream getResourceFile(String fileName) throws IOException, FileNotFoundException {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         this.properties.store(os, "comments");
 

@@ -16,8 +16,8 @@ import org.springframework.context.annotation.Configuration;
 public class SpringConfiguration {
     @Bean
     @Autowired
-    public SpringServiceCluster springServiceCluster(SpringClusterBuilder javaClusterBuilder, ApplicationArguments arguments) throws BadSetupException {
-        SpringServiceCluster springServiceCluster = javaClusterBuilder.build();
+    public SpringServiceCluster springServiceCluster(SpringClusterBuilder springClusterBuilder, ApplicationArguments arguments) throws BadSetupException {
+        SpringServiceCluster springServiceCluster = springClusterBuilder.build();
         springServiceCluster.startup(arguments.getSourceArgs());
         return springServiceCluster;
     }

@@ -18,17 +18,10 @@ public interface IResourceProvider {
             return new MockResourceProvider(mock);
         }
 
-        boolean exists;
         try {
             Class.forName("org.springframework.core.io.ClassPathResource");
-            exists = true;
-        } catch (ClassNotFoundException e) {
-            exists = false;
-        }
-
-        if (exists) {
             return new SpringResourceProvider();
-        } else {
+        } catch (ClassNotFoundException e) {
             return new JavaResourceProvider();
         }
     }

@@ -25,6 +25,9 @@ public class CommandExecutor {
     }
 
     public boolean canExecute(String[] args) {
+        if (args == null) {
+            return false;
+        }
         AbstractCommand cmd = hashMap.getOrDefault(String.join(" ", args), null);
         return cmd != null;
     }

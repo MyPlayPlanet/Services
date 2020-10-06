@@ -52,6 +52,7 @@ public class ConnectionService implements IService {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("error setting properties: " + e.getMessage());
         }
 

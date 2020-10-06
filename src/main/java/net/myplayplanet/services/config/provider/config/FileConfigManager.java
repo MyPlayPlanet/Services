@@ -96,7 +96,14 @@ public class FileConfigManager implements IConfigManager {
 
     @Override
     public File[] getAllFilesInDirectory(File path, Predicate<String> filter) {
-        return path.listFiles((dir, name) -> filter.test(name));
+        assert path != null : "Path can not be null";
+        assert filter != null : "filter can not be null";
+
+        File[] files = path.listFiles((dir, name) -> filter.test(name));
+        if (files == null) {
+            throw new RuntimeException("Error reading file " + path.getAbsolutePath());
+        }
+        return files;
     }
 
     @Override

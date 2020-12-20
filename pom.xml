@@ -11,11 +11,8 @@
     </parent>
 
     <artifactId>MyPlayPlanet-Services</artifactId>
-    <version>${projectVersion}</version>
+    <version>1.16.1-SNAPSHOT</version>
 
-    <properties>
-        <projectVersion>1.16.1</projectVersion>
-    </properties>
 
     <repositories>
          <repository>

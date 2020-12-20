@@ -20,7 +20,7 @@
     <repositories>
          <repository>
              <id>pp-public</id>
-             <url>https://nexus.myplayplanet.ch/repository/public/</url>
+             <url>https://nexus.myplayplanet.ch/repository/private/</url>
          </repository>
      </repositories>
 

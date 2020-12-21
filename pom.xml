@@ -15,13 +15,9 @@
 
     <repositories>
          <repository>
-             <id>pp-snapshots</id>
+             <id>pp</id>
              <url>https://nexus.myplayplanet.ch/repository/private/</url>
          </repository>
-        <repository>
-            <id>pp-releases</id>
-            <url>https://nexus.myplayplanet.ch/repository/private/</url>
-        </repository>
      </repositories>
     
     <dependencies>

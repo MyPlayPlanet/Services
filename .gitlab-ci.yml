@@ -19,7 +19,7 @@ stages:
 build:
   stage: build
   script:
-    - mvn $MAVEN_CLI_OPTS build
+    - mvn $MAVEN_CLI_OPTS clean install
 
 deploy-snapshot:
   stage: deploy

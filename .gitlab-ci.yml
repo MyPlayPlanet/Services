@@ -12,8 +12,14 @@ cache:
   untracked: true
 
 stages:
+  - build
   - deploy
   - trigger
+
+build:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS build
 
 deploy-snapshot:
   stage: deploy

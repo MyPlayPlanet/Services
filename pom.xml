@@ -5,46 +5,56 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>MyPlayPlanet</artifactId>
+        <artifactId>myplayplanet-minecraft</artifactId>
         <groupId>net.myplayplanet</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>MyPlayPlanet-Services</artifactId>
-    <version>1.16.1-SNAPSHOT</version>
+    <version>${revision}</version>
 
-    <repositories>
-         <repository>
-             <id>pp</id>
-             <url>https://nexus.myplayplanet.ch/repository/private/</url>
-         </repository>
-     </repositories>
+    <properties>
+        <projectVersion>1.16.1</projectVersion>
+
+        <version.reflections>0.9.11</version.reflections>
+        <version.mysql>8.0.22</version.mysql>
+        <version.logback>1.0.13</version.logback>
+        <version.lettuce>5.0.4.RELEASE</version.lettuce>
+        <version.guava>21.0</version.guava>
+        <version.gson>2.3.1</version.gson>
+        <version.hikari>3.1.0</version.hikari>
+        <version.slf4j-api>1.8.0-beta4</version.slf4j-api>
+        <version.slf4j-log4j12>1.8.0-beta4</version.slf4j-log4j12>
+        <version.commons-lang3>3.5</version.commons-lang3>
+        <version.jbcrypt>0.4</version.jbcrypt>
+        <version.springweb>2.1.7.RELEASE</version.springweb>
+    </properties>
     
     <dependencies>
         <dependency>
             <groupId>org.reflections</groupId>
             <artifactId>reflections</artifactId>
-            <version>0.9.11</version>
+            <version>${version.reflections}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.22</version>
+            <version>${version.mysql}</version>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.0.13</version>
+            <version>${version.logback}</version>
         </dependency>
 
         <!-- guava 25.0-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>21.0</version>
+            <version>${version.guava}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -52,7 +62,7 @@
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
-            <version>5.0.4.RELEASE</version>
+            <version>${version.lettuce}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -60,7 +70,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.3.1</version>
+            <version>${version.gson}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -68,7 +78,7 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <version>3.1.0</version>
+            <version>${version.hikari}</version>
         </dependency>
 
 
@@ -76,7 +86,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.8.0-beta4</version>
+            <version>${version.slf4j-api}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -84,7 +94,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>1.8.0-beta4</version>
+            <version>${version.slf4j-log4j12}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -92,8 +102,24 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.5</version>
+            <version>${version.commons-lang3}</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.mindrot/jbcrypt -->
+        <dependency>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>${version.jbcrypt}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Kucken obs da bleibt!!!! ??? -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${version.springweb}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -108,22 +134,6 @@
             <artifactId>mockito-core</artifactId>
             <version>2.23.4</version>
             <scope>test</scope>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.mindrot/jbcrypt -->
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>0.4</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <!-- Kucken obs da bleibt!!!!-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.1.7.RELEASE</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

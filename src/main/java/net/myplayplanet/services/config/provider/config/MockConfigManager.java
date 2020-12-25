@@ -6,12 +6,15 @@ import net.myplayplanet.services.config.api.IResourceProvider;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class MockConfigManager implements IConfigManager {
 
     private final HashMap<File, Properties> data = new HashMap<>();
+    private final HashSet<String> files = new HashSet<>();
     @Getter
     private final File path;
     private final IResourceProvider resourceProvider;
@@ -23,12 +26,23 @@ public class MockConfigManager implements IConfigManager {
 
     @Override
     public boolean createSettingWithProperties(String name, Properties properties) {
+        if (files.contains(name)) {
+            System.out.println("settings file already set! could not write settings: " + String.join(";", properties.stringPropertyNames()));
+            return false;
+        }
+        files.add(name);
         data.put(new File(this.getPath(), name), properties);
         return true;
     }
 
     @Override
     public boolean createSettingWithProperties(File file, Properties properties) {
+        String name = file.getName();
+        if (files.contains(name)) {
+            System.out.println("settings file already set! could not write settings: " + String.join(";", properties.stringPropertyNames()));
+            return false;
+        }
+        files.add(name);
         data.put(file, properties);
         return true;
     }

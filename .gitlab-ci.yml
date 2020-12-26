@@ -20,6 +20,8 @@ build:
   stage: build
   script:
     - mvn $MAVEN_CLI_OPTS clean install
+  only:
+    - merge_requests
 
 deploy-snapshot:
   stage: deploy
@@ -29,11 +31,6 @@ deploy-snapshot:
     - test
     - develop
     - development
-  artifacts:
-    when: on_success
-    expire_in: 1 week
-    paths:
-      - target/*.jar
 
 deploy-release:
   stage: deploy
@@ -41,13 +38,3 @@ deploy-release:
     - mvn $MAVEN_CLI_OPTS deploy -P ci-release,attach-javadocs,attach-sources
   only:
     - master
-  artifacts:
-    when: on_success
-    expire_in: 1 month
-    paths:
-      - target/*.jar
-
-trigger_build:
-  stage: trigger
-  script:
-    - "curl -X POST -F token=${CI_JOB_TOKEN} -F ref=$CI_BUILD_REF_NAME https://gitlab.com/api/v4/projects/8830502/trigger/pipeline"

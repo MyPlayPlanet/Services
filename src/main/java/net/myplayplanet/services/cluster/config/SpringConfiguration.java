@@ -31,6 +31,10 @@ public class SpringConfiguration {
     @Bean
     @Autowired
     public IConnectionManager connectionManager(SpringServiceCluster springServiceCluster) {
-        return springServiceCluster.get(ConnectionService.class).getIConnectionManager();
+        ConnectionService connectionService = springServiceCluster.get(ConnectionService.class);
+        if (connectionService == null) {
+            return null;
+        }
+        return connectionService.getIConnectionManager();
     }
 }

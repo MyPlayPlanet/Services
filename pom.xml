@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>myplayplanet-minecraft</artifactId>
+        <artifactId>MyPlayPlanet</artifactId>
         <groupId>net.myplayplanet</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -16,27 +16,17 @@
     <properties>
         <projectVersion>1.16.1</projectVersion>
 
-        <version.reflections>0.9.11</version.reflections>
         <version.mysql>8.0.22</version.mysql>
         <version.logback>1.0.13</version.logback>
         <version.lettuce>5.0.4.RELEASE</version.lettuce>
-        <version.guava>21.0</version.guava>
-        <version.gson>2.3.1</version.gson>
         <version.hikari>3.1.0</version.hikari>
         <version.slf4j-api>1.8.0-beta4</version.slf4j-api>
         <version.slf4j-log4j12>1.8.0-beta4</version.slf4j-log4j12>
         <version.commons-lang3>3.5</version.commons-lang3>
         <version.jbcrypt>0.4</version.jbcrypt>
-        <version.springweb>2.1.7.RELEASE</version.springweb>
     </properties>
     
     <dependencies>
-        <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>${version.reflections}</version>
-            <scope>compile</scope>
-        </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -50,7 +40,6 @@
             <version>${version.logback}</version>
         </dependency>
 
-        <!-- guava 25.0-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -58,7 +47,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Lettuce 5.0.4 RELEASE -->
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
@@ -66,23 +54,12 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Gson 2.3.1 -->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${version.gson}</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- HikariCP 3.1.0 -->
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${version.hikari}</version>
         </dependency>
 
-
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -90,7 +67,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -98,7 +74,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- commons-lang 3.5 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -106,7 +81,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mindrot/jbcrypt -->
         <dependency>
             <groupId>org.mindrot</groupId>
             <artifactId>jbcrypt</artifactId>
@@ -114,11 +88,10 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Kucken obs da bleibt!!!! ??? -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${version.springweb}</version>
+            <artifactId>spring-boot</artifactId>
+            <version>${version.spring}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

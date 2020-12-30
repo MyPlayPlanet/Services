@@ -117,7 +117,7 @@ public class UpdateManager {
             }
 
             if (strings.get(0).startsWith("# ClassPath:")) {
-                Class<?> clazz = null;
+                Class<?> clazz;
                 try {
                     clazz = Class.forName(strings.get(0).replace("# ClassPath:", "").replace(";", "").trim());
                 } catch (ClassNotFoundException e) {
@@ -141,7 +141,6 @@ public class UpdateManager {
                 result.add(new VersionSqlObject(versionNumber, scriptBuilder.toString(), abstractJavaSqlScript, conn));
             } catch (NoSuchMethodException | InvalidReturnTypeException e) {
                 e.printStackTrace();
-                return;
             }
         });
 

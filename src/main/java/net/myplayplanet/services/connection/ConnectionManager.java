@@ -1,6 +1,5 @@
 package net.myplayplanet.services.connection;
 
-import com.google.common.reflect.ClassPath;
 import net.myplayplanet.services.config.api.IConfigManager;
 import net.myplayplanet.services.connection.api.IConnectionManager;
 import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;

@@ -17,7 +17,7 @@ public class SqlGeneratorLineAction implements ILineAction {
     private final String content;
     private final Method method;
 
-    public SqlGeneratorLineAction(AbstractJavaSqlScript abstractJavaSqlScript, Connection connection, String content, Method method) throws NoSuchMethodException {
+    public SqlGeneratorLineAction(AbstractJavaSqlScript abstractJavaSqlScript, Connection connection, String content, Method method) {
         this.abstractJavaSqlScript = abstractJavaSqlScript;
         this.connection = connection;
         this.content = content;

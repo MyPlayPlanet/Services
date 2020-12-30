@@ -1,20 +1,22 @@
 package net.myplayplanet.services.connection;
 
+import com.google.common.reflect.ClassPath;
 import net.myplayplanet.services.config.api.IConfigManager;
 import net.myplayplanet.services.connection.api.IConnectionManager;
 import net.myplayplanet.services.connection.exceptions.ConnectionTypeNotFoundException;
 import net.myplayplanet.services.connection.exceptions.InvalidConnectionSettingFileException;
-import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
+import net.myplayplanet.services.connection.provider.MySqlManager;
+import net.myplayplanet.services.connection.provider.RedisClusterManager;
+import net.myplayplanet.services.connection.provider.RedisManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
-import java.util.Set;
+import java.util.Map;
 
 public class ConnectionManager implements IConnectionManager {
-    private final HashMap<String, HashMap<String, AbstractConnectionManager>> managers;
-    private final HashMap<String, Class<? extends AbstractConnectionManager>> configManagerTypesStringClass;
-    private final HashMap<Class<?>, String> configManagerTypesClassString;
+    private final Map<String, Map<String, AbstractConnectionManager>> managers;
+    private final Map<String, Class<? extends AbstractConnectionManager>> configManagerTypesStringClass;
+    private final Map<Class<?>, String> configManagerTypesClassString;
     private final ConnectionConfigManager iConfigManager;
 
     public ConnectionManager(IConfigManager iConfigManager) throws NoSuchMethodException, ConnectionTypeNotFoundException, IllegalAccessException, InstantiationException, InvalidConnectionSettingFileException, InvocationTargetException {
@@ -27,14 +29,9 @@ public class ConnectionManager implements IConnectionManager {
     }
 
     private void loadClasses() {
-        Reflections reflections = new Reflections("net.myplayplanet.services.connection.provider", new SubTypesScanner());
-
-        Set<Class<? extends AbstractConnectionManager>> allClasses =
-                reflections.getSubTypesOf(AbstractConnectionManager.class);
-
-        for (Class<? extends AbstractConnectionManager> aClass : allClasses) {
-            addManagerType(aClass);
-        }
+        addManagerType(MySqlManager.class);
+        addManagerType(RedisClusterManager.class);
+        addManagerType(RedisManager.class);
     }
 
     /**
@@ -68,7 +65,7 @@ public class ConnectionManager implements IConnectionManager {
 
         System.out.println(
                 "start creating connectionManager with instanceName '" + instanceName + "' and type ''" + type + "' for hostname '" + setting.hostname + "'...");
-        HashMap<String, AbstractConnectionManager> stringAbstractConnectionManagerHashMap = managers.get(type);
+        Map<String, AbstractConnectionManager> stringAbstractConnectionManagerHashMap = managers.get(type);
         AbstractConnectionManager abstractConnectionManager = configManagerTypesStringClass.get(type).getConstructor(ConnectionSetting.class).newInstance(setting);
 
         stringAbstractConnectionManagerHashMap.put(instanceName, abstractConnectionManager);

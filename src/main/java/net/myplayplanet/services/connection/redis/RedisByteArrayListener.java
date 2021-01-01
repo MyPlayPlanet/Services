@@ -2,11 +2,6 @@ package net.myplayplanet.services.connection.redis;
 
 import io.lettuce.core.pubsub.RedisPubSubListener;
 import lombok.Getter;
-import net.myplayplanet.packetapi.Packet;
-import net.myplayplanet.packetapi.PacketAPI;
-import net.myplayplanet.packetapi.handlers.PacketHandler;
-
-import java.nio.charset.Charset;
 
 @Getter
 public class RedisByteArrayListener implements RedisPubSubListener<byte[], byte[]> {

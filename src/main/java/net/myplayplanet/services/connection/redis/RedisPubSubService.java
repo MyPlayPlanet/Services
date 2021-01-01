@@ -34,9 +34,15 @@ public class RedisPubSubService {
         MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
-    public void pub(String channel, Object value) {
+    /**
+     * Publish a message asynchronously as json on a given channel.
+     *
+     * @param channel the channel the message should be published on
+     * @param message The message that should be published
+     */
+    public void pub(String channel, Object message) {
         try {
-            byte[] json = toJson(value);
+            byte[] json = toJson(message);
             redisManager.getByteConnection().async().publish(channel.getBytes(StandardCharsets.UTF_8), json);
         } catch (JsonProcessingException ex) {
             throw new RuntimeException(ex);
@@ -54,6 +60,13 @@ public class RedisPubSubService {
         return MAPPER.writeValueAsBytes(value);
     }
 
+    /**
+     * Subscribe for message asynchronously
+     * @param channel channel that should be subscribed on
+     * @param clazz the message clazz
+     * @param action consumer for the message
+     * @param <T> type of the message
+     */
     public <T> void sub(String channel, Class<T> clazz, ThrowingConsumer<T> action) {
         synchronized (subscriptionConsumers) {
             if (subscriptionConsumers.isEmpty()) {
@@ -69,7 +82,7 @@ public class RedisPubSubService {
         }
     }
 
-    public void execute(byte[] channel, byte[] message) {
+    void execute(byte[] channel, byte[] message) {
         ThrowingConsumer<byte[]> consumer = subscriptionConsumers.get(new String(channel, StandardCharsets.UTF_8));
         if (consumer == null) {
             return;

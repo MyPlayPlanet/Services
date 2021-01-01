@@ -16,10 +16,10 @@
     <properties>
         <projectVersion>1.16.1</projectVersion>
 
-        <version.mysql>8.0.22</version.mysql>
+        <version.mariadb-java-client>2.7.1</version.mariadb-java-client>
         <version.logback>1.0.13</version.logback>
         <version.lettuce>5.0.4.RELEASE</version.lettuce>
-        <version.hikari>3.1.0</version.hikari>
+        <version.hikari>3.4.5</version.hikari>
         <version.slf4j-api>1.7.30</version.slf4j-api>
         <version.commons-lang3>3.5</version.commons-lang3>
         <version.jbcrypt>0.4</version.jbcrypt>
@@ -27,9 +27,9 @@
     
     <dependencies>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${version.mysql}</version>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+            <version>${version.mariadb-java-client}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -51,6 +51,7 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
             <version>${version.hikari}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>

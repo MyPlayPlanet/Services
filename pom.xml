@@ -22,7 +22,6 @@
         <version.hikari>3.1.0</version.hikari>
         <version.slf4j-api>1.7.30</version.slf4j-api>
         <version.commons-lang3>3.5</version.commons-lang3>
-        <version.jbcrypt>0.4</version.jbcrypt>
     </properties>
     
     <dependencies>
@@ -30,13 +29,6 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${version.mysql}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${version.guava}</version>
             <scope>compile</scope>
         </dependency>
 
@@ -64,13 +56,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${version.commons-lang3}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mindrot</groupId>
-            <artifactId>jbcrypt</artifactId>
-            <version>${version.jbcrypt}</version>
             <scope>compile</scope>
         </dependency>
 

@@ -13,10 +13,19 @@ public class AbstractRestManager {
     private final String baseUrl;
 
     public AbstractRestManager(IConfigManager configManager) throws IOException {
+        this(configManager, null);
+    }
+
+    public AbstractRestManager(IConfigManager configManager, String instanceName) throws IOException {
         this.configManager = configManager;
         Properties properties = new Properties();
         properties.setProperty("baseUrl", "http://localhost:8080/");
-        this.configManager.createSettingWithProperties("rest-setting", properties);
-        this.baseUrl = this.configManager.getProperty("rest-setting", "baseUrl");
+
+        String settingsName = "rest-setting";
+        if (instanceName != null) {
+            settingsName = String.format("rest-%s-setting", instanceName);
+        }
+        this.configManager.createSettingWithProperties(settingsName, properties);
+        this.baseUrl = this.configManager.getProperty(settingsName, "baseUrl");
     }
 }

@@ -5,15 +5,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import io.lettuce.core.RedisFuture;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.provider.RedisManager;
-import org.slf4j.Logger;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
 
 @Slf4j
 public class RedisPubSubService {

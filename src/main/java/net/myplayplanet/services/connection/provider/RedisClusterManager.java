@@ -7,6 +7,7 @@ import io.lettuce.core.cluster.pubsub.StatefulRedisClusterPubSubConnection;
 import io.lettuce.core.codec.ByteArrayCodec;
 import io.lettuce.core.codec.StringCodec;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.AbstractConnectionManager;
 import net.myplayplanet.services.connection.ConnectionSetting;
 import net.myplayplanet.services.connection.api.IDataProvider;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 public class RedisClusterManager extends AbstractConnectionManager implements IDataProvider {
     @Getter
     private StatefulRedisClusterConnection<byte[], byte[]> byteConnection;
@@ -42,7 +44,7 @@ public class RedisClusterManager extends AbstractConnectionManager implements ID
     public void createConnection() {
         String hostname = this.getSetting().getHostname();
         Integer port = this.getSetting().getPort();
-        System.out.println("creating RedisCluster Connection with hostname  " + hostname + " port " + port + ".");
+        log.info("creating Redis Connection with hostname {} port {}.", hostname, port);
 
         RedisURI redisUri;
         if (this.getSetting().getPassword() == null) {
@@ -59,16 +61,15 @@ public class RedisClusterManager extends AbstractConnectionManager implements ID
         this.stringPubSubConnection = redisClient.connectPubSub(new StringCodec());
 
         try {
-            System.out.println("Testing Cluster Byte Connection: " + this.byteConnection.async().ping().get());
-            System.out.println("Testing Cluster BytePubSub Connection: " + this.bytePubSubConnection.async().ping().get());
-            System.out.println("Testing Cluster String Connection: " + this.stringConnection.async().ping().get());
-            System.out.println("Testing Cluster StringPubSub Connection: " + this.stringPubSubConnection.async().ping().get());
+            log.info("Testing Byte Connection: {}", this.byteConnection.async().ping().get());
+            log.info("Testing BytePubSub Connection: {}", this.bytePubSubConnection.async().ping().get());
+            log.info("Testing String Connection: {}", this.stringConnection.async().ping().get());
+            log.info("Testing StringPubSub Connection: {}", this.stringPubSubConnection.async().ping().get());
         } catch (InterruptedException | ExecutionException e) {
-            System.out.println("creating RedisCluster Connection failed...");
-            e.printStackTrace();
+            log.error("creating Redis Connection failed...", e);
             return;
         }
-        System.out.println("created RedisCluster Connection!");
+        log.info("created Redis Connection!");
     }
 
     @Override

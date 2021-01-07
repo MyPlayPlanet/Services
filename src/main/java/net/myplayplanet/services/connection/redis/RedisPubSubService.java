@@ -88,7 +88,7 @@ public class RedisPubSubService {
         try {
             consumer.accept(message);
         } catch (Exception ex) {
-            log.error("Could not consume message from channel {}", new String(channel, StandardCharsets.UTF_8));
+            log.error("Could not consume message from channel {}", new String(channel, StandardCharsets.UTF_8), ex);
         }
     }
 }

@@ -72,7 +72,12 @@ public class RedisPubSubService {
             redisManager.getBytePubSubConnection().async().subscribe(channel.getBytes(StandardCharsets.UTF_8));
 
             ThrowingConsumer<byte[]> subscriptionConsumer = (byte[] json) -> {
-                T value = MAPPER.readValue(json, clazz);
+                T value;
+                if (!clazz.isAssignableFrom(byte[].class)) {
+                    value = MAPPER.readValue(json, clazz);
+                } else {
+                    value = (T) json;
+                }
                 action.accept(value);
             };
             subscriptionConsumers.put(channel, subscriptionConsumer);

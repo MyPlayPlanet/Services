@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.provider.RedisManager;
+import net.myplayplanet.services.rest.ObjectMapperCreator;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -15,20 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class RedisPubSubService {
 
-    private static final ObjectMapper MAPPER;
-
     private final RedisManager redisManager;
 
     private final Map<String, ThrowingConsumer<byte[]>> subscriptionConsumers = new ConcurrentHashMap<>();
 
     public RedisPubSubService(RedisManager redisManager) {
         this.redisManager = redisManager;
-    }
-
-    static {
-        MAPPER = new ObjectMapper();
-        MAPPER.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        MAPPER.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     /**
@@ -54,7 +47,7 @@ public class RedisPubSubService {
         }
 
 
-        return MAPPER.writeValueAsBytes(value);
+        return ObjectMapperCreator.INSTANCE.writeValueAsBytes(value);
     }
 
     /**
@@ -74,7 +67,7 @@ public class RedisPubSubService {
             ThrowingConsumer<byte[]> subscriptionConsumer = (byte[] json) -> {
                 T value;
                 if (!clazz.isAssignableFrom(byte[].class)) {
-                    value = MAPPER.readValue(json, clazz);
+                    value = ObjectMapperCreator.INSTANCE.readValue(json, clazz);
                 } else {
                     value = (T) json;
                 }

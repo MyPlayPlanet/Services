@@ -7,17 +7,14 @@
     <parent>
         <artifactId>myplayplanet-spring-boot</artifactId>
         <groupId>net.myplayplanet</groupId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>MyPlayPlanet-Services</artifactId>
-    <version>${revision}</version>
+    <version>1.16.1-SNAPSHOT</version>
 
     <properties>
-        <projectVersion>1.16.1</projectVersion>
-
         <version.mariadb-java-client>2.7.1</version.mariadb-java-client>
-        <version.logback>1.0.13</version.logback>
         <version.lettuce>5.3.6.RELEASE</version.lettuce>
         <version.hikari>3.4.5</version.hikari>
         <version.slf4j-api>1.7.30</version.slf4j-api>

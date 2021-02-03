@@ -18,7 +18,7 @@
 
         <version.mariadb-java-client>2.7.1</version.mariadb-java-client>
         <version.logback>1.0.13</version.logback>
-        <version.lettuce>5.0.4.RELEASE</version.lettuce>
+        <version.lettuce>5.3.6.RELEASE</version.lettuce>
         <version.hikari>3.4.5</version.hikari>
         <version.slf4j-api>1.7.30</version.slf4j-api>
         <version.commons-lang3>3.5</version.commons-lang3>

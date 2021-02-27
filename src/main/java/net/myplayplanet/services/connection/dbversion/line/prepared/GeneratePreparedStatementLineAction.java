@@ -16,7 +16,7 @@ public class GeneratePreparedStatementLineAction implements ILineAction {
     private final String content;
     private final Method method;
 
-    public GeneratePreparedStatementLineAction(AbstractJavaSqlScript abstractJavaSqlScript, Connection connection, String content, Method method) throws NoSuchMethodException {
+    public GeneratePreparedStatementLineAction(AbstractJavaSqlScript abstractJavaSqlScript, Connection connection, String content, Method method) {
         this.abstractJavaSqlScript = abstractJavaSqlScript;
         this.connection = connection;
         this.content = content;

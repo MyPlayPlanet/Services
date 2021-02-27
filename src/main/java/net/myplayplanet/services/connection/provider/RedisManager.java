@@ -7,11 +7,13 @@ import io.lettuce.core.codec.ByteArrayCodec;
 import io.lettuce.core.codec.StringCodec;
 import io.lettuce.core.pubsub.StatefulRedisPubSubConnection;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.connection.AbstractConnectionManager;
 import net.myplayplanet.services.connection.ConnectionSetting;
 import net.myplayplanet.services.connection.api.IDataProvider;
 import net.myplayplanet.services.connection.api.KeyDataProvider;
 import net.myplayplanet.services.connection.helper.SerializeHelper;
+import net.myplayplanet.services.connection.redis.RedisPubSubService;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.io.Serializable;
@@ -23,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 public class RedisManager extends AbstractConnectionManager implements IDataProvider {
     @Getter
     private StatefulRedisConnection<byte[], byte[]> byteConnection;
@@ -33,6 +36,8 @@ public class RedisManager extends AbstractConnectionManager implements IDataProv
     @Getter
     private StatefulRedisPubSubConnection<String, String> stringPubSubConnection;
 
+    @Getter
+    private RedisPubSubService redisPubSubService;
 
     public RedisManager(ConnectionSetting settings) {
         super(settings);
@@ -43,7 +48,7 @@ public class RedisManager extends AbstractConnectionManager implements IDataProv
 
         String hostname = this.getSetting().getHostname();
         Integer port = this.getSetting().getPort();
-        System.out.println("creating Redis Connection with hostname  " + hostname + " port " + port + ".");
+        log.info("creating Redis Connection with hostname {} port {}.", hostname, port);
 
         RedisURI redisUri;
         if (this.getSetting().getPassword() == null) {
@@ -58,18 +63,20 @@ public class RedisManager extends AbstractConnectionManager implements IDataProv
         this.bytePubSubConnection = redisClient.connectPubSub(new ByteArrayCodec());
         this.stringConnection = redisClient.connect(new StringCodec());
         this.stringPubSubConnection = redisClient.connectPubSub(new StringCodec());
+        this.redisPubSubService = new RedisPubSubService(this);
 
         try {
-            System.out.println("Testing Byte Connection: " + this.byteConnection.async().ping().get());
-            System.out.println("Testing BytePubSub Connection: " + this.bytePubSubConnection.async().ping().get());
-            System.out.println("Testing String Connection: " + this.stringConnection.async().ping().get());
-            System.out.println("Testing StringPubSub Connection: " + this.stringPubSubConnection.async().ping().get());
+            log.info("Testing Byte Connection: {}", this.byteConnection.async().ping().get());
+            log.info("Testing BytePubSub Connection: {}", this.bytePubSubConnection.async().ping().get());
+            log.info("Testing String Connection: {}", this.stringConnection.async().ping().get());
+            log.info("Testing StringPubSub Connection: {}", this.stringPubSubConnection.async().ping().get());
         } catch (InterruptedException | ExecutionException e) {
-            System.out.println("creating Redis Connection failed...");
-            e.printStackTrace();
+            log.error("creating Redis Connection failed...", e);
             return;
         }
-        System.out.println("created Redis Connection!");
+        log.info("created Redis Connection!");
+
+
     }
 
     @Override

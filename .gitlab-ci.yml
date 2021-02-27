@@ -1,47 +1,38 @@
-image: maven:latest
+image: docker-proxy.myplayplanet.ch/maven:latest
 
 variables:
-  MAVEN_CLI_OPTS: "-s settings.xml --batch-mode"
-  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "-s settings.xml --errors --fail-at-end --show-version -U -B"
 
 cache:
   paths:
     - .m2/repository/
-    - target/
-  key: "$CI_PIPELINE_ID"
-  untracked: true
+  key: "$CI_JOB_NAME"
 
 stages:
   - deploy
   - trigger
 
+build:
+  stage: deploy
+  script:
+    - mvn $MAVEN_CLI_OPTS deploy -Dmaven.deploy.skip=true
+  only:
+    - merge_requests
+
 deploy-snapshot:
   stage: deploy
   script:
-    - mvn $MAVEN_CLI_OPTS deploy -P ci-snapshot,attach-sources
+    - mvn $MAVEN_CLI_OPTS deploy
   only:
     - test
     - develop
     - development
-  artifacts:
-    when: on_success
-    expire_in: 1 week
-    paths:
-      - target/*.jar
 
 deploy-release:
   stage: deploy
   script:
-    - mvn $MAVEN_CLI_OPTS deploy -P ci-release,attach-javadocs,attach-sources
+    - mvn $MAVEN_CLI_OPTS build-helper:regex-property versions:set -N -Pci-release
+    - mvn $MAVEN_CLI_OPTS deploy
   only:
     - master
-  artifacts:
-    when: on_success
-    expire_in: 1 month
-    paths:
-      - target/*.jar
-
-trigger_build:
-  stage: trigger
-  script:
-    - "curl -X POST -F token=${CI_JOB_TOKEN} -F ref=$CI_BUILD_REF_NAME https://gitlab.com/api/v4/projects/8830502/trigger/pipeline"

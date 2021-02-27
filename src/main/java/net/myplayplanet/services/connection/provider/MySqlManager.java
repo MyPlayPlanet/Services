@@ -5,12 +5,16 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.Getter;
 import net.myplayplanet.services.connection.AbstractConnectionManager;
 import net.myplayplanet.services.connection.ConnectionSetting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.TimeZone;
 
 public class MySqlManager extends AbstractConnectionManager {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MySqlManager.class);
+
     @Getter
     private HikariDataSource mysqlDataSource;
 
@@ -20,13 +24,11 @@ public class MySqlManager extends AbstractConnectionManager {
 
     @Override
     public void createConnection() {
-        System.out.println("creating MySQL Client with hostname " + this.getSetting().getHostname() + "" +
-                " port " + this.getSetting().getPort() + " and database " + this.getSetting().getDatabase() + ".");
+        String connectionString = String.format("jdbc:mariadb://%s:%s/%s?autoReconnect=true&serverTimezone=%s", this.getSetting().getHostname(), this.getSetting().getPort(), this.getSetting().getDatabase(), TimeZone.getDefault().getID());
+        LOGGER.info("creating MariaDB Connection: {}", connectionString);
+
         HikariConfig config = new HikariConfig();
-        config.setJdbcUrl("jdbc:mysql://" + this.getSetting().getHostname() + ":" + this.getSetting().getPort() + "/" + this.getSetting().getDatabase()
-                + "?autoReconnect=true&serverTimezone=" + TimeZone
-                .getDefault().getID());
-        config.setDriverClassName("com.mysql.jdbc.Driver");
+        config.setJdbcUrl(connectionString);
         config.setUsername(this.getSetting().getUsername());
         config.setPassword(this.getSetting().getPassword());
         config.addDataSourceProperty("cachePrepStmts", "true");
@@ -36,7 +38,7 @@ public class MySqlManager extends AbstractConnectionManager {
 
         this.mysqlDataSource = new HikariDataSource(config);
         this.mysqlDataSource.setMaximumPoolSize(100);
-        System.out.println("created MySQL Client!");
+        LOGGER.info("created MariaDB Connection!");
     }
 
     public Connection get() throws SQLException {

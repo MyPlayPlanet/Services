@@ -130,6 +130,10 @@ public class JavaServiceCluster implements IServiceCluster {
 
     @Override
     public <T extends IService> T get(Class<T> clazz) {
-        return (T) serviceHashMap.getOrDefault(clazz.getName(), null);
+        IService orDefault = serviceHashMap.getOrDefault(clazz.getName(), null);
+        if (orDefault == null) {
+            return null;
+        }
+        return (T) orDefault;
     }
 }

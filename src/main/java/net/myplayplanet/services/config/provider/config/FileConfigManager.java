@@ -1,12 +1,12 @@
 package net.myplayplanet.services.config.provider.config;
 
-import com.google.common.io.Files;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.myplayplanet.services.config.api.IConfigManager;
 import net.myplayplanet.services.config.api.IResourceProvider;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Properties;
 import java.util.function.Predicate;
 
@@ -25,7 +25,7 @@ public class FileConfigManager implements IConfigManager {
         File settings = new File(this.getPath().getAbsolutePath() + "/" + name.toLowerCase() + ".properties");
 
         if (!(settings.exists())) {
-            Files.createParentDirs(settings);
+            settings.getParentFile().mkdirs();
             settings.createNewFile();
             this.setProperties(settings, properties);
             return true;
@@ -36,7 +36,9 @@ public class FileConfigManager implements IConfigManager {
 
     public boolean createSettingWithProperties(File file, Properties properties) throws IOException {
         if (!(file.exists())) {
-            Files.createParentDirs(file);
+            if (file.getParentFile() != null) {
+                file.getParentFile().mkdirs();
+            }
             file.createNewFile();
             this.setProperties(file, properties);
             return true;

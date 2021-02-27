@@ -14,7 +14,7 @@ public class JavaLineAction implements ILineAction {
     private final String content;
     private final Method method;
 
-    public JavaLineAction(AbstractJavaSqlScript abstractJavaSqlScript, Connection connection, String content, Method method) throws NoSuchMethodException {
+    public JavaLineAction(AbstractJavaSqlScript abstractJavaSqlScript, Connection connection, String content, Method method) {
         this.abstractJavaSqlScript = abstractJavaSqlScript;
         this.connection = connection;
         this.content = content;

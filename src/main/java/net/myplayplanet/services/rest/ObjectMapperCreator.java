@@ -13,7 +13,7 @@ public class ObjectMapperCreator {
         INSTANCE = new ObjectMapper();
         INSTANCE.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         INSTANCE.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
-        INSTANCE.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        INSTANCE.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         INSTANCE.registerModule(javaTimeModule);
